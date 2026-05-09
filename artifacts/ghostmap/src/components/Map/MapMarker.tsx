@@ -13,7 +13,7 @@ export function MapMarker({ location, onSelect }: MapMarkerProps) {
 
   return (
     <Marker
-      position={[location.lat, location.lng]}
+      position={[location.latitude, location.longitude]}
       icon={icon}
       eventHandlers={{ click: () => onSelect(location) }}
       data-testid={`marker-location-${location.id}`}
