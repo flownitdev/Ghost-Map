@@ -1,5 +1,4 @@
 import { useState, useMemo, useCallback } from "react";
-import { LOCATIONS } from "@/data/locations";
 import type { Location, LocationCategory } from "@/types/location";
 
 export type CategoryFilter = LocationCategory | "all";
@@ -17,14 +16,14 @@ export interface MapLocationsState {
   clearSelection: () => void;
 }
 
-export function useMapLocations(): MapLocationsState {
+export function useMapLocations(allLocations: Location[] = []): MapLocationsState {
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
 
   const filteredLocations = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
-    return LOCATIONS.filter((loc) => {
+    return allLocations.filter((loc) => {
       const matchesCategory =
         activeCategory === "all" || loc.category === activeCategory;
       const matchesSearch =
@@ -33,7 +32,7 @@ export function useMapLocations(): MapLocationsState {
         loc.category.toLowerCase().includes(q);
       return matchesCategory && matchesSearch;
     });
-  }, [activeCategory, searchQuery]);
+  }, [allLocations, activeCategory, searchQuery]);
 
   const selectLocation = useCallback((location: Location) => {
     setSelectedLocation(location);
@@ -48,7 +47,7 @@ export function useMapLocations(): MapLocationsState {
     selectedLocation,
     activeCategory,
     searchQuery,
-    totalCount: LOCATIONS.length,
+    totalCount: allLocations.length,
     visibleCount: filteredLocations.length,
     setActiveCategory,
     setSearchQuery,
