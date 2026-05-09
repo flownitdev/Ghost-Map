@@ -4,6 +4,7 @@ import { Plus } from "lucide-react";
 import { GhostMap, FilterBar } from "@/components/Map";
 import { AddLocationModal } from "@/components/Map/AddLocationModal";
 import { LocationPanel } from "@/components/Sidebar";
+import { UserMenu } from "@/components/Auth/UserMenu";
 import { useLocations } from "@/hooks/useLocations";
 import { useMapLocations } from "@/hooks/useMapLocations";
 
@@ -40,7 +41,8 @@ export function MapPage() {
         onSearchChange={setSearchQuery}
       />
 
-      {/* Map — dim slightly while loading */}
+      <UserMenu />
+
       <div
         className="w-full h-full transition-opacity duration-500"
         style={{ opacity: loadingState === "loading" ? 0.7 : 1 }}
@@ -52,7 +54,6 @@ export function MapPage() {
         />
       </div>
 
-      {/* Loading indicator */}
       <AnimatePresence>
         {loadingState === "loading" && (
           <motion.div
@@ -90,6 +91,8 @@ export function MapPage() {
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
           boxShadow: "0 8px 32px rgba(0,0,0,0.5), 0 0 14px rgba(250,72,23,0.15)",
+          cursor: "pointer",
+          fontFamily: "inherit",
         }}
         data-testid="add-location-fab"
       >

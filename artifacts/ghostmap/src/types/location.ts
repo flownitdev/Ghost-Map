@@ -9,13 +9,13 @@ export type LocationCategory =
   | "industrial";
 
 export interface Location {
-  id: number;
+  id: string | number;
   name: string;
   category: LocationCategory;
   latitude: number;
   longitude: number;
   description: string;
   riskLevel: RiskLevel;
-  abandonmentScore: number; // 0–100
+  abandonmentScore: number;
   lastVisited: string;
 }
