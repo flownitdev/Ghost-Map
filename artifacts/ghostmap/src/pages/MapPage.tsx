@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { GhostMap, FilterBar } from "@/components/Map";
-import { LocationPanel, HudOverlay } from "@/components/Sidebar";
+import { LocationPanel } from "@/components/Sidebar";
 import { useMapLocations } from "@/hooks/useMapLocations";
 
 export function MapPage() {
@@ -24,8 +24,6 @@ export function MapPage() {
       transition={{ duration: 0.6 }}
       className="w-full h-[100dvh] overflow-hidden bg-[#111012] relative"
     >
-      <HudOverlay />
-
       <FilterBar
         activeCategory={activeCategory}
         searchQuery={searchQuery}
