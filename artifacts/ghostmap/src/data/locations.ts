@@ -1,13 +1,4 @@
-export interface Location {
-  id: number;
-  name: string;
-  category: string;
-  lat: number;
-  lng: number;
-  description: string;
-  risk: "HIGH" | "MEDIUM" | "LOW";
-  lastVisited: string;
-}
+import type { Location } from "@/types/location";
 
 export const LOCATIONS: Location[] = [
   {
@@ -16,9 +7,10 @@ export const LOCATIONS: Location[] = [
     category: "Hospital",
     lat: 48.8400,
     lng: 2.3200,
-    description: "A decommissioned military hospital frozen in 1987. Peeling paint, scattered medical files, and rows of empty iron beds still perfectly arranged.",
+    description:
+      "A decommissioned military hospital frozen in 1987. Peeling paint, scattered medical files, and rows of empty iron beds still perfectly arranged.",
     risk: "HIGH",
-    lastVisited: "2024-11"
+    lastVisited: "2024-11",
   },
   {
     id: 2,
@@ -26,9 +18,10 @@ export const LOCATIONS: Location[] = [
     category: "Industrial",
     lat: 48.8380,
     lng: 2.2770,
-    description: "A vast automobile factory silenced in the '90s. Rust-eaten assembly lines and ghost cars still mid-production on conveyor belts.",
+    description:
+      "A vast automobile factory silenced in the '90s. Rust-eaten assembly lines and ghost cars still mid-production on conveyor belts.",
     risk: "MEDIUM",
-    lastVisited: "2024-09"
+    lastVisited: "2024-09",
   },
   {
     id: 3,
@@ -36,9 +29,10 @@ export const LOCATIONS: Location[] = [
     category: "Theater",
     lat: 48.8710,
     lng: 2.3440,
-    description: "Baroque theater shuttered after a structural failure. The velvet seats remain, facing a stage where no curtain has risen in 30 years.",
+    description:
+      "Baroque theater shuttered after a structural failure. The velvet seats remain, facing a stage where no curtain has risen in 30 years.",
     risk: "LOW",
-    lastVisited: "2025-01"
+    lastVisited: "2025-01",
   },
   {
     id: 4,
@@ -46,9 +40,10 @@ export const LOCATIONS: Location[] = [
     category: "Industrial",
     lat: 48.8490,
     lng: 2.4020,
-    description: "A massive coal power station with turbines the size of houses. The control room looks like a retro-futurist film set.",
+    description:
+      "A massive coal power station with turbines the size of houses. The control room looks like a retro-futurist film set.",
     risk: "HIGH",
-    lastVisited: "2024-07"
+    lastVisited: "2024-07",
   },
   {
     id: 5,
@@ -56,9 +51,10 @@ export const LOCATIONS: Location[] = [
     category: "Residential",
     lat: 48.8640,
     lng: 2.3010,
-    description: "An art deco mansion abandoned mid-renovation. Canvases still on easels, a grand piano in the salon, and a half-finished mural on the staircase wall.",
+    description:
+      "An art deco mansion abandoned mid-renovation. Canvases still on easels, a grand piano in the salon, and a half-finished mural on the staircase wall.",
     risk: "LOW",
-    lastVisited: "2025-02"
+    lastVisited: "2025-02",
   },
   {
     id: 6,
@@ -66,8 +62,9 @@ export const LOCATIONS: Location[] = [
     category: "Transport",
     lat: 48.8800,
     lng: 2.3600,
-    description: "A forgotten underground station sealed in 1939. Wartime graffiti, original wooden benches, and timetables for trains that never came back.",
+    description:
+      "A forgotten underground station sealed in 1939. Wartime graffiti, original wooden benches, and timetables for trains that never came back.",
     risk: "MEDIUM",
-    lastVisited: "2024-12"
-  }
+    lastVisited: "2024-12",
+  },
 ];

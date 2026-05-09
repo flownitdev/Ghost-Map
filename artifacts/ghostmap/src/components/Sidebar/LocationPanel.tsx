@@ -1,6 +1,7 @@
-import { Location } from "../data/locations";
 import { X, Calendar, MapPin, AlertTriangle } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import type { Location } from "@/types/location";
+import { RISK_COLORS } from "@/lib/mapUtils";
 
 interface LocationPanelProps {
   location: Location | null;
@@ -8,9 +9,11 @@ interface LocationPanelProps {
 }
 
 export function LocationPanel({ location, onClose }: LocationPanelProps) {
+  const riskStyle = location ? RISK_COLORS[location.risk] : null;
+
   return (
     <AnimatePresence>
-      {location && (
+      {location && riskStyle && (
         <motion.div
           initial={{ x: "100%" }}
           animate={{ x: 0 }}
@@ -37,14 +40,15 @@ export function LocationPanel({ location, onClose }: LocationPanelProps) {
               <MapPin className="w-3 h-3" />
               {location.category}
             </div>
-            
-            <div 
+
+            <div
               className="flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium border"
               style={{
-                borderColor: location.risk === 'HIGH' ? '#FA4817' : location.risk === 'MEDIUM' ? '#354362' : '#2a6e4f',
-                color: location.risk === 'HIGH' ? '#FA4817' : location.risk === 'MEDIUM' ? '#92a5d1' : '#4ade80',
-                backgroundColor: location.risk === 'HIGH' ? 'rgba(250,72,23,0.1)' : location.risk === 'MEDIUM' ? 'rgba(53,67,98,0.3)' : 'rgba(42,110,79,0.2)'
+                borderColor: riskStyle.border,
+                color: riskStyle.color,
+                backgroundColor: riskStyle.bg,
               }}
+              data-testid="risk-badge"
             >
               <AlertTriangle className="w-3 h-3" />
               RISK: {location.risk}
@@ -60,7 +64,10 @@ export function LocationPanel({ location, onClose }: LocationPanelProps) {
           <div className="mt-auto pt-6 border-t border-white/10">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Calendar className="w-4 h-4" />
-              <span>Last visited: <strong className="text-gray-300">{location.lastVisited}</strong></span>
+              <span>
+                Last visited:{" "}
+                <strong className="text-gray-300">{location.lastVisited}</strong>
+              </span>
             </div>
           </div>
         </motion.div>
