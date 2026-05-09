@@ -251,6 +251,17 @@
   }
 }
 
+/* ── GhostMap keyframes ────────────────────────────────── */
+@keyframes ghost-ripple {
+  0%   { transform: scale(1);   opacity: 0.7; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+@keyframes skeleton-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 /* Leaflet zoom control */
 .leaflet-control-zoom {
   border: none !important;
