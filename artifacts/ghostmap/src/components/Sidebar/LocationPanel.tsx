@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { X, Calendar, MapPin, AlertTriangle, Navigation, ExternalLink } from "lucide-react";
+import { X, Calendar, MapPin, Navigation, ExternalLink, Gauge } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Location } from "@/types/location";
-import { RISK_COLORS } from "@/lib/mapUtils";
+import { RISK_COLORS, CATEGORY_META } from "@/lib/mapUtils";
 import { PanelSkeleton } from "./PanelSkeleton";
 
 interface LocationPanelProps {
@@ -20,7 +20,7 @@ const panelVariants = {
   exit: {
     x: "105%",
     opacity: 0,
-    transition: { duration: 0.22, ease: [0.4, 0, 1, 1] },
+    transition: { duration: 0.22, ease: [0.4, 0, 1, 1] as const },
   },
 };
 
@@ -38,9 +38,48 @@ const itemVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] },
+    transition: { duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] as const },
   },
 };
+
+function AbandonmentBar({ score }: { score: number }) {
+  const color =
+    score >= 80 ? "#FA4817" : score >= 55 ? "#92a5d1" : "#4ade80";
+
+  return (
+    <div className="w-full">
+      <div className="flex items-center justify-between mb-1.5">
+        <div className="flex items-center gap-1.5">
+          <Gauge className="w-3 h-3" style={{ color: "rgba(255,255,255,0.3)" }} />
+          <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.35)", letterSpacing: "0.1em" }}>
+            ABANDONMENT SCORE
+          </span>
+        </div>
+        <span
+          className="font-title font-bold tabular-nums"
+          style={{ fontSize: "13px", color }}
+        >
+          {score}
+        </span>
+      </div>
+      <div
+        className="h-1.5 w-full rounded-full overflow-hidden"
+        style={{ background: "rgba(255,255,255,0.06)" }}
+      >
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: `${score}%` }}
+          transition={{ duration: 0.7, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="h-full rounded-full"
+          style={{
+            background: `linear-gradient(90deg, ${color}88, ${color})`,
+            boxShadow: `0 0 8px ${color}66`,
+          }}
+        />
+      </div>
+    </div>
+  );
+}
 
 export function LocationPanel({ location, onClose }: LocationPanelProps) {
   const [isLoading, setIsLoading] = useState(false);
@@ -56,11 +95,12 @@ export function LocationPanel({ location, onClose }: LocationPanelProps) {
     const timer = setTimeout(() => {
       setDisplayedLocation(location);
       setIsLoading(false);
-    }, 380);
+    }, 360);
     return () => clearTimeout(timer);
   }, [location?.id]);
 
-  const riskStyle = displayedLocation ? RISK_COLORS[displayedLocation.risk] : null;
+  const riskStyle = displayedLocation ? RISK_COLORS[displayedLocation.riskLevel] : null;
+  const categoryMeta = displayedLocation ? CATEGORY_META[displayedLocation.category] : null;
 
   return (
     <AnimatePresence mode="wait">
@@ -73,7 +113,7 @@ export function LocationPanel({ location, onClose }: LocationPanelProps) {
           exit="exit"
           className="fixed right-0 top-0 h-[100dvh] w-full md:w-[400px] z-[1000] flex flex-col"
           style={{
-            background: "linear-gradient(160deg, rgba(20,19,22,0.92) 0%, rgba(15,14,17,0.88) 100%)",
+            background: "linear-gradient(160deg, rgba(20,19,22,0.93) 0%, rgba(15,14,17,0.89) 100%)",
             backdropFilter: "blur(28px) saturate(1.6) brightness(0.95)",
             WebkitBackdropFilter: "blur(28px) saturate(1.6) brightness(0.95)",
             borderLeft: "1px solid rgba(255,255,255,0.07)",
@@ -81,7 +121,7 @@ export function LocationPanel({ location, onClose }: LocationPanelProps) {
           }}
           data-testid="location-panel"
         >
-          {/* Risk color strip at top */}
+          {/* Risk color strip */}
           <AnimatePresence>
             {riskStyle && (
               <motion.div
@@ -99,25 +139,24 @@ export function LocationPanel({ location, onClose }: LocationPanelProps) {
             )}
           </AnimatePresence>
 
-          {/* Close button — always visible */}
+          {/* Close button */}
           <div className="absolute top-6 right-6 z-10">
             <motion.button
               whileHover={{ scale: 1.08, backgroundColor: "rgba(255,255,255,0.08)" }}
               whileTap={{ scale: 0.92 }}
               onClick={onClose}
               className="w-8 h-8 flex items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-muted-foreground hover:text-white transition-colors duration-150"
-              style={{ transition: "background-color 0.15s ease, border-color 0.15s ease" }}
               data-testid="close-panel"
             >
               <X className="w-3.5 h-3.5" />
             </motion.button>
           </div>
 
-          {/* Content area */}
+          {/* Content */}
           <AnimatePresence mode="wait">
             {isLoading ? (
               <PanelSkeleton key="skeleton" />
-            ) : displayedLocation && riskStyle ? (
+            ) : displayedLocation && riskStyle && categoryMeta ? (
               <motion.div
                 key={`content-${displayedLocation.id}`}
                 variants={contentVariants}
@@ -129,8 +168,13 @@ export function LocationPanel({ location, onClose }: LocationPanelProps) {
                 {/* Label */}
                 <motion.p
                   variants={itemVariants}
-                  className="text-[9px] uppercase tracking-[0.25em] mb-2 font-sans font-medium"
-                  style={{ color: "rgba(255,255,255,0.3)" }}
+                  className="font-sans font-medium mb-2"
+                  style={{
+                    fontSize: "9px",
+                    letterSpacing: "0.25em",
+                    color: "rgba(255,255,255,0.28)",
+                    textTransform: "uppercase",
+                  }}
                 >
                   Location Intel
                 </motion.p>
@@ -139,22 +183,23 @@ export function LocationPanel({ location, onClose }: LocationPanelProps) {
                 <motion.h2
                   variants={itemVariants}
                   className="font-title font-bold text-white leading-tight mb-5 pr-10"
-                  style={{ fontSize: "clamp(1.15rem, 4vw, 1.45rem)" }}
+                  style={{ fontSize: "clamp(1.1rem, 4vw, 1.4rem)" }}
                 >
                   {displayedLocation.name}
                 </motion.h2>
 
                 {/* Badges */}
-                <motion.div variants={itemVariants} className="flex flex-wrap gap-2 mb-6">
+                <motion.div variants={itemVariants} className="flex flex-wrap gap-2 mb-5">
                   <div
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-gray-400 transition-colors duration-150 hover:text-gray-200"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs"
                     style={{
-                      background: "rgba(255,255,255,0.04)",
-                      border: "1px solid rgba(255,255,255,0.08)",
+                      background: `${categoryMeta.color}18`,
+                      border: `1px solid ${categoryMeta.color}44`,
+                      color: categoryMeta.color,
                     }}
                   >
-                    <MapPin className="w-3 h-3 opacity-60" />
-                    {displayedLocation.category}
+                    <MapPin className="w-3 h-3 opacity-70" />
+                    {categoryMeta.label}
                   </div>
 
                   <div
@@ -163,7 +208,7 @@ export function LocationPanel({ location, onClose }: LocationPanelProps) {
                       border: `1px solid ${riskStyle.border}55`,
                       color: riskStyle.color,
                       background: riskStyle.bg,
-                      boxShadow: `0 0 14px ${riskStyle.bg}`,
+                      boxShadow: `0 0 12px ${riskStyle.bg}`,
                     }}
                     data-testid="risk-badge"
                   >
@@ -175,14 +220,19 @@ export function LocationPanel({ location, onClose }: LocationPanelProps) {
                         animation: "pulse 2s ease-in-out infinite",
                       }}
                     />
-                    {displayedLocation.risk} RISK
+                    {displayedLocation.riskLevel.toUpperCase()} RISK
                   </div>
+                </motion.div>
+
+                {/* Abandonment score */}
+                <motion.div variants={itemVariants} className="mb-5">
+                  <AbandonmentBar score={displayedLocation.abandonmentScore} />
                 </motion.div>
 
                 {/* Divider */}
                 <motion.div
                   variants={itemVariants}
-                  className="h-px mb-6 flex-shrink-0"
+                  className="h-px mb-5 flex-shrink-0"
                   style={{ background: "rgba(255,255,255,0.05)" }}
                 />
 
@@ -210,9 +260,15 @@ export function LocationPanel({ location, onClose }: LocationPanelProps) {
                       className="w-3.5 h-3.5 flex-shrink-0"
                       style={{ color: "rgba(255,255,255,0.25)" }}
                     />
-                    <span className="text-[11px] font-sans" style={{ color: "rgba(255,255,255,0.35)" }}>
+                    <span
+                      className="font-sans"
+                      style={{ fontSize: "11px", color: "rgba(255,255,255,0.35)" }}
+                    >
                       Last scouted{" "}
-                      <strong className="font-medium" style={{ color: "rgba(255,255,255,0.65)" }}>
+                      <strong
+                        className="font-medium"
+                        style={{ color: "rgba(255,255,255,0.65)" }}
+                      >
                         {displayedLocation.lastVisited}
                       </strong>
                     </span>
@@ -226,8 +282,12 @@ export function LocationPanel({ location, onClose }: LocationPanelProps) {
                     }}
                     whileTap={{ scale: 0.985 }}
                     transition={{ duration: 0.15 }}
-                    className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-[11px] font-semibold tracking-[0.12em] uppercase"
+                    className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl"
                     style={{
+                      fontSize: "11px",
+                      letterSpacing: "0.12em",
+                      fontWeight: 600,
+                      textTransform: "uppercase",
                       background: "rgba(250,72,23,0.1)",
                       border: "1px solid rgba(250,72,23,0.28)",
                       color: "#FA4817",

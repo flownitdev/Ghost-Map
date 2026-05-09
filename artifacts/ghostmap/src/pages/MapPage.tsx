@@ -1,11 +1,21 @@
-import { useState } from "react";
 import { motion } from "framer-motion";
-import { GhostMap } from "@/components/Map";
+import { GhostMap, FilterBar } from "@/components/Map";
 import { LocationPanel, HudOverlay } from "@/components/Sidebar";
-import type { Location } from "@/types/location";
+import { useMapLocations } from "@/hooks/useMapLocations";
 
 export function MapPage() {
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
+  const {
+    filteredLocations,
+    selectedLocation,
+    activeCategory,
+    searchQuery,
+    visibleCount,
+    totalCount,
+    setActiveCategory,
+    setSearchQuery,
+    selectLocation,
+    clearSelection,
+  } = useMapLocations();
 
   return (
     <motion.div
@@ -15,13 +25,25 @@ export function MapPage() {
       className="w-full h-[100dvh] overflow-hidden bg-[#111012] relative"
     >
       <HudOverlay />
-      <GhostMap
-        selectedLocation={selectedLocation}
-        onSelectLocation={setSelectedLocation}
+
+      <FilterBar
+        activeCategory={activeCategory}
+        searchQuery={searchQuery}
+        visibleCount={visibleCount}
+        totalCount={totalCount}
+        onCategoryChange={setActiveCategory}
+        onSearchChange={setSearchQuery}
       />
+
+      <GhostMap
+        locations={filteredLocations}
+        selectedLocation={selectedLocation}
+        onSelectLocation={selectLocation}
+      />
+
       <LocationPanel
         location={selectedLocation}
-        onClose={() => setSelectedLocation(null)}
+        onClose={clearSelection}
       />
     </motion.div>
   );

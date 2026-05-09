@@ -2,7 +2,7 @@ import L from "leaflet";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
-import type { RiskLevel } from "@/types/location";
+import type { RiskLevel, LocationCategory } from "@/types/location";
 
 export const MAP_CENTER: [number, number] = [48.8566, 2.3522];
 export const MAP_DEFAULT_ZOOM = 12;
@@ -23,20 +23,66 @@ export const TILE_LAYERS = {
 export type TileLayerKey = keyof typeof TILE_LAYERS;
 
 export const RISK_COLORS: Record<RiskLevel, { border: string; color: string; bg: string }> = {
-  HIGH: {
+  high: {
     border: "#FA4817",
     color: "#FA4817",
     bg: "rgba(250,72,23,0.1)",
   },
-  MEDIUM: {
+  medium: {
     border: "#354362",
     color: "#92a5d1",
     bg: "rgba(53,67,98,0.3)",
   },
-  LOW: {
+  low: {
     border: "#2a6e4f",
     color: "#4ade80",
     bg: "rgba(42,110,79,0.2)",
+  },
+};
+
+export interface CategoryMeta {
+  label: string;
+  color: string;        // marker dot color
+  glowColor: string;    // rgba glow
+  emoji: string;
+}
+
+export const CATEGORY_META: Record<LocationCategory, CategoryMeta> = {
+  factory: {
+    label: "Factory",
+    color: "#F97316",
+    glowColor: "rgba(249,115,22,0.45)",
+    emoji: "🏭",
+  },
+  hospital: {
+    label: "Hospital",
+    color: "#EF4444",
+    glowColor: "rgba(239,68,68,0.45)",
+    emoji: "🏥",
+  },
+  mall: {
+    label: "Mall",
+    color: "#60A5FA",
+    glowColor: "rgba(96,165,250,0.45)",
+    emoji: "🏛",
+  },
+  school: {
+    label: "School",
+    color: "#A78BFA",
+    glowColor: "rgba(167,139,250,0.45)",
+    emoji: "🏫",
+  },
+  tunnel: {
+    label: "Tunnel",
+    color: "#9CA3AF",
+    glowColor: "rgba(156,163,175,0.45)",
+    emoji: "🚇",
+  },
+  industrial: {
+    label: "Industrial",
+    color: "#34D399",
+    glowColor: "rgba(52,211,153,0.45)",
+    emoji: "⚙️",
   },
 };
 
@@ -46,14 +92,5 @@ export function fixLeafletIcons() {
     iconUrl: markerIcon,
     iconRetinaUrl: markerIcon2x,
     shadowUrl: markerShadow,
-  });
-}
-
-export function createGlowingMarker(): L.DivIcon {
-  return L.divIcon({
-    className: "bg-transparent border-none",
-    html: `<div style="width:12px;height:12px;background:#FA4817;border-radius:50%;box-shadow:0 0 10px 2px #FA4817,0 0 20px 5px rgba(250,72,23,0.5);"></div>`,
-    iconSize: [12, 12],
-    iconAnchor: [6, 6],
   });
 }

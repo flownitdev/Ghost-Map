@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { getLocations } from "@/data/locationService";
 
 const locations = getLocations();
-const highRisk = locations.filter((l) => l.risk === "HIGH").length;
+const highRisk = locations.filter((l) => l.riskLevel === "high").length;
 
 export function HudOverlay() {
   return (

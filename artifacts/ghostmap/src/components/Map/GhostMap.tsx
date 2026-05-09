@@ -1,7 +1,6 @@
 import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, ZoomControl } from "react-leaflet";
 import { motion } from "framer-motion";
-import { LOCATIONS } from "@/data/locations";
 import { TILE_LAYERS, MAP_CENTER, MAP_DEFAULT_ZOOM, fixLeafletIcons } from "@/lib/mapUtils";
 import { MapMarker } from "./MapMarker";
 import type { Location } from "@/types/location";
@@ -9,11 +8,12 @@ import type { Location } from "@/types/location";
 fixLeafletIcons();
 
 interface GhostMapProps {
+  locations: Location[];
   selectedLocation: Location | null;
   onSelectLocation: (location: Location) => void;
 }
 
-export function GhostMap({ selectedLocation, onSelectLocation }: GhostMapProps) {
+export function GhostMap({ locations, selectedLocation, onSelectLocation }: GhostMapProps) {
   const tile = TILE_LAYERS.satellite;
 
   return (
@@ -33,7 +33,7 @@ export function GhostMap({ selectedLocation, onSelectLocation }: GhostMapProps) 
         <TileLayer url={tile.url} attribution={tile.attribution} />
         <ZoomControl position="bottomleft" />
 
-        {LOCATIONS.map((location) => (
+        {locations.map((location) => (
           <MapMarker
             key={location.id}
             location={location}

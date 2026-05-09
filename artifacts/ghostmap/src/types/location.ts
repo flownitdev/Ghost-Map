@@ -1,14 +1,12 @@
-export type RiskLevel = "HIGH" | "MEDIUM" | "LOW";
+export type RiskLevel = "low" | "medium" | "high";
 
 export type LocationCategory =
-  | "Hospital"
-  | "Industrial"
-  | "Theater"
-  | "Transport"
-  | "Residential"
-  | "Military"
-  | "Education"
-  | "Religious";
+  | "factory"
+  | "hospital"
+  | "mall"
+  | "school"
+  | "tunnel"
+  | "industrial";
 
 export interface Location {
   id: number;
@@ -17,6 +15,7 @@ export interface Location {
   latitude: number;
   longitude: number;
   description: string;
-  risk: RiskLevel;
+  riskLevel: RiskLevel;
+  abandonmentScore: number; // 0–100
   lastVisited: string;
 }
