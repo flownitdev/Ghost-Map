@@ -1,19 +1,19 @@
 import { useState, useEffect, useCallback } from "react";
-import { api } from "@/lib/apiClient";
+import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface UseUserLocationsResult {
-  savedIds: Set<number>;
-  exploredIds: Set<number>;
-  toggleSave: (locationId: number) => Promise<void>;
-  toggleExplore: (locationId: number) => Promise<void>;
+  savedIds: Set<string>;
+  exploredIds: Set<string>;
+  toggleSave: (locationId: string) => Promise<void>;
+  toggleExplore: (locationId: string) => Promise<void>;
   loading: boolean;
 }
 
 export function useUserLocations(): UseUserLocationsResult {
   const { user } = useAuth();
-  const [savedIds, setSavedIds] = useState<Set<number>>(new Set());
-  const [exploredIds, setExploredIds] = useState<Set<number>>(new Set());
+  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
+  const [exploredIds, setExploredIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -24,27 +24,40 @@ export function useUserLocations(): UseUserLocationsResult {
     }
 
     setLoading(true);
-    api.getUserLocationIds(user.id)
-      .then(({ savedIds, exploredIds }) => {
-        setSavedIds(new Set(savedIds));
-        setExploredIds(new Set(exploredIds));
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    Promise.all([
+      supabase
+        .from("saved_locations")
+        .select("location_id")
+        .eq("user_id", user.id),
+      supabase
+        .from("explored_locations")
+        .select("location_id")
+        .eq("user_id", user.id),
+    ]).then(([saved, explored]) => {
+      setSavedIds(new Set((saved.data ?? []).map((r) => r.location_id)));
+      setExploredIds(new Set((explored.data ?? []).map((r) => r.location_id)));
+      setLoading(false);
+    });
   }, [user]);
 
   const toggleSave = useCallback(
-    async (locationId: number) => {
+    async (locationId: string) => {
       if (!user) return;
       if (savedIds.has(locationId)) {
-        await api.unsaveLocation(user.id, locationId);
+        await supabase
+          .from("saved_locations")
+          .delete()
+          .eq("user_id", user.id)
+          .eq("location_id", locationId);
         setSavedIds((prev) => {
           const next = new Set(prev);
           next.delete(locationId);
           return next;
         });
       } else {
-        await api.saveLocation(user.id, locationId);
+        await supabase
+          .from("saved_locations")
+          .insert({ user_id: user.id, location_id: locationId });
         setSavedIds((prev) => new Set([...prev, locationId]));
       }
     },
@@ -52,17 +65,23 @@ export function useUserLocations(): UseUserLocationsResult {
   );
 
   const toggleExplore = useCallback(
-    async (locationId: number) => {
+    async (locationId: string) => {
       if (!user) return;
       if (exploredIds.has(locationId)) {
-        await api.unmarkExplored(user.id, locationId);
+        await supabase
+          .from("explored_locations")
+          .delete()
+          .eq("user_id", user.id)
+          .eq("location_id", locationId);
         setExploredIds((prev) => {
           const next = new Set(prev);
           next.delete(locationId);
           return next;
         });
       } else {
-        await api.markExplored(user.id, locationId);
+        await supabase
+          .from("explored_locations")
+          .insert({ user_id: user.id, location_id: locationId });
         setExploredIds((prev) => new Set([...prev, locationId]));
       }
     },
