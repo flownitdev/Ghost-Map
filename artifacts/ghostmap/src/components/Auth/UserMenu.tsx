@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, LogOut, BookmarkCheck, Compass, LogIn, UserPlus } from "lucide-react";
+import { User, LogOut, Compass, LogIn, UserPlus, ChevronDown } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+
+const FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif";
 
 export function UserMenu() {
   const { user, signOut } = useAuth();
@@ -22,108 +24,112 @@ export function UserMenu() {
 
   return (
     <div ref={ref} className="fixed top-5 left-5 z-[1001]">
-      {/* Avatar / trigger */}
       <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.97 }}
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-2 px-3 py-2 rounded-xl"
+        className="flex items-center gap-2.5 px-3 py-2 rounded-2xl"
         style={{
-          background: "linear-gradient(135deg, rgba(14,13,20,0.90) 0%, rgba(11,10,16,0.85) 100%)",
-          backdropFilter: "blur(28px)",
-          WebkitBackdropFilter: "blur(28px)",
-          border: open
-            ? "1px solid rgba(168,85,247,0.3)"
-            : "1px solid rgba(255,255,255,0.07)",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.45)",
-          transition: "border-color 0.15s",
+          background: "rgba(28,28,30,0.82)",
+          backdropFilter: "blur(40px)",
+          WebkitBackdropFilter: "blur(40px)",
+          border: open ? "1px solid rgba(168,85,247,0.25)" : "1px solid rgba(255,255,255,0.09)",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06)",
+          transition: "border-color 0.2s",
         }}
         data-testid="user-menu-trigger"
       >
         {user ? (
           <>
             <div
-              className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 font-title font-bold"
+              className="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0 font-sans font-bold"
               style={{
                 background: "rgba(168,85,247,0.18)",
-                border: "1px solid rgba(168,85,247,0.3)",
                 color: "#A855F7",
-                fontSize: "11px",
+                fontSize: "12px",
+                fontFamily: FONT,
               }}
             >
               {initial}
             </div>
             <span
-              className="font-sans hidden sm:block max-w-[120px] truncate"
-              style={{ fontSize: "11px", color: "rgba(255,255,255,0.55)" }}
+              className="font-sans hidden sm:block max-w-[130px] truncate"
+              style={{ fontSize: "13px", color: "rgba(255,255,255,0.65)", fontFamily: FONT, letterSpacing: "-0.01em" }}
             >
               {user.email}
             </span>
+            <ChevronDown
+              className="w-3.5 h-3.5"
+              style={{
+                color: "rgba(255,255,255,0.28)",
+                transform: open ? "rotate(180deg)" : "rotate(0deg)",
+                transition: "transform 0.2s",
+              }}
+            />
           </>
         ) : (
-          <div className="flex items-center gap-1.5">
-            <User className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.4)" }} />
+          <div className="flex items-center gap-2">
+            <div
+              className="w-7 h-7 rounded-xl flex items-center justify-center"
+              style={{ background: "rgba(255,255,255,0.06)" }}
+            >
+              <User className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.35)" }} />
+            </div>
             <span
               className="font-sans"
-              style={{ fontSize: "11px", letterSpacing: "0.06em", color: "rgba(255,255,255,0.4)" }}
+              style={{ fontSize: "13px", color: "rgba(255,255,255,0.45)", fontFamily: FONT, letterSpacing: "-0.01em" }}
             >
               Sign In
             </span>
+            <ChevronDown className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.22)" }} />
           </div>
         )}
       </motion.button>
 
-      {/* Dropdown */}
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, y: 6, scale: 0.97 }}
+            initial={{ opacity: 0, y: 8, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 4, scale: 0.97 }}
-            transition={{ duration: 0.15 }}
-            className="absolute right-0 mt-2 rounded-xl overflow-hidden"
+            transition={{ duration: 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className="absolute left-0 mt-2 rounded-2xl overflow-hidden"
             style={{
-              minWidth: 200,
-              background: "linear-gradient(160deg, rgba(16,15,22,0.97) 0%, rgba(12,11,17,0.97) 100%)",
-              border: "1px solid rgba(255,255,255,0.08)",
-              boxShadow: "0 16px 48px rgba(0,0,0,0.7)",
-              backdropFilter: "blur(28px)",
+              minWidth: 220,
+              background: "rgba(28,28,30,0.94)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              boxShadow: "0 16px 48px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.07)",
+              backdropFilter: "blur(48px)",
             }}
           >
             {user ? (
               <>
-                {/* User info */}
-                <div
-                  className="px-4 py-3 border-b"
-                  style={{ borderColor: "rgba(255,255,255,0.05)" }}
-                >
-                  <p className="font-sans text-xs font-medium text-white truncate">{user.email}</p>
+                {/* Account info */}
+                <div className="px-4 py-3.5" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                  <p
+                    className="font-sans font-semibold text-white truncate"
+                    style={{ fontSize: "13px", fontFamily: FONT, letterSpacing: "-0.01em" }}
+                  >
+                    {user.email}
+                  </p>
                   <p
                     className="font-sans mt-0.5"
-                    style={{ fontSize: "10px", color: "rgba(255,255,255,0.28)" }}
+                    style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)", fontFamily: FONT }}
                   >
-                    Explorer
+                    Explorer account
                   </p>
                 </div>
 
-                {/* Menu items */}
+                {/* Actions */}
                 <div className="p-1.5">
                   <MenuItem
                     icon={<Compass className="w-3.5 h-3.5" />}
                     label="My Profile"
                     onClick={() => { navigate("/profile"); setOpen(false); }}
                   />
-                  <MenuItem
-                    icon={<BookmarkCheck className="w-3.5 h-3.5" />}
-                    label="Saved & Explored"
-                    onClick={() => { navigate("/profile"); setOpen(false); }}
-                  />
                 </div>
 
-                <div
-                  className="p-1.5 border-t"
-                  style={{ borderColor: "rgba(255,255,255,0.05)" }}
-                >
+                <div className="p-1.5" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
                   <MenuItem
                     icon={<LogOut className="w-3.5 h-3.5" />}
                     label="Sign Out"
@@ -166,19 +172,20 @@ function MenuItem({
 }) {
   return (
     <motion.button
-      whileHover={{ backgroundColor: danger ? "rgba(168,85,247,0.08)" : "rgba(255,255,255,0.04)" }}
+      whileHover={{ backgroundColor: danger ? "rgba(168,85,247,0.1)" : "rgba(255,255,255,0.06)" }}
       onClick={onClick}
-      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left"
+      className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left"
       style={{
-        color: danger ? "#A855F7" : "rgba(255,255,255,0.55)",
-        fontSize: "12px",
-        fontFamily: "inherit",
+        color: danger ? "#A855F7" : "rgba(255,255,255,0.65)",
+        fontSize: "13px",
+        fontFamily: FONT,
+        letterSpacing: "-0.01em",
         background: "transparent",
         border: "none",
         cursor: "pointer",
       }}
     >
-      <span style={{ opacity: 0.7 }}>{icon}</span>
+      <span style={{ opacity: 0.65 }}>{icon}</span>
       {label}
     </motion.button>
   );

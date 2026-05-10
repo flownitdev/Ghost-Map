@@ -10,6 +10,8 @@ import { useLocations } from "@/hooks/useLocations";
 import { useMapLocations } from "@/hooks/useMapLocations";
 import { useHeatmap } from "@/hooks/useHeatmap";
 
+const FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif";
+
 export function MapPage() {
   const { locations, loadingState, addLocation } = useLocations();
   const [modalOpen, setModalOpen] = useState(false);
@@ -33,7 +35,7 @@ export function MapPage() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.6 }}
+      transition={{ duration: 0.5 }}
       className="w-full h-[100dvh] overflow-hidden bg-[#0c0b11] relative"
     >
       <FilterBar
@@ -56,7 +58,7 @@ export function MapPage() {
 
       <div
         className="w-full h-full transition-opacity duration-500"
-        style={{ opacity: loadingState === "loading" ? 0.7 : 1 }}
+        style={{ opacity: loadingState === "loading" ? 0.6 : 1 }}
       >
         <GhostMap
           locations={filteredLocations}
@@ -67,20 +69,22 @@ export function MapPage() {
         />
       </div>
 
+      {/* Loading pill */}
       <AnimatePresence>
         {loadingState === "loading" && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 6 }}
             className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[1000] px-4 py-2 rounded-full font-sans"
             style={{
-              fontSize: "11px",
-              letterSpacing: "0.12em",
-              color: "rgba(255,255,255,0.5)",
-              background: "rgba(12,11,17,0.88)",
-              border: "1px solid rgba(255,255,255,0.07)",
-              backdropFilter: "blur(20px)",
+              fontSize: "13px",
+              color: "rgba(255,255,255,0.45)",
+              background: "rgba(28,28,30,0.88)",
+              border: "1px solid rgba(255,255,255,0.09)",
+              backdropFilter: "blur(40px)",
+              fontFamily: FONT,
+              letterSpacing: "-0.01em",
             }}
           >
             Loading locations…
@@ -88,41 +92,37 @@ export function MapPage() {
         )}
       </AnimatePresence>
 
-      {/* Add location FAB */}
+      {/* Add Site FAB */}
       <motion.button
-        initial={{ opacity: 0, scale: 0.8 }}
+        initial={{ opacity: 0, scale: 0.85 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.6, duration: 0.35, type: "spring", stiffness: 260, damping: 20 }}
-        whileHover={{ scale: 1.08, boxShadow: "0 0 28px rgba(168,85,247,0.4)" }}
-        whileTap={{ scale: 0.93 }}
+        transition={{ delay: 0.55, duration: 0.35, type: "spring", stiffness: 280, damping: 22 }}
+        whileHover={{ scale: 1.04 }}
+        whileTap={{ scale: 0.96 }}
         onClick={() => setModalOpen(true)}
         className="fixed bottom-8 right-7 z-[1000] flex items-center gap-2 px-4 py-3 rounded-2xl"
         style={{
-          background: "linear-gradient(135deg, rgba(168,85,247,0.18) 0%, rgba(168,85,247,0.10) 100%)",
-          border: "1px solid rgba(168,85,247,0.35)",
+          background: "rgba(28,28,30,0.88)",
+          border: "1px solid rgba(168,85,247,0.25)",
           color: "#A855F7",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.5), 0 0 14px rgba(168,85,247,0.15)",
+          backdropFilter: "blur(40px)",
+          WebkitBackdropFilter: "blur(40px)",
+          boxShadow: "0 4px 24px rgba(0,0,0,0.45)",
           cursor: "pointer",
-          fontFamily: "inherit",
+          fontFamily: FONT,
         }}
         data-testid="add-location-fab"
       >
         <Plus className="w-4 h-4" />
         <span
           className="font-sans font-semibold"
-          style={{ fontSize: "11px", letterSpacing: "0.12em", textTransform: "uppercase" }}
+          style={{ fontSize: "13px", letterSpacing: "-0.01em" }}
         >
           Add Site
         </span>
       </motion.button>
 
-      <TrendingPanel
-        locations={locations}
-        onSelectLocation={selectLocation}
-      />
-
+      <TrendingPanel locations={locations} onSelectLocation={selectLocation} />
       <LocationPanel location={selectedLocation} onClose={clearSelection} />
 
       <AddLocationModal

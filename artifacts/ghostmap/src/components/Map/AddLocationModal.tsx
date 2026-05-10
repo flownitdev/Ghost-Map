@@ -4,6 +4,7 @@ import { X, Plus, MapPin, Loader2 } from "lucide-react";
 import type { Location, LocationCategory, RiskLevel } from "@/types/location";
 import { CATEGORY_META, RISK_COLORS } from "@/lib/mapUtils";
 
+const FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif";
 const CATEGORIES: LocationCategory[] = ["factory", "hospital", "mall", "school", "tunnel", "industrial"];
 const RISK_LEVELS: RiskLevel[] = ["low", "medium", "high"];
 
@@ -15,22 +16,36 @@ interface AddLocationModalProps {
 
 const overlayVariants = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.2 } },
-  exit: { opacity: 0, transition: { duration: 0.18 } },
+  visible: { opacity: 1, transition: { duration: 0.18 } },
+  exit: { opacity: 0, transition: { duration: 0.15 } },
 };
 
 const modalVariants = {
-  hidden: { opacity: 0, y: 24, scale: 0.97 },
-  visible: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", damping: 28, stiffness: 280, mass: 0.8 } },
-  exit: { opacity: 0, y: 16, scale: 0.97, transition: { duration: 0.18, ease: [0.4, 0, 1, 1] as const } },
+  hidden: { opacity: 0, y: 20, scale: 0.98 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", damping: 30, stiffness: 300, mass: 0.8 } },
+  exit: { opacity: 0, y: 12, scale: 0.98, transition: { duration: 0.15 } },
+};
+
+const inputStyle: React.CSSProperties = {
+  background: "rgba(255,255,255,0.05)",
+  border: "1px solid rgba(255,255,255,0.1)",
+  borderRadius: "12px",
+  color: "rgba(255,255,255,0.9)",
+  fontSize: "14px",
+  padding: "11px 13px",
+  outline: "none",
+  fontFamily: FONT,
+  width: "100%",
+  caretColor: "#A855F7",
+  letterSpacing: "-0.01em",
 };
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex flex-col gap-2">
       <label
-        className="font-sans uppercase"
-        style={{ fontSize: "9px", letterSpacing: "0.18em", color: "rgba(255,255,255,0.3)" }}
+        className="font-sans"
+        style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", fontFamily: FONT, fontWeight: 500 }}
       >
         {label}
       </label>
@@ -38,19 +53,6 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     </div>
   );
 }
-
-const inputStyle: React.CSSProperties = {
-  background: "rgba(255,255,255,0.04)",
-  border: "1px solid rgba(255,255,255,0.08)",
-  borderRadius: "10px",
-  color: "rgba(255,255,255,0.85)",
-  fontSize: "13px",
-  padding: "10px 12px",
-  outline: "none",
-  fontFamily: "inherit",
-  width: "100%",
-  caretColor: "#A855F7",
-};
 
 export function AddLocationModal({ isOpen, onClose, onSubmit }: AddLocationModalProps) {
   const [name, setName] = useState("");
@@ -65,42 +67,25 @@ export function AddLocationModal({ isOpen, onClose, onSubmit }: AddLocationModal
 
   function reset() {
     setName(""); setCategory("factory"); setLatitude(""); setLongitude("");
-    setDescription(""); setRiskLevel("medium"); setAbandonmentScore("50");
-    setError(null);
+    setDescription(""); setRiskLevel("medium"); setAbandonmentScore("50"); setError(null);
   }
 
-  function handleClose() {
-    reset();
-    onClose();
-  }
+  function handleClose() { reset(); onClose(); }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const lat = parseFloat(latitude);
     const lng = parseFloat(longitude);
     const score = parseInt(abandonmentScore, 10);
-
     if (!name.trim()) return setError("Name is required.");
-    if (isNaN(lat) || lat < -90 || lat > 90) return setError("Latitude must be between -90 and 90.");
-    if (isNaN(lng) || lng < -180 || lng > 180) return setError("Longitude must be between -180 and 180.");
+    if (isNaN(lat) || lat < -90 || lat > 90) return setError("Latitude must be between −90 and 90.");
+    if (isNaN(lng) || lng < -180 || lng > 180) return setError("Longitude must be between −180 and 180.");
     if (!description.trim()) return setError("Description is required.");
-    if (isNaN(score) || score < 0 || score > 100) return setError("Abandonment score must be 0–100.");
-
-    setError(null);
-    setSubmitting(true);
+    if (isNaN(score) || score < 0 || score > 100) return setError("Score must be 0–100.");
+    setError(null); setSubmitting(true);
     try {
-      await onSubmit({
-        name: name.trim(),
-        category,
-        latitude: lat,
-        longitude: lng,
-        description: description.trim(),
-        riskLevel,
-        abandonmentScore: score,
-        lastVisited: new Date().toISOString().slice(0, 7),
-      });
-      reset();
-      onClose();
+      await onSubmit({ name: name.trim(), category, latitude: lat, longitude: lng, description: description.trim(), riskLevel, abandonmentScore: score, lastVisited: new Date().toISOString().slice(0, 7) });
+      reset(); onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to add location.");
     } finally {
@@ -112,18 +97,16 @@ export function AddLocationModal({ isOpen, onClose, onSubmit }: AddLocationModal
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
           <motion.div
             variants={overlayVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
             className="fixed inset-0 z-[1100]"
-            style={{ background: "rgba(0,0,0,0.65)", backdropFilter: "blur(4px)" }}
+            style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(6px)" }}
             onClick={handleClose}
           />
 
-          {/* Modal */}
           <motion.div
             variants={modalVariants}
             initial="hidden"
@@ -134,62 +117,56 @@ export function AddLocationModal({ isOpen, onClose, onSubmit }: AddLocationModal
             onClick={(e) => e.stopPropagation()}
           >
             <div
-              className="w-full rounded-2xl overflow-hidden"
+              className="w-full rounded-3xl overflow-hidden"
               style={{
-                background: "linear-gradient(160deg, rgba(16,15,22,0.97) 0%, rgba(12,11,17,0.97) 100%)",
-                backdropFilter: "blur(32px)",
-                border: "1px solid rgba(255,255,255,0.08)",
-                boxShadow: "0 32px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(168,85,247,0.08)",
+                background: "rgba(28,28,30,0.96)",
+                backdropFilter: "blur(48px)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                boxShadow: "0 40px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.08)",
               }}
             >
-              {/* Header strip */}
+              {/* Purple accent strip */}
               <div
-                className="h-[2px] w-full"
-                style={{
-                  background: "linear-gradient(90deg, #A855F7 0%, #A855F755 60%, transparent 100%)",
-                  boxShadow: "0 0 10px #A855F780",
-                }}
+                className="h-[1.5px] w-full"
+                style={{ background: "linear-gradient(90deg, #A855F7 0%, #A855F755 60%, transparent 100%)" }}
               />
 
-              <div className="px-7 py-6">
+              <div className="px-6 py-6">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
                     <div
-                      className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                      style={{ background: "rgba(168,85,247,0.12)", border: "1px solid rgba(168,85,247,0.25)" }}
+                      className="w-9 h-9 rounded-2xl flex items-center justify-center"
+                      style={{ background: "rgba(168,85,247,0.12)", border: "1px solid rgba(168,85,247,0.2)" }}
                     >
-                      <MapPin className="w-3.5 h-3.5" style={{ color: "#A855F7" }} />
+                      <MapPin className="w-4 h-4" style={{ color: "#A855F7" }} />
                     </div>
                     <div>
                       <h2
-                        className="font-title font-bold text-white leading-none"
-                        style={{ fontSize: "14px", letterSpacing: "0.06em" }}
+                        className="font-sans font-bold text-white"
+                        style={{ fontSize: "16px", fontFamily: FONT, letterSpacing: "-0.02em" }}
                       >
                         Add Location
                       </h2>
-                      <p
-                        className="font-sans mt-1 leading-none"
-                        style={{ fontSize: "10px", color: "rgba(255,255,255,0.28)", letterSpacing: "0.08em" }}
-                      >
+                      <p className="font-sans mt-0.5" style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)", fontFamily: FONT }}>
                         Submit a new site to GhostMap
                       </p>
                     </div>
                   </div>
+
                   <motion.button
-                    whileHover={{ scale: 1.08, backgroundColor: "rgba(255,255,255,0.08)" }}
-                    whileTap={{ scale: 0.92 }}
+                    whileHover={{ scale: 1.06, backgroundColor: "rgba(255,255,255,0.1)" }}
+                    whileTap={{ scale: 0.94 }}
                     onClick={handleClose}
-                    className="w-7 h-7 flex items-center justify-center rounded-lg"
-                    style={{ border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.4)" }}
+                    className="w-8 h-8 flex items-center justify-center rounded-full"
+                    style={{ background: "rgba(255,255,255,0.06)", border: "none", color: "rgba(255,255,255,0.45)", cursor: "pointer" }}
                   >
                     <X className="w-3.5 h-3.5" />
                   </motion.button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                  {/* Name */}
-                  <Field label="Location Name">
+                  <Field label="Location name">
                     <input
                       type="text"
                       placeholder="e.g. Abandoned Steel Mill"
@@ -199,7 +176,6 @@ export function AddLocationModal({ isOpen, onClose, onSubmit }: AddLocationModal
                     />
                   </Field>
 
-                  {/* Category */}
                   <Field label="Category">
                     <div className="flex flex-wrap gap-1.5">
                       {CATEGORIES.map((cat) => {
@@ -210,15 +186,16 @@ export function AddLocationModal({ isOpen, onClose, onSubmit }: AddLocationModal
                             key={cat}
                             type="button"
                             onClick={() => setCategory(cat)}
-                            className="px-3 py-1.5 rounded-full transition-all duration-120"
+                            className="px-3.5 py-1.5 rounded-full transition-all duration-120"
                             style={{
-                              fontSize: "10.5px",
+                              fontSize: "12px",
                               fontWeight: 500,
-                              letterSpacing: "0.04em",
-                              background: isActive ? `${meta.color}22` : "rgba(255,255,255,0.04)",
-                              border: isActive ? `1px solid ${meta.color}66` : "1px solid rgba(255,255,255,0.07)",
-                              color: isActive ? meta.color : "rgba(255,255,255,0.35)",
-                              boxShadow: isActive ? `0 0 10px ${meta.color}33` : "none",
+                              fontFamily: FONT,
+                              background: isActive ? `${meta.color}18` : "rgba(255,255,255,0.05)",
+                              border: isActive ? `1px solid ${meta.color}44` : "1px solid rgba(255,255,255,0.09)",
+                              color: isActive ? meta.color : "rgba(255,255,255,0.4)",
+                              cursor: "pointer",
+                              letterSpacing: "-0.01em",
                             }}
                           >
                             {meta.label}
@@ -228,58 +205,44 @@ export function AddLocationModal({ isOpen, onClose, onSubmit }: AddLocationModal
                     </div>
                   </Field>
 
-                  {/* Lat / Lng */}
                   <div className="grid grid-cols-2 gap-3">
                     <Field label="Latitude">
-                      <input
-                        type="number"
-                        step="any"
-                        placeholder="48.8566"
-                        value={latitude}
-                        onChange={(e) => setLatitude(e.target.value)}
-                        style={inputStyle}
-                      />
+                      <input type="number" step="any" placeholder="48.8566" value={latitude} onChange={(e) => setLatitude(e.target.value)} style={inputStyle} />
                     </Field>
                     <Field label="Longitude">
-                      <input
-                        type="number"
-                        step="any"
-                        placeholder="2.3522"
-                        value={longitude}
-                        onChange={(e) => setLongitude(e.target.value)}
-                        style={inputStyle}
-                      />
+                      <input type="number" step="any" placeholder="2.3522" value={longitude} onChange={(e) => setLongitude(e.target.value)} style={inputStyle} />
                     </Field>
                   </div>
 
-                  {/* Description */}
                   <Field label="Description">
                     <textarea
                       placeholder="Describe what makes this site special…"
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       rows={3}
-                      style={{ ...inputStyle, resize: "none", lineHeight: "1.6" }}
+                      style={{ ...inputStyle, resize: "none", lineHeight: "1.65" }}
                     />
                   </Field>
 
-                  {/* Risk Level */}
-                  <Field label="Risk Level">
+                  <Field label="Risk level">
                     <div className="flex gap-2">
                       {RISK_LEVELS.map((level) => {
-                        const rStyle = RISK_COLORS[level];
+                        const rs = RISK_COLORS[level];
                         const isActive = riskLevel === level;
                         return (
                           <button
                             key={level}
                             type="button"
                             onClick={() => setRiskLevel(level)}
-                            className="flex-1 py-2 rounded-lg capitalize text-xs font-semibold transition-all duration-120"
+                            className="flex-1 py-2.5 rounded-xl capitalize font-sans font-medium transition-all duration-120"
                             style={{
-                              background: isActive ? rStyle.bg : "rgba(255,255,255,0.04)",
-                              border: isActive ? `1px solid ${rStyle.border}66` : "1px solid rgba(255,255,255,0.07)",
-                              color: isActive ? rStyle.color : "rgba(255,255,255,0.35)",
-                              boxShadow: isActive ? `0 0 10px ${rStyle.bg}` : "none",
+                              fontSize: "13px",
+                              fontFamily: FONT,
+                              letterSpacing: "-0.01em",
+                              background: isActive ? rs.bg : "rgba(255,255,255,0.04)",
+                              border: isActive ? `1px solid ${rs.border}55` : "1px solid rgba(255,255,255,0.08)",
+                              color: isActive ? rs.color : "rgba(255,255,255,0.35)",
+                              cursor: "pointer",
                             }}
                           >
                             {level}
@@ -289,28 +252,23 @@ export function AddLocationModal({ isOpen, onClose, onSubmit }: AddLocationModal
                     </div>
                   </Field>
 
-                  {/* Abandonment Score */}
-                  <Field label={`Abandonment Score — ${abandonmentScore}`}>
-                    <div className="flex items-center gap-3">
+                  <Field label={`Abandonment score — ${abandonmentScore}`}>
+                    <div className="flex items-center gap-3 px-1">
                       <input
                         type="range"
                         min={0}
                         max={100}
                         value={abandonmentScore}
                         onChange={(e) => setAbandonmentScore(e.target.value)}
-                        className="flex-1 accent-[#A855F7]"
+                        className="flex-1"
                         style={{ accentColor: "#A855F7" }}
                       />
                       <span
-                        className="font-title font-bold tabular-nums w-8 text-right"
+                        className="font-sans font-bold tabular-nums w-8 text-right"
                         style={{
-                          fontSize: "13px",
-                          color:
-                            parseInt(abandonmentScore) >= 80
-                              ? "#A855F7"
-                              : parseInt(abandonmentScore) >= 55
-                              ? "#c084fc"
-                              : "#4ade80",
+                          fontSize: "15px",
+                          fontFamily: FONT,
+                          color: parseInt(abandonmentScore) >= 80 ? "#A855F7" : parseInt(abandonmentScore) >= 55 ? "#c084fc" : "#4ade80",
                         }}
                       >
                         {abandonmentScore}
@@ -318,46 +276,39 @@ export function AddLocationModal({ isOpen, onClose, onSubmit }: AddLocationModal
                     </div>
                   </Field>
 
-                  {/* Error */}
                   <AnimatePresence>
                     {error && (
                       <motion.p
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="font-sans text-xs"
-                        style={{ color: "#A855F7" }}
+                        className="font-sans text-sm"
+                        style={{ color: "#A855F7", fontFamily: FONT }}
                       >
                         {error}
                       </motion.p>
                     )}
                   </AnimatePresence>
 
-                  {/* Submit */}
                   <motion.button
                     type="submit"
                     disabled={submitting}
-                    whileHover={!submitting ? { scale: 1.015, boxShadow: "0 0 24px rgba(168,85,247,0.28)" } : {}}
-                    whileTap={!submitting ? { scale: 0.985 } : {}}
-                    transition={{ duration: 0.15 }}
-                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl mt-1"
+                    whileHover={!submitting ? { scale: 1.01 } : {}}
+                    whileTap={!submitting ? { scale: 0.99 } : {}}
+                    className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl mt-1"
                     style={{
-                      fontSize: "11px",
-                      letterSpacing: "0.14em",
-                      fontWeight: 700,
-                      textTransform: "uppercase",
+                      fontSize: "14px",
+                      fontWeight: 600,
+                      fontFamily: FONT,
+                      letterSpacing: "-0.01em",
                       background: submitting ? "rgba(168,85,247,0.08)" : "rgba(168,85,247,0.14)",
-                      border: "1px solid rgba(168,85,247,0.32)",
+                      border: "1px solid rgba(168,85,247,0.3)",
                       color: "#A855F7",
-                      opacity: submitting ? 0.6 : 1,
+                      opacity: submitting ? 0.55 : 1,
                       cursor: submitting ? "not-allowed" : "pointer",
                     }}
                   >
-                    {submitting ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    ) : (
-                      <Plus className="w-3.5 h-3.5" />
-                    )}
+                    {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                     {submitting ? "Submitting…" : "Add to GhostMap"}
                   </motion.button>
                 </form>

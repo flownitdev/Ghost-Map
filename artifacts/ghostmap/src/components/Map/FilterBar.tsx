@@ -1,4 +1,4 @@
-import { Search, X, SlidersHorizontal } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CATEGORY_META } from "@/lib/mapUtils";
 import type { CategoryFilter } from "@/hooks/useMapLocations";
@@ -25,79 +25,83 @@ export function FilterBar({
 }: FilterBarProps) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: -20 }}
+      initial={{ opacity: 0, y: -16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.3 }}
-      className="fixed top-5 left-1/2 -translate-x-1/2 z-[999] flex flex-col items-center gap-2"
-      style={{ width: "min(640px, calc(100vw - 48px))" }}
+      transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.25 }}
+      className="fixed top-5 left-1/2 -translate-x-1/2 z-[999] flex flex-col items-center gap-2.5"
+      style={{ width: "min(600px, calc(100vw - 56px))" }}
       data-testid="filter-bar"
     >
-      {/* Search row */}
+      {/* Search bar */}
       <div
-        className="w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl"
+        className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl"
         style={{
-          background: "linear-gradient(135deg, rgba(14,13,20,0.90) 0%, rgba(11,10,16,0.85) 100%)",
-          backdropFilter: "blur(28px) saturate(1.6)",
-          WebkitBackdropFilter: "blur(28px) saturate(1.6)",
-          border: "1px solid rgba(255,255,255,0.07)",
-          boxShadow: "0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)",
+          background: "rgba(28,28,30,0.82)",
+          backdropFilter: "blur(40px) saturate(1.8)",
+          WebkitBackdropFilter: "blur(40px) saturate(1.8)",
+          border: "1px solid rgba(255,255,255,0.09)",
+          boxShadow: "0 4px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)",
         }}
       >
-        <Search className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "rgba(255,255,255,0.3)" }} />
+        <Search className="w-4 h-4 flex-shrink-0" style={{ color: "rgba(255,255,255,0.28)" }} />
 
         <input
           type="text"
-          placeholder="Search locations…"
+          placeholder="Search locations"
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="flex-1 bg-transparent border-none outline-none text-sm font-sans placeholder:text-xs"
+          className="flex-1 bg-transparent border-none outline-none font-sans"
           style={{
-            color: "rgba(255,255,255,0.85)",
+            fontSize: "15px",
+            color: "rgba(255,255,255,0.9)",
             caretColor: "#A855F7",
           }}
           data-testid="search-input"
         />
 
         <AnimatePresence>
-          {searchQuery && (
+          {searchQuery ? (
             <motion.button
-              initial={{ opacity: 0, scale: 0.7 }}
+              initial={{ opacity: 0, scale: 0.75 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.7 }}
-              transition={{ duration: 0.12 }}
+              exit={{ opacity: 0, scale: 0.75 }}
+              transition={{ duration: 0.1 }}
               onClick={() => onSearchChange("")}
               className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full"
-              style={{ background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)" }}
+              style={{ background: "rgba(255,255,255,0.14)", color: "rgba(255,255,255,0.55)" }}
               data-testid="clear-search"
             >
               <X className="w-3 h-3" />
             </motion.button>
+          ) : (
+            <motion.span
+              key="count"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex-shrink-0 font-sans tabular-nums"
+              style={{ fontSize: "13px", color: "rgba(255,255,255,0.28)" }}
+            >
+              {visibleCount === totalCount ? totalCount : (
+                <><span style={{ color: "#A855F7" }}>{visibleCount}</span>/{totalCount}</>
+              )}
+            </motion.span>
           )}
         </AnimatePresence>
-
-        <div
-          className="flex-shrink-0 w-px h-4 mx-1"
-          style={{ background: "rgba(255,255,255,0.08)" }}
-        />
-
-        <div className="flex items-center gap-1.5 flex-shrink-0">
-          <SlidersHorizontal className="w-3 h-3" style={{ color: "rgba(255,255,255,0.25)" }} />
-          <span
-            className="font-sans tabular-nums"
-            style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)" }}
-          >
-            <span style={{ color: visibleCount === totalCount ? "rgba(255,255,255,0.55)" : "#A855F7" }}>
-              {visibleCount}
-            </span>
-            <span style={{ color: "rgba(255,255,255,0.2)" }}>/{totalCount}</span>
-          </span>
-        </div>
       </div>
 
-      {/* Category pills row */}
-      <div className="flex items-center gap-1.5 flex-wrap justify-center">
-        {/* All pill */}
-        <CategoryPill
+      {/* Category segment row */}
+      <div
+        className="flex items-center gap-1 p-1 rounded-xl"
+        style={{
+          background: "rgba(28,28,30,0.78)",
+          backdropFilter: "blur(40px)",
+          WebkitBackdropFilter: "blur(40px)",
+          border: "1px solid rgba(255,255,255,0.07)",
+          boxShadow: "0 2px 16px rgba(0,0,0,0.35)",
+        }}
+      >
+        <SegmentPill
           label="All"
           color="#A855F7"
           isActive={activeCategory === "all"}
@@ -107,7 +111,7 @@ export function FilterBar({
         {CATEGORIES.map((cat) => {
           const meta = CATEGORY_META[cat];
           return (
-            <CategoryPill
+            <SegmentPill
               key={cat}
               label={meta.label}
               color={meta.color}
@@ -122,39 +126,49 @@ export function FilterBar({
   );
 }
 
-interface CategoryPillProps {
+function SegmentPill({
+  label,
+  color,
+  isActive,
+  onClick,
+  testId,
+}: {
   label: string;
   color: string;
   isActive: boolean;
   onClick: () => void;
   testId: string;
-}
-
-function CategoryPill({ label, color, isActive, onClick, testId }: CategoryPillProps) {
+}) {
   return (
     <motion.button
       onClick={onClick}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      transition={{ duration: 0.12 }}
-      className="px-3 py-1.5 rounded-full font-sans font-medium transition-all duration-150"
+      whileTap={{ scale: 0.94 }}
+      transition={{ duration: 0.1 }}
+      className="relative px-3 py-1.5 rounded-lg font-sans font-medium transition-colors duration-150"
       style={{
-        fontSize: "10.5px",
-        letterSpacing: "0.05em",
-        background: isActive
-          ? `${color}22`
-          : "rgba(12,11,17,0.82)",
-        border: isActive
-          ? `1px solid ${color}66`
-          : "1px solid rgba(255,255,255,0.07)",
-        color: isActive ? color : "rgba(255,255,255,0.4)",
-        backdropFilter: "blur(20px)",
-        WebkitBackdropFilter: "blur(20px)",
-        boxShadow: isActive ? `0 0 12px ${color}33` : "none",
+        fontSize: "12px",
+        background: isActive ? "rgba(255,255,255,0.1)" : "transparent",
+        color: isActive ? color : "rgba(255,255,255,0.38)",
+        cursor: "pointer",
+        border: "none",
+        fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
+        boxShadow: isActive ? "0 1px 4px rgba(0,0,0,0.3)" : "none",
+        letterSpacing: "-0.01em",
       }}
       data-testid={testId}
     >
-      {label}
+      {isActive && (
+        <motion.span
+          layoutId="pill-active"
+          className="absolute inset-0 rounded-lg"
+          style={{
+            background: `${color}18`,
+            border: `1px solid ${color}33`,
+          }}
+          transition={{ type: "spring", stiffness: 400, damping: 30 }}
+        />
+      )}
+      <span className="relative">{label}</span>
     </motion.button>
   );
 }

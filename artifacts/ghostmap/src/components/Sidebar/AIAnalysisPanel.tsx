@@ -2,85 +2,70 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Brain, Zap, Shield, Activity, Mountain, TreePine, Car, Home } from "lucide-react";
 import type { LocationAnalysis } from "@/hooks/useLocationAnalysis";
 
+const FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif";
+
 interface AIAnalysisPanelProps {
   analysis: LocationAnalysis | null;
   loading: boolean;
   error: boolean;
 }
 
-function MetricBar({
+function MetricRow({
   label,
   value,
   color,
   icon,
   delay,
-  inverse = false,
 }: {
   label: string;
   value: number;
   color: string;
   icon: React.ReactNode;
   delay: number;
-  inverse?: boolean;
 }) {
-  const displayColor = inverse
-    ? value < 40 ? "#4ade80" : value < 70 ? "#f59e0b" : "#A855F7"
-    : value > 60 ? color : value > 30 ? "#f59e0b" : "#4ade80";
-
-  const finalColor = color !== "auto" ? color : displayColor;
-
   return (
-    <div className="w-full">
-      <div className="flex items-center justify-between mb-1">
-        <div className="flex items-center gap-1.5">
-          <span style={{ color: "rgba(255,255,255,0.3)" }} className="flex-shrink-0">
-            {icon}
-          </span>
-          <span style={{ fontSize: "9px", letterSpacing: "0.1em", color: "rgba(255,255,255,0.35)", textTransform: "uppercase" }}>
+    <div>
+      <div className="flex items-center justify-between mb-1.5">
+        <div className="flex items-center gap-2">
+          <span style={{ color: "rgba(255,255,255,0.25)" }}>{icon}</span>
+          <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)", fontFamily: FONT }}>
             {label}
           </span>
         </div>
         <motion.span
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: delay + 0.4 }}
-          className="font-title font-bold tabular-nums"
-          style={{ fontSize: "11px", color: finalColor }}
+          transition={{ delay: delay + 0.3 }}
+          style={{ fontSize: "12px", fontWeight: 600, color, fontFamily: FONT }}
         >
           {value}
         </motion.span>
       </div>
-      <div
-        className="h-1 w-full rounded-full overflow-hidden"
-        style={{ background: "rgba(255,255,255,0.05)" }}
-      >
+      <div className="h-1 w-full rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.07)" }}>
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${value}%` }}
-          transition={{ duration: 0.85, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
+          transition={{ duration: 0.8, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
           className="h-full rounded-full"
-          style={{
-            background: `linear-gradient(90deg, ${finalColor}55, ${finalColor})`,
-            boxShadow: `0 0 6px ${finalColor}44`,
-          }}
+          style={{ background: `linear-gradient(90deg, ${color}55, ${color})` }}
         />
       </div>
     </div>
   );
 }
 
-function SkeletonBar() {
+function SkeletonRow() {
   return (
-    <div className="w-full">
-      <div className="flex items-center justify-between mb-1">
-        <div className="h-2 w-24 rounded" style={{ background: "rgba(255,255,255,0.07)" }} />
-        <div className="h-2 w-6 rounded" style={{ background: "rgba(255,255,255,0.07)" }} />
+    <div>
+      <div className="flex items-center justify-between mb-1.5">
+        <div className="h-2.5 w-28 rounded-full" style={{ background: "rgba(255,255,255,0.07)" }} />
+        <div className="h-2.5 w-6 rounded-full" style={{ background: "rgba(255,255,255,0.07)" }} />
       </div>
-      <div className="h-1 w-full rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
+      <div className="h-1 w-full rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.07)" }}>
         <motion.div
-          className="h-full w-full rounded-full"
-          style={{ background: "rgba(255,255,255,0.07)", transformOrigin: "left" }}
-          animate={{ opacity: [0.4, 0.8, 0.4] }}
+          className="h-full w-3/4 rounded-full"
+          style={{ background: "rgba(255,255,255,0.1)" }}
+          animate={{ opacity: [0.4, 0.75, 0.4] }}
           transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
         />
       </div>
@@ -88,45 +73,47 @@ function SkeletonBar() {
   );
 }
 
-function AISkeletonLoader() {
+function LoadingSkeleton() {
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2 mb-3">
-        <motion.div
-          animate={{ opacity: [0.4, 1, 0.4] }}
-          transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
-          className="w-3.5 h-3.5 rounded-full"
-          style={{ background: "#2d1b5e" }}
-        />
-        <div className="h-2.5 w-32 rounded" style={{ background: "rgba(255,255,255,0.07)" }} />
-        <motion.div
-          animate={{ opacity: [0.3, 0.7, 0.3] }}
-          transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut", delay: 0.3 }}
-          className="ml-auto h-2 w-16 rounded"
-          style={{ background: "rgba(45,27,94,0.4)" }}
-        />
+    <div
+      className="rounded-2xl p-4 space-y-4"
+      style={{
+        background: "rgba(168,85,247,0.04)",
+        border: "1px solid rgba(168,85,247,0.1)",
+      }}
+    >
+      {/* Header skeleton */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <motion.div
+            className="w-2.5 h-2.5 rounded-full"
+            style={{ background: "rgba(168,85,247,0.35)" }}
+            animate={{ opacity: [0.4, 1, 0.4] }}
+            transition={{ duration: 1.4, repeat: Infinity }}
+          />
+          <div className="h-2.5 w-24 rounded-full" style={{ background: "rgba(255,255,255,0.07)" }} />
+        </div>
+        <div className="h-2 w-20 rounded-full" style={{ background: "rgba(168,85,247,0.15)" }} />
       </div>
 
-      <div className="rounded-xl p-4 space-y-1.5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)" }}>
-        {[0, 0.1, 0.2].map((d, i) => (
+      {/* Summary skeleton */}
+      <div className="space-y-1.5">
+        {[100, 88, 64].map((w, i) => (
           <motion.div
             key={i}
-            className="h-2 rounded"
-            style={{ background: "rgba(255,255,255,0.06)", width: i === 2 ? "70%" : "100%" }}
+            className="h-2 rounded-full"
+            style={{ background: "rgba(255,255,255,0.06)", width: `${w}%` }}
             animate={{ opacity: [0.4, 0.7, 0.4] }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut", delay: d }}
+            transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
           />
         ))}
       </div>
 
+      {/* Metric skeletons */}
       <div className="space-y-3">
-        {[0, 0.08, 0.16, 0.24].map((d, i) => (
-          <motion.div
-            key={i}
-            animate={{ opacity: [0.5, 0.9, 0.5] }}
-            transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut", delay: d }}
-          >
-            <SkeletonBar />
+        {[0, 0.07, 0.14, 0.21].map((d, i) => (
+          <motion.div key={i} animate={{ opacity: [0.5, 0.85, 0.5] }} transition={{ duration: 1.4, repeat: Infinity, delay: d }}>
+            <SkeletonRow />
           </motion.div>
         ))}
       </div>
@@ -138,20 +125,8 @@ export function AIAnalysisPanel({ analysis, loading, error }: AIAnalysisPanelPro
   return (
     <AnimatePresence mode="wait">
       {loading && (
-        <motion.div
-          key="skeleton"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          className="rounded-2xl p-4"
-          style={{
-            background: "rgba(45,27,94,0.06)",
-            border: "1px solid rgba(45,27,94,0.2)",
-            backdropFilter: "blur(12px)",
-          }}
-        >
-          <AISkeletonLoader />
+        <motion.div key="skeleton" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+          <LoadingSkeleton />
         </motion.div>
       )}
 
@@ -162,10 +137,10 @@ export function AIAnalysisPanel({ analysis, loading, error }: AIAnalysisPanelPro
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="rounded-2xl p-4 flex items-center gap-3"
-          style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}
+          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}
         >
-          <Brain className="w-4 h-4 flex-shrink-0" style={{ color: "rgba(255,255,255,0.2)" }} />
-          <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.25)" }}>
+          <Brain className="w-4 h-4 flex-shrink-0" style={{ color: "rgba(255,255,255,0.18)" }} />
+          <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.28)", fontFamily: FONT }}>
             AI analysis unavailable
           </p>
         </motion.div>
@@ -174,118 +149,61 @@ export function AIAnalysisPanel({ analysis, loading, error }: AIAnalysisPanelPro
       {!loading && analysis && (
         <motion.div
           key="analysis"
-          initial={{ opacity: 0, y: 6 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+          transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
           className="rounded-2xl overflow-hidden"
           style={{
-            background: "linear-gradient(135deg, rgba(45,27,94,0.12) 0%, rgba(14,13,20,0.4) 100%)",
-            border: "1px solid rgba(45,27,94,0.25)",
-            backdropFilter: "blur(16px)",
-            boxShadow: "0 0 30px rgba(45,27,94,0.08), inset 0 1px 0 rgba(255,255,255,0.04)",
+            background: "rgba(168,85,247,0.05)",
+            border: "1px solid rgba(168,85,247,0.14)",
           }}
         >
           {/* Header */}
           <div
             className="flex items-center justify-between px-4 py-3"
-            style={{ borderBottom: "1px solid rgba(45,27,94,0.2)" }}
+            style={{ borderBottom: "1px solid rgba(168,85,247,0.1)" }}
           >
             <div className="flex items-center gap-2">
               <motion.div
-                animate={{
-                  boxShadow: ["0 0 4px #2d1b5eaa", "0 0 10px #2d1b5edd", "0 0 4px #2d1b5eaa"],
-                }}
-                transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-                className="w-2 h-2 rounded-full flex-shrink-0"
-                style={{ background: "#2d1b5e" }}
+                animate={{ opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 2.5, repeat: Infinity }}
+                className="w-2 h-2 rounded-full"
+                style={{ background: "#A855F7" }}
               />
-              <span
-                style={{
-                  fontSize: "9px",
-                  letterSpacing: "0.18em",
-                  color: "rgba(255,255,255,0.45)",
-                  textTransform: "uppercase",
-                  fontWeight: 600,
-                }}
-              >
+              <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.55)", fontFamily: FONT, fontWeight: 500 }}>
                 AI Intelligence
               </span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <Zap className="w-2.5 h-2.5" style={{ color: "#2d1b5e" }} />
-              <span style={{ fontSize: "9px", color: "rgba(45,27,94,0.9)", letterSpacing: "0.08em" }}>
+            <div className="flex items-center gap-1">
+              <Zap className="w-3 h-3" style={{ color: "rgba(168,85,247,0.7)" }} />
+              <span style={{ fontSize: "11px", color: "rgba(168,85,247,0.8)", fontFamily: FONT }}>
                 {analysis.aiConfidence}% confidence
               </span>
             </div>
           </div>
 
           {/* Summary */}
-          <div className="px-4 pt-3 pb-3">
+          <div className="px-4 pt-3.5 pb-3">
             <p
               className="font-sans leading-relaxed"
-              style={{ fontSize: "11.5px", color: "rgba(255,255,255,0.55)", lineHeight: "1.75" }}
+              style={{ fontSize: "13px", color: "rgba(255,255,255,0.52)", lineHeight: "1.7", fontFamily: FONT }}
             >
               {analysis.summary}
             </p>
           </div>
 
-          {/* Metrics grid */}
-          <div className="px-4 pb-4 space-y-2.5">
-            <div
-              className="h-px w-full mb-3"
-              style={{ background: "rgba(45,27,94,0.2)" }}
-            />
-            <MetricBar
-              label="Decay Level"
-              value={analysis.decayLevel}
-              color="#A855F7"
-              icon={<Mountain className="w-3 h-3" />}
-              delay={0.05}
-            />
-            <MetricBar
-              label="Structural Integrity"
-              value={analysis.structuralIntegrity}
-              color="#4ade80"
-              icon={<Shield className="w-3 h-3" />}
-              delay={0.12}
-              inverse={false}
-            />
-            <MetricBar
-              label="Roof Deterioration"
-              value={analysis.roofDeterioration}
-              color="#f59e0b"
-              icon={<Home className="w-3 h-3" />}
-              delay={0.18}
-            />
-            <MetricBar
-              label="Vegetation Overgrowth"
-              value={analysis.vegetationOvergrowth}
-              color="#34d399"
-              icon={<TreePine className="w-3 h-3" />}
-              delay={0.24}
-            />
-            <MetricBar
-              label="Parking Decay"
-              value={analysis.parkingDecay}
-              color="#8b5cf6"
-              icon={<Car className="w-3 h-3" />}
-              delay={0.3}
-            />
-            <MetricBar
-              label="Activity Signals"
-              value={analysis.activityLevel}
-              color="#ef4444"
-              icon={<Activity className="w-3 h-3" />}
-              delay={0.36}
-            />
-            <MetricBar
-              label="Exploration Difficulty"
-              value={analysis.explorationDifficulty}
-              color="#c084fc"
-              icon={<Zap className="w-3 h-3" />}
-              delay={0.42}
-            />
+          {/* Metrics */}
+          <div className="px-4 pb-4 space-y-3" style={{ borderTop: "1px solid rgba(168,85,247,0.08)" }}>
+            <div className="pt-3 space-y-3">
+              <MetricRow label="Decay Level"           value={analysis.decayLevel}           color="#A855F7" icon={<Mountain className="w-3 h-3" />}  delay={0.05} />
+              <MetricRow label="Structural Integrity"  value={analysis.structuralIntegrity}  color="#4ade80" icon={<Shield className="w-3 h-3" />}    delay={0.11} />
+              <MetricRow label="Roof Deterioration"    value={analysis.roofDeterioration}    color="#f59e0b" icon={<Home className="w-3 h-3" />}      delay={0.17} />
+              <MetricRow label="Vegetation Overgrowth" value={analysis.vegetationOvergrowth} color="#34d399" icon={<TreePine className="w-3 h-3" />}  delay={0.23} />
+              <MetricRow label="Parking Decay"         value={analysis.parkingDecay}         color="#8b5cf6" icon={<Car className="w-3 h-3" />}       delay={0.29} />
+              <MetricRow label="Activity Signals"      value={analysis.activityLevel}        color="#ef4444" icon={<Activity className="w-3 h-3" />}  delay={0.35} />
+              <MetricRow label="Exploration Difficulty" value={analysis.explorationDifficulty} color="#c084fc" icon={<Zap className="w-3 h-3" />}    delay={0.41} />
+            </div>
           </div>
         </motion.div>
       )}

@@ -4,6 +4,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Mail, Lock, Loader2, Eye, EyeOff, CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
+const FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif";
+const DISPLAY_FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif";
+
 export default function SignupPage() {
   const { signUp } = useAuth();
   const [, navigate] = useLocation();
@@ -16,17 +19,14 @@ export default function SignupPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
-      return;
-    }
+    if (password.length < 6) { setError("Password must be at least 6 characters."); return; }
     setError(null);
     setLoading(true);
     try {
       await signUp(email, password);
       setSuccess(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Signup failed.");
+      setError(err instanceof Error ? err.message : "Sign up failed.");
     } finally {
       setLoading(false);
     }
@@ -39,58 +39,52 @@ export default function SignupPage() {
     >
       <div
         className="pointer-events-none fixed inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse 60% 50% at 50% 40%, rgba(168,85,247,0.07) 0%, transparent 70%)",
-        }}
+        style={{ background: "radial-gradient(ellipse 55% 45% at 50% 40%, rgba(168,85,247,0.06) 0%, transparent 70%)" }}
       />
 
       <motion.div
-        initial={{ opacity: 0, y: 24 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-        className="relative w-full mx-4"
-        style={{ maxWidth: 420 }}
+        transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className="relative w-full mx-5"
+        style={{ maxWidth: 400 }}
       >
         <div
-          className="rounded-2xl overflow-hidden"
+          className="rounded-3xl overflow-hidden"
           style={{
-            background: "linear-gradient(160deg, rgba(16,15,22,0.97) 0%, rgba(12,11,17,0.97) 100%)",
-            border: "1px solid rgba(255,255,255,0.07)",
-            boxShadow: "0 32px 80px rgba(0,0,0,0.7)",
+            background: "rgba(28,28,30,0.92)",
+            border: "1px solid rgba(255,255,255,0.1)",
+            boxShadow: "0 40px 80px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.07)",
           }}
         >
           <div
-            className="h-[2px] w-full"
-            style={{
-              background: "linear-gradient(90deg, #A855F7 0%, #A855F755 60%, transparent 100%)",
-              boxShadow: "0 0 10px #A855F780",
-            }}
+            className="h-[1.5px] w-full"
+            style={{ background: "linear-gradient(90deg, #A855F7 0%, #A855F755 60%, transparent 100%)" }}
           />
 
-          <div className="px-8 py-9">
+          <div className="px-8 py-10">
             <AnimatePresence mode="wait">
               {success ? (
                 <motion.div
                   key="success"
-                  initial={{ opacity: 0, scale: 0.95 }}
+                  initial={{ opacity: 0, scale: 0.96 }}
                   animate={{ opacity: 1, scale: 1 }}
                   className="flex flex-col items-center text-center py-4"
                 >
-                  <CheckCircle2 className="w-10 h-10 mb-4" style={{ color: "#4ade80" }} />
+                  <CheckCircle2 className="w-12 h-12 mb-4" style={{ color: "#4ade80" }} />
                   <h2
-                    className="font-title font-bold text-white mb-2"
-                    style={{ fontSize: "18px", letterSpacing: "0.08em" }}
+                    className="font-sans font-bold text-white mb-2"
+                    style={{ fontSize: "22px", fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em" }}
                   >
                     Account Created
                   </h2>
-                  <p className="font-sans text-sm mb-6" style={{ color: "rgba(255,255,255,0.4)" }}>
-                    Check your email to confirm your account, then sign in.
+                  <p className="font-sans mb-7" style={{ fontSize: "14px", color: "rgba(255,255,255,0.38)", fontFamily: FONT }}>
+                    Check your email to confirm, then sign in.
                   </p>
                   <button
                     onClick={() => navigate("/login")}
-                    className="font-sans font-semibold text-sm"
-                    style={{ color: "#A855F7" }}
+                    className="font-sans font-semibold"
+                    style={{ fontSize: "15px", color: "#A855F7", fontFamily: FONT, cursor: "pointer" }}
                   >
                     Go to Sign In →
                   </button>
@@ -98,69 +92,75 @@ export default function SignupPage() {
               ) : (
                 <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                   <div className="mb-8">
-                    <h1
-                      className="font-title font-bold text-white mb-1"
-                      style={{ fontSize: "22px", letterSpacing: "0.14em" }}
+                    <div
+                      className="inline-flex items-center justify-center w-12 h-12 rounded-2xl mb-5"
+                      style={{ background: "rgba(168,85,247,0.12)", border: "1px solid rgba(168,85,247,0.2)" }}
                     >
-                      JOIN GHOSTMAP
+                      <span style={{ fontSize: "22px" }}>👻</span>
+                    </div>
+                    <h1
+                      className="font-sans font-bold text-white"
+                      style={{ fontSize: "24px", fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em" }}
+                    >
+                      Create Account
                     </h1>
-                    <p className="font-sans text-sm" style={{ color: "rgba(255,255,255,0.35)" }}>
-                      Create an account to save and explore sites
+                    <p className="font-sans mt-1.5" style={{ fontSize: "14px", color: "rgba(255,255,255,0.38)", fontFamily: FONT }}>
+                      Join the GhostMap community
                     </p>
                   </div>
 
-                  <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                  <form onSubmit={handleSubmit} className="flex flex-col gap-3">
                     <div className="relative">
-                      <Mail
-                        className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5"
-                        style={{ color: "rgba(255,255,255,0.25)" }}
-                      />
+                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "rgba(255,255,255,0.22)" }} />
                       <input
                         type="email"
                         placeholder="Email address"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        className="w-full pl-10 pr-4 py-3 rounded-xl font-sans text-sm outline-none transition-all duration-150"
+                        className="w-full pl-11 pr-4 py-3.5 rounded-2xl outline-none transition-all duration-150"
                         style={{
-                          background: "rgba(255,255,255,0.04)",
-                          border: "1px solid rgba(255,255,255,0.08)",
-                          color: "rgba(255,255,255,0.85)",
+                          background: "rgba(255,255,255,0.05)",
+                          border: "1px solid rgba(255,255,255,0.1)",
+                          color: "rgba(255,255,255,0.9)",
+                          fontSize: "15px",
+                          fontFamily: FONT,
+                          letterSpacing: "-0.01em",
                           caretColor: "#A855F7",
                         }}
                         onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(168,85,247,0.35)")}
-                        onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)")}
+                        onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)")}
                       />
                     </div>
 
                     <div className="relative">
-                      <Lock
-                        className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5"
-                        style={{ color: "rgba(255,255,255,0.25)" }}
-                      />
+                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "rgba(255,255,255,0.22)" }} />
                       <input
                         type={showPassword ? "text" : "password"}
-                        placeholder="Password (min 6 characters)"
+                        placeholder="Password (min. 6 characters)"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        className="w-full pl-10 pr-11 py-3 rounded-xl font-sans text-sm outline-none transition-all duration-150"
+                        className="w-full pl-11 pr-12 py-3.5 rounded-2xl outline-none transition-all duration-150"
                         style={{
-                          background: "rgba(255,255,255,0.04)",
-                          border: "1px solid rgba(255,255,255,0.08)",
-                          color: "rgba(255,255,255,0.85)",
+                          background: "rgba(255,255,255,0.05)",
+                          border: "1px solid rgba(255,255,255,0.1)",
+                          color: "rgba(255,255,255,0.9)",
+                          fontSize: "15px",
+                          fontFamily: FONT,
+                          letterSpacing: "-0.01em",
                           caretColor: "#A855F7",
                         }}
                         onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(168,85,247,0.35)")}
-                        onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)")}
+                        onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)")}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword((v) => !v)}
                         className="absolute right-3.5 top-1/2 -translate-y-1/2"
-                        style={{ color: "rgba(255,255,255,0.2)" }}
+                        style={{ color: "rgba(255,255,255,0.22)", cursor: "pointer" }}
                       >
-                        {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
                     </div>
 
@@ -168,8 +168,8 @@ export default function SignupPage() {
                       <motion.p
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="text-xs font-sans"
-                        style={{ color: "#A855F7" }}
+                        className="text-sm"
+                        style={{ color: "#A855F7", fontFamily: FONT }}
                       >
                         {error}
                       </motion.p>
@@ -178,37 +178,38 @@ export default function SignupPage() {
                     <motion.button
                       type="submit"
                       disabled={loading}
-                      whileHover={!loading ? { scale: 1.015, boxShadow: "0 0 24px rgba(168,85,247,0.28)" } : {}}
-                      whileTap={!loading ? { scale: 0.985 } : {}}
-                      className="w-full flex items-center justify-center gap-2 py-3 rounded-xl mt-1"
+                      whileHover={!loading ? { scale: 1.01 } : {}}
+                      whileTap={!loading ? { scale: 0.99 } : {}}
+                      className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl mt-2"
                       style={{
-                        fontSize: "11px",
-                        letterSpacing: "0.14em",
-                        fontWeight: 700,
-                        textTransform: "uppercase",
-                        fontFamily: "inherit",
-                        background: loading ? "rgba(168,85,247,0.08)" : "rgba(168,85,247,0.14)",
-                        border: "1px solid rgba(168,85,247,0.32)",
+                        fontSize: "15px",
+                        fontWeight: 600,
+                        fontFamily: FONT,
+                        letterSpacing: "-0.01em",
+                        background: loading ? "rgba(168,85,247,0.07)" : "rgba(168,85,247,0.14)",
+                        border: "1px solid rgba(168,85,247,0.3)",
                         color: "#A855F7",
-                        opacity: loading ? 0.6 : 1,
+                        opacity: loading ? 0.55 : 1,
                         cursor: loading ? "not-allowed" : "pointer",
                       }}
                     >
-                      {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                      {loading && <Loader2 className="w-4 h-4 animate-spin" />}
                       {loading ? "Creating account…" : "Create Account"}
                     </motion.button>
                   </form>
 
-                  <p className="mt-6 text-center font-sans text-xs" style={{ color: "rgba(255,255,255,0.28)" }}>
-                    Already have an account?{" "}
-                    <button
-                      onClick={() => navigate("/login")}
-                      className="font-medium"
-                      style={{ color: "#A855F7" }}
-                    >
-                      Sign in
-                    </button>
-                  </p>
+                  <div className="mt-6 pt-6" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+                    <p className="text-center font-sans text-sm" style={{ color: "rgba(255,255,255,0.3)", fontFamily: FONT }}>
+                      Already have an account?{" "}
+                      <button
+                        onClick={() => navigate("/login")}
+                        className="font-semibold"
+                        style={{ color: "#A855F7", cursor: "pointer" }}
+                      >
+                        Sign in
+                      </button>
+                    </p>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -218,8 +219,8 @@ export default function SignupPage() {
         <p className="mt-5 text-center">
           <button
             onClick={() => navigate("/")}
-            className="font-sans text-xs hover:underline"
-            style={{ color: "rgba(255,255,255,0.28)" }}
+            className="font-sans text-sm"
+            style={{ color: "rgba(255,255,255,0.25)", fontFamily: FONT, cursor: "pointer" }}
           >
             ← Back to map
           </button>

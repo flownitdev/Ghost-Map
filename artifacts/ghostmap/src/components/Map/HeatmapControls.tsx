@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Flame, ChevronDown, ChevronUp } from "lucide-react";
+import { Flame, ChevronDown } from "lucide-react";
 import type { HeatmapSettings } from "@/hooks/useHeatmap";
 
 interface HeatmapControlsProps {
@@ -23,95 +23,94 @@ export function HeatmapControls({
     <motion.div
       initial={{ opacity: 0, x: 12 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: 0.9, duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
+      transition={{ delay: 0.8, duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
       className="fixed top-5 right-5 z-[1000]"
     >
       <div
         className="rounded-2xl overflow-hidden"
         style={{
-          background: "linear-gradient(160deg, rgba(16,15,22,0.94) 0%, rgba(12,11,17,0.92) 100%)",
-          backdropFilter: "blur(28px) saturate(1.6)",
-          WebkitBackdropFilter: "blur(28px) saturate(1.6)",
+          background: "rgba(28,28,30,0.82)",
+          backdropFilter: "blur(40px) saturate(1.8)",
+          WebkitBackdropFilter: "blur(40px) saturate(1.8)",
           border: visible
-            ? "1px solid rgba(168,85,247,0.28)"
-            : "1px solid rgba(255,255,255,0.07)",
-          boxShadow: visible
-            ? "0 8px 32px rgba(0,0,0,0.55), 0 0 20px rgba(168,85,247,0.07)"
-            : "0 8px 32px rgba(0,0,0,0.55)",
-          transition: "border-color 0.2s, box-shadow 0.2s",
-          minWidth: 188,
+            ? "1px solid rgba(168,85,247,0.22)"
+            : "1px solid rgba(255,255,255,0.09)",
+          boxShadow: "0 4px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)",
+          transition: "border-color 0.25s",
+          minWidth: 180,
         }}
       >
-        {/* Header */}
-        <div className="flex items-center gap-2.5 px-3.5 py-2.5">
-          {/* Icon */}
+        {/* Toggle row */}
+        <div className="flex items-center gap-3 px-3.5 py-3">
           <div
-            className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0"
+            className="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0"
             style={{
-              background: visible ? "rgba(168,85,247,0.18)" : "rgba(255,255,255,0.05)",
-              border: visible ? "1px solid rgba(168,85,247,0.3)" : "1px solid rgba(255,255,255,0.08)",
-              transition: "all 0.2s",
+              background: visible ? "rgba(168,85,247,0.16)" : "rgba(255,255,255,0.06)",
+              transition: "background 0.25s",
             }}
           >
             <Flame
-              className="w-3 h-3"
+              className="w-3.5 h-3.5"
               style={{
-                color: visible ? "#A855F7" : "rgba(255,255,255,0.28)",
-                transition: "color 0.2s",
+                color: visible ? "#A855F7" : "rgba(255,255,255,0.3)",
+                transition: "color 0.25s",
               }}
             />
           </div>
 
-          {/* Label */}
           <span
-            className="font-sans font-semibold flex-1"
+            className="font-sans flex-1"
             style={{
-              fontSize: "10px",
-              letterSpacing: "0.14em",
-              color: visible ? "rgba(255,255,255,0.65)" : "rgba(255,255,255,0.3)",
-              transition: "color 0.2s",
+              fontSize: "13px",
+              fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
+              color: visible ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.38)",
+              fontWeight: 500,
+              transition: "color 0.25s",
+              letterSpacing: "-0.01em",
             }}
           >
-            HEATMAP
+            Heatmap
           </span>
 
-          {/* Toggle pill */}
+          {/* iOS-style toggle */}
           <button
             onClick={onToggle}
-            className="relative flex-shrink-0 rounded-full transition-all duration-200"
+            className="relative flex-shrink-0 rounded-full transition-all duration-250"
             style={{
-              width: 28,
-              height: 16,
-              background: visible ? "rgba(168,85,247,0.55)" : "rgba(255,255,255,0.1)",
-              border: "1px solid rgba(255,255,255,0.08)",
+              width: 36,
+              height: 22,
+              background: visible ? "#A855F7" : "rgba(255,255,255,0.12)",
+              border: "none",
               cursor: "pointer",
+              flexShrink: 0,
             }}
             aria-label="Toggle heatmap"
           >
-            <span
-              className="absolute top-[2px] rounded-full"
+            <motion.span
+              layout
+              className="absolute top-[3px] rounded-full"
               style={{
-                width: 10,
-                height: 10,
-                background: visible ? "#A855F7" : "rgba(255,255,255,0.35)",
-                left: visible ? "calc(100% - 12px)" : 2,
-                boxShadow: visible ? "0 0 8px rgba(168,85,247,0.9)" : "none",
-                transition: "all 0.2s",
+                width: 16,
+                height: 16,
+                background: "#fff",
+                boxShadow: "0 1px 4px rgba(0,0,0,0.4)",
+                left: visible ? "calc(100% - 19px)" : 3,
               }}
+              transition={{ type: "spring", stiffness: 500, damping: 35 }}
             />
           </button>
 
-          {/* Expand chevron */}
           <button
             onClick={() => setExpanded((v) => !v)}
-            style={{ color: "rgba(255,255,255,0.25)", cursor: "pointer", marginLeft: 2 }}
+            style={{ color: "rgba(255,255,255,0.22)", cursor: "pointer", marginLeft: -2 }}
             aria-label="Expand controls"
           >
-            {expanded ? (
-              <ChevronUp className="w-3 h-3" />
-            ) : (
-              <ChevronDown className="w-3 h-3" />
-            )}
+            <motion.div
+              animate={{ rotate: expanded ? 180 : 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <ChevronDown className="w-3.5 h-3.5" />
+            </motion.div>
           </button>
         </div>
 
@@ -122,16 +121,15 @@ export function HeatmapControls({
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2, ease: "easeInOut" }}
+              transition={{ duration: 0.22, ease: [0.25, 0.46, 0.45, 0.94] }}
               className="overflow-hidden"
             >
               <div
-                className="px-3.5 pb-3.5 pt-2 space-y-3.5"
-                style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
+                className="px-3.5 pb-4 pt-3 space-y-4"
+                style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
               >
-                {/* Intensity slider */}
                 <SliderRow
-                  label="INTENSITY"
+                  label="Intensity"
                   value={Math.round(intensity * 100)}
                   unit="%"
                   min={20}
@@ -139,9 +137,8 @@ export function HeatmapControls({
                   disabled={!visible}
                   onChange={(v) => onIntensityChange(v / 100)}
                 />
-                {/* Radius slider */}
                 <SliderRow
-                  label="RADIUS"
+                  label="Radius"
                   value={radius}
                   unit="px"
                   min={20}
@@ -176,17 +173,26 @@ function SliderRow({
   onChange: (v: number) => void;
 }) {
   return (
-    <div style={{ opacity: disabled ? 0.38 : 1, transition: "opacity 0.2s" }}>
-      <div className="flex items-center justify-between mb-1.5">
+    <div style={{ opacity: disabled ? 0.3 : 1, transition: "opacity 0.25s" }}>
+      <div className="flex items-center justify-between mb-2">
         <span
           className="font-sans"
-          style={{ fontSize: "8.5px", letterSpacing: "0.14em", color: "rgba(255,255,255,0.32)" }}
+          style={{
+            fontSize: "12px",
+            color: "rgba(255,255,255,0.45)",
+            fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
+            fontWeight: 400,
+          }}
         >
           {label}
         </span>
         <span
-          className="font-title font-bold tabular-nums"
-          style={{ fontSize: "10px", color: disabled ? "rgba(255,255,255,0.2)" : "#A855F7" }}
+          className="font-sans tabular-nums font-semibold"
+          style={{
+            fontSize: "12px",
+            color: disabled ? "rgba(255,255,255,0.2)" : "#A855F7",
+            fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
+          }}
         >
           {value}{unit}
         </span>
@@ -199,7 +205,7 @@ function SliderRow({
         disabled={disabled}
         onChange={(e) => onChange(parseInt(e.target.value))}
         className="w-full"
-        style={{ accentColor: "#A855F7", cursor: disabled ? "not-allowed" : "pointer" }}
+        style={{ accentColor: "#A855F7", cursor: disabled ? "not-allowed" : "pointer", height: 3 }}
       />
     </div>
   );
