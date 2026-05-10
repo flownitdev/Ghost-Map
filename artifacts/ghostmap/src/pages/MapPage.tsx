@@ -36,7 +36,6 @@ export function MapPage() {
 
   const { settings: heatmapSettings, toggle, setIntensity, setRadius } = useHeatmap();
 
-  // Auth + rank
   const { user } = useAuth();
   const { savedIds, exploredIds } = useUserLocations();
 
@@ -52,7 +51,6 @@ export function MapPage() {
     submittedLocations: [],
   });
 
-  // Filter out admin-removed locations from visible map
   const adminRemovedIds = useMemo<Set<string>>(() => {
     try {
       return new Set(JSON.parse(localStorage.getItem("gm-removed") ?? "[]") as string[]);
@@ -70,10 +68,9 @@ export function MapPage() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="w-full h-[100dvh] overflow-hidden bg-[#0c0b11] relative"
+      transition={{ duration: 0.6 }}
+      className="w-full h-[100dvh] overflow-hidden bg-[#0a090e] relative"
     >
-      {/* Cinematic atmosphere layer */}
       <CinematicOverlay />
 
       <FilterBar
@@ -95,8 +92,8 @@ export function MapPage() {
       />
 
       <div
-        className="w-full h-full transition-opacity duration-500"
-        style={{ opacity: loadingState === "loading" ? 0.6 : 1 }}
+        className="w-full h-full transition-opacity duration-700"
+        style={{ opacity: loadingState === "loading" ? 0.5 : 1 }}
       >
         <GhostMap
           locations={visibleLocations}
@@ -107,7 +104,7 @@ export function MapPage() {
         />
       </div>
 
-      {/* Loading pill */}
+      {/* Loading indicator */}
       <AnimatePresence>
         {loadingState === "loading" && (
           <motion.div
@@ -116,8 +113,13 @@ export function MapPage() {
             exit={{ opacity: 0, y: 6 }}
             className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[1000] px-4 py-2 rounded-full font-sans"
             style={{
-              fontSize: "13px", color: "rgba(255,255,255,0.45)", background: "rgba(28,28,30,0.88)",
-              border: "1px solid rgba(255,255,255,0.09)", backdropFilter: "blur(40px)", fontFamily: FONT, letterSpacing: "-0.01em",
+              fontSize: "12px",
+              color: "rgba(255,255,255,0.35)",
+              background: "rgba(18,17,24,0.82)",
+              border: "1px solid rgba(255,255,255,0.07)",
+              backdropFilter: "blur(40px)",
+              fontFamily: FONT,
+              letterSpacing: "-0.01em",
             }}
           >
             Loading locations…
@@ -132,20 +134,25 @@ export function MapPage() {
       <motion.button
         initial={{ opacity: 0, scale: 0.85 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.55, duration: 0.35, type: "spring", stiffness: 280, damping: 22 }}
-        whileHover={{ scale: 1.04 }}
-        whileTap={{ scale: 0.96 }}
+        transition={{ delay: 0.5, duration: 0.35, type: "spring", stiffness: 280, damping: 22 }}
+        whileHover={{ scale: 1.03 }}
+        whileTap={{ scale: 0.97 }}
         onClick={() => setModalOpen(true)}
-        className="fixed bottom-8 right-7 z-[1000] flex items-center gap-2 px-4 py-3 rounded-2xl"
+        className="fixed bottom-8 right-7 z-[1000] flex items-center gap-2 px-4 py-2.5 rounded-xl"
         style={{
-          background: "rgba(28,28,30,0.88)", border: "1px solid rgba(168,85,247,0.25)", color: "#A855F7",
-          backdropFilter: "blur(40px)", WebkitBackdropFilter: "blur(40px)", boxShadow: "0 4px 24px rgba(0,0,0,0.45)",
-          cursor: "pointer", fontFamily: FONT,
+          background: "rgba(250,72,23,0.1)",
+          border: "1px solid rgba(250,72,23,0.22)",
+          color: "#FA4817",
+          backdropFilter: "blur(40px)",
+          WebkitBackdropFilter: "blur(40px)",
+          boxShadow: "0 4px 24px rgba(0,0,0,0.4)",
+          cursor: "pointer",
+          fontFamily: FONT,
         }}
         data-testid="add-location-fab"
       >
         <Plus className="w-4 h-4" />
-        <span className="font-sans font-semibold" style={{ fontSize: "13px", letterSpacing: "-0.01em" }}>
+        <span className="font-sans font-semibold" style={{ fontSize: "12.5px", letterSpacing: "-0.01em" }}>
           Add Site
         </span>
       </motion.button>

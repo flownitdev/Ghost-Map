@@ -31,12 +31,12 @@ const panelVariants = {
   visible: {
     x: 0,
     opacity: 1,
-    transition: { type: "spring" as const, damping: 32, stiffness: 260, mass: 0.85 },
+    transition: { type: "spring" as const, damping: 34, stiffness: 240, mass: 0.9 },
   },
   exit: {
     x: "105%",
     opacity: 0,
-    transition: { duration: 0.2, ease: [0.4, 0, 1, 1] as const },
+    transition: { duration: 0.22, ease: [0.4, 0, 1, 1] as const },
   },
 };
 
@@ -44,42 +44,45 @@ const contentVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.05, delayChildren: 0.04 },
+    transition: { staggerChildren: 0.055, delayChildren: 0.04 },
   },
   exit: { opacity: 0, transition: { duration: 0.08 } },
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 6 },
+  hidden: { opacity: 0, y: 8 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.26, ease: [0.25, 0.46, 0.45, 0.94] as const },
+    transition: { duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] as const },
   },
 };
 
 function AbandonmentBar({ score }: { score: number }) {
-  const color = score >= 85 ? "#f43f5e" : score >= 75 ? "#A855F7" : score >= 55 ? "#c084fc" : "#4ade80";
+  const color = score >= 85 ? "#f43f5e" : score >= 70 ? "#FA4817" : score >= 55 ? "#f59e0b" : "#6b7280";
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-1.5">
-          <Gauge className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.22)" }} />
-          <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", fontFamily: FONT }}>
-            Abandonment Score
+          <Gauge className="w-3 h-3" style={{ color: "rgba(255,255,255,0.18)" }} />
+          <span style={{ fontSize: "11.5px", color: "rgba(255,255,255,0.32)", fontFamily: FONT }}>
+            Abandonment Index
           </span>
         </div>
-        <span className="font-sans font-bold tabular-nums" style={{ fontSize: "15px", color, fontFamily: DISPLAY_FONT }}>
+        <span
+          className="font-sans font-bold tabular-nums"
+          style={{ fontSize: "18px", color, fontFamily: DISPLAY_FONT, letterSpacing: "-0.02em" }}
+        >
           {score}
         </span>
       </div>
-      <div className="h-1.5 w-full rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.07)" }}>
+      <div className="h-1 w-full rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${score}%` }}
-          transition={{ duration: 0.75, delay: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
+          transition={{ duration: 0.9, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
           className="h-full rounded-full"
-          style={{ background: `linear-gradient(90deg, ${color}77, ${color})` }}
+          style={{ background: `linear-gradient(90deg, ${color}66, ${color})` }}
         />
       </div>
     </div>
@@ -89,15 +92,19 @@ function AbandonmentBar({ score }: { score: number }) {
 function ActionChip({ icon, label, active, activeColor, onClick }: { icon: React.ReactNode; label: string; active: boolean; activeColor: string; onClick: () => void }) {
   return (
     <motion.button
-      whileHover={{ scale: 1.02 }}
+      whileHover={{ scale: 1.01 }}
       whileTap={{ scale: 0.97 }}
       onClick={onClick}
       className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl transition-all duration-150"
       style={{
-        fontSize: "12.5px", fontWeight: 500, fontFamily: FONT, cursor: "pointer", letterSpacing: "-0.01em",
-        background: active ? `${activeColor}15` : "rgba(255,255,255,0.05)",
-        border: active ? `1px solid ${activeColor}38` : "1px solid rgba(255,255,255,0.08)",
-        color: active ? activeColor : "rgba(255,255,255,0.4)",
+        fontSize: "12px",
+        fontWeight: active ? 600 : 400,
+        fontFamily: FONT,
+        cursor: "pointer",
+        letterSpacing: "-0.01em",
+        background: active ? `${activeColor}12` : "rgba(255,255,255,0.04)",
+        border: active ? `1px solid ${activeColor}30` : "1px solid rgba(255,255,255,0.06)",
+        color: active ? activeColor : "rgba(255,255,255,0.35)",
       }}
     >
       {icon} {label}
@@ -110,45 +117,31 @@ function RankLockOverlay({ tier }: { tier: string }) {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="absolute inset-0 flex flex-col items-center justify-center z-20 rounded-b-none"
-      style={{ background: "rgba(12,11,17,0.92)", backdropFilter: "blur(20px)" }}
+      className="absolute inset-0 flex flex-col items-center justify-center z-20"
+      style={{ background: "rgba(10,9,14,0.94)", backdropFilter: "blur(20px)" }}
     >
       <motion.div
         animate={{ y: [0, -4, 0] }}
-        transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-        className="flex flex-col items-center gap-4 px-8 text-center"
+        transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
+        className="flex flex-col items-center gap-5 px-10 text-center"
       >
         <div
           className="w-16 h-16 rounded-3xl flex items-center justify-center"
-          style={{ background: "rgba(244,63,94,0.1)", border: "1px solid rgba(244,63,94,0.25)" }}
+          style={{ background: "rgba(244,63,94,0.08)", border: "1px solid rgba(244,63,94,0.2)" }}
         >
-          <Lock className="w-7 h-7" style={{ color: "#f43f5e" }} />
+          <Lock className="w-6 h-6" style={{ color: "#f43f5e" }} />
         </div>
         <div>
-          <p className="font-sans font-bold text-white mb-1" style={{ fontSize: "17px", fontFamily: DISPLAY_FONT, letterSpacing: "-0.02em" }}>
-            Extreme Zone — Locked
+          <p className="font-sans font-bold text-white mb-2" style={{ fontSize: "18px", fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em" }}>
+            Extreme Zone
           </p>
-          <p className="font-sans" style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)", fontFamily: FONT, lineHeight: 1.6 }}>
-            You need <strong style={{ color: "#c084fc" }}>Ghost rank</strong> or higher to access this location.
+          <p className="font-sans" style={{ fontSize: "13px", color: "rgba(255,255,255,0.35)", fontFamily: FONT, lineHeight: 1.7 }}>
+            Requires <strong style={{ color: "rgba(255,255,255,0.7)" }}>Ghost rank</strong> or higher
           </p>
-          <p className="font-sans mt-2" style={{ fontSize: "12px", color: "rgba(255,255,255,0.22)", fontFamily: FONT }}>
-            Your current rank: <span style={{ color: "#f43f5e" }}>{tier}</span>
+          <p className="font-sans mt-1.5" style={{ fontSize: "11px", color: "rgba(255,255,255,0.2)", fontFamily: FONT }}>
+            Current: {tier}
           </p>
         </div>
-        <div className="flex items-center gap-2 mt-1">
-          {["Scout", "Explorer", "Veteran", "Ghost 👻", "Specter", "Phantom"].map((r, i) => {
-            const reached = ["Scout", "Explorer", "Veteran"].indexOf(tier) >= i || tier === r.replace(" 👻", "");
-            return (
-              <div key={r}
-                className="w-2 h-2 rounded-full"
-                style={{ background: reached ? (i >= 3 ? "#A855F7" : "#4ade80") : "rgba(255,255,255,0.1)" }}
-              />
-            );
-          })}
-        </div>
-        <p className="font-sans text-xs" style={{ color: "rgba(255,255,255,0.18)", fontFamily: FONT }}>
-          Explore more locations to level up
-        </p>
       </motion.div>
     </motion.div>
   );
@@ -164,9 +157,7 @@ function AdminControls({ locationId, onFlagged, onRemoved }: { locationId: strin
   function handleFlag() {
     const key = "gm-flagged";
     const current: string[] = JSON.parse(localStorage.getItem(key) ?? "[]");
-    if (!current.includes(locationId)) {
-      localStorage.setItem(key, JSON.stringify([...current, locationId]));
-    }
+    if (!current.includes(locationId)) localStorage.setItem(key, JSON.stringify([...current, locationId]));
     setFlagged(true);
     onFlagged();
   }
@@ -174,9 +165,7 @@ function AdminControls({ locationId, onFlagged, onRemoved }: { locationId: strin
   function handleRemove() {
     const key = "gm-removed";
     const current: string[] = JSON.parse(localStorage.getItem(key) ?? "[]");
-    if (!current.includes(locationId)) {
-      localStorage.setItem(key, JSON.stringify([...current, locationId]));
-    }
+    if (!current.includes(locationId)) localStorage.setItem(key, JSON.stringify([...current, locationId]));
     setRemoved(true);
     onRemoved();
   }
@@ -184,28 +173,26 @@ function AdminControls({ locationId, onFlagged, onRemoved }: { locationId: strin
   if (removed) return null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl overflow-hidden"
-      style={{ background: "rgba(245,158,11,0.05)", border: "1px solid rgba(245,158,11,0.18)" }}
+    <div
+      className="rounded-xl overflow-hidden"
+      style={{ background: "rgba(245,158,11,0.04)", border: "1px solid rgba(245,158,11,0.12)" }}
     >
-      <div className="flex items-center gap-2 px-3.5 py-2.5" style={{ borderBottom: "1px solid rgba(245,158,11,0.1)" }}>
-        <Shield className="w-3 h-3" style={{ color: "#f59e0b" }} />
-        <span className="font-sans font-semibold" style={{ fontSize: "11px", color: "#f59e0b", fontFamily: FONT }}>
-          Admin Controls
+      <div className="flex items-center gap-2 px-3.5 py-2.5" style={{ borderBottom: "1px solid rgba(245,158,11,0.08)" }}>
+        <Shield className="w-3 h-3" style={{ color: "rgba(245,158,11,0.6)" }} />
+        <span className="font-sans" style={{ fontSize: "10px", color: "rgba(245,158,11,0.6)", fontFamily: FONT, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+          Admin
         </span>
       </div>
       <div className="flex gap-2 p-2.5">
         <button
           onClick={handleFlag}
           disabled={flagged}
-          className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl"
+          className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg"
           style={{
-            fontSize: "12px", fontFamily: FONT, fontWeight: 500, cursor: flagged ? "default" : "pointer",
-            background: flagged ? "rgba(245,158,11,0.15)" : "rgba(255,255,255,0.04)",
-            border: flagged ? "1px solid rgba(245,158,11,0.3)" : "1px solid rgba(255,255,255,0.08)",
-            color: flagged ? "#f59e0b" : "rgba(255,255,255,0.5)",
+            fontSize: "11.5px", fontFamily: FONT, fontWeight: 500, cursor: flagged ? "default" : "pointer",
+            background: flagged ? "rgba(245,158,11,0.1)" : "rgba(255,255,255,0.03)",
+            border: flagged ? "1px solid rgba(245,158,11,0.22)" : "1px solid rgba(255,255,255,0.06)",
+            color: flagged ? "#f59e0b" : "rgba(255,255,255,0.4)",
           }}
         >
           <Flag className="w-3 h-3" />
@@ -213,16 +200,16 @@ function AdminControls({ locationId, onFlagged, onRemoved }: { locationId: strin
         </button>
         <button
           onClick={handleRemove}
-          className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl"
+          className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg"
           style={{
-            fontSize: "12px", fontFamily: FONT, fontWeight: 500, cursor: "pointer",
-            background: "rgba(244,63,94,0.06)", border: "1px solid rgba(244,63,94,0.2)", color: "#f43f5e",
+            fontSize: "11.5px", fontFamily: FONT, fontWeight: 500, cursor: "pointer",
+            background: "rgba(244,63,94,0.05)", border: "1px solid rgba(244,63,94,0.15)", color: "#f43f5e",
           }}
         >
           <Trash2 className="w-3 h-3" /> Remove
         </button>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -244,7 +231,7 @@ export function LocationPanel({ location, onClose, onSelectLocation, allLocation
     const timer = setTimeout(() => {
       setDisplayedLocation(location);
       setIsLoading(false);
-    }, 320);
+    }, 280);
     return () => clearTimeout(timer);
   }, [location?.id]);
 
@@ -269,10 +256,7 @@ export function LocationPanel({ location, onClose, onSelectLocation, allLocation
 
   const handleNavigate = useCallback(() => {
     if (!displayedLocation) return;
-    window.open(
-      `https://maps.google.com/maps?q=${displayedLocation.latitude},${displayedLocation.longitude}`,
-      "_blank"
-    );
+    window.open(`https://maps.google.com/maps?q=${displayedLocation.latitude},${displayedLocation.longitude}`, "_blank");
   }, [displayedLocation]);
 
   return (
@@ -284,17 +268,17 @@ export function LocationPanel({ location, onClose, onSelectLocation, allLocation
           initial="hidden"
           animate="visible"
           exit="exit"
-          className="fixed right-0 top-0 h-[100dvh] w-full md:w-[400px] z-[1000] flex flex-col"
+          className="fixed right-0 top-0 h-[100dvh] w-full md:w-[420px] z-[1000] flex flex-col"
           style={{
-            background: "rgba(20,20,22,0.92)",
-            backdropFilter: "blur(48px) saturate(1.8)",
-            WebkitBackdropFilter: "blur(48px) saturate(1.8)",
-            borderLeft: "1px solid rgba(255,255,255,0.08)",
-            boxShadow: "-20px 0 60px rgba(0,0,0,0.6)",
+            background: "rgba(14,13,20,0.94)",
+            backdropFilter: "blur(56px) saturate(1.6)",
+            WebkitBackdropFilter: "blur(56px) saturate(1.6)",
+            borderLeft: "1px solid rgba(255,255,255,0.06)",
+            boxShadow: "-24px 0 72px rgba(0,0,0,0.65)",
           }}
           data-testid="location-panel"
         >
-          {/* Risk colour accent */}
+          {/* Risk accent line */}
           <AnimatePresence>
             {riskStyle && (
               <motion.div
@@ -302,21 +286,21 @@ export function LocationPanel({ location, onClose, onSelectLocation, allLocation
                 initial={{ scaleX: 0, opacity: 0 }}
                 animate={{ scaleX: 1, opacity: 1 }}
                 exit={{ scaleX: 0, opacity: 0 }}
-                transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+                transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
                 className="h-[1.5px] w-full origin-left flex-shrink-0"
-                style={{ background: `linear-gradient(90deg, ${riskStyle.color} 0%, ${riskStyle.color}44 70%, transparent 100%)` }}
+                style={{ background: `linear-gradient(90deg, ${riskStyle.color} 0%, ${riskStyle.color}33 70%, transparent 100%)` }}
               />
             )}
           </AnimatePresence>
 
-          {/* Close */}
+          {/* Close button */}
           <div className="absolute top-5 right-5 z-30">
             <motion.button
-              whileHover={{ scale: 1.06, backgroundColor: "rgba(255,255,255,0.1)" }}
+              whileHover={{ scale: 1.06 }}
               whileTap={{ scale: 0.94 }}
               onClick={onClose}
               className="w-8 h-8 flex items-center justify-center rounded-full"
-              style={{ background: "rgba(255,255,255,0.07)", border: "none", color: "rgba(255,255,255,0.5)", cursor: "pointer" }}
+              style={{ background: "rgba(255,255,255,0.06)", border: "none", color: "rgba(255,255,255,0.4)", cursor: "pointer" }}
               data-testid="close-panel"
             >
               <X className="w-3.5 h-3.5" />
@@ -336,58 +320,71 @@ export function LocationPanel({ location, onClose, onSelectLocation, allLocation
                 exit="exit"
                 className="flex flex-col flex-1 overflow-hidden relative"
               >
-                {/* Rank-lock overlay */}
                 {isLocked && <RankLockOverlay tier={userRankTier} />}
 
                 {/* Hero section */}
-                <div className="px-6 pt-6 pb-5 flex-shrink-0" style={{ filter: isLocked ? "blur(8px)" : "none", transition: "filter 0.3s" }}>
+                <div
+                  className="px-7 pt-8 pb-6 flex-shrink-0"
+                  style={{ filter: isLocked ? "blur(8px)" : "none", transition: "filter 0.3s" }}
+                >
                   {/* Eyebrow */}
-                  <motion.div variants={itemVariants} className="flex items-center gap-2 mb-2 flex-wrap">
-                    <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: categoryMeta.color }} />
-                    <span className="font-sans" style={{ fontSize: "12px", color: categoryMeta.color, fontFamily: FONT, fontWeight: 500 }}>
+                  <motion.div variants={itemVariants} className="flex items-center gap-2 mb-3 flex-wrap">
+                    <span
+                      className="font-sans capitalize flex items-center gap-1.5"
+                      style={{ fontSize: "12px", color: categoryMeta.color, fontFamily: FONT, fontWeight: 500 }}
+                    >
                       {categoryMeta.emoji} {categoryMeta.label}
                     </span>
-                    <span style={{ color: "rgba(255,255,255,0.15)", fontSize: "12px" }}>·</span>
-                    <span className="font-sans capitalize flex items-center gap-1" style={{ fontSize: "12px", color: riskStyle.color, fontFamily: FONT }}>
+                    <span style={{ color: "rgba(255,255,255,0.12)", fontSize: "12px" }}>·</span>
+                    <span
+                      className="font-sans capitalize flex items-center gap-1"
+                      style={{ fontSize: "12px", color: riskStyle.color, fontFamily: FONT }}
+                    >
                       {isExtreme && <AlertOctagon className="w-3 h-3" />}
                       {displayedLocation.riskLevel} risk
                     </span>
-
-                    {/* Freshly Abandoned badge */}
                     {isFresh && (
                       <motion.span
-                        animate={{ opacity: [0.75, 1, 0.75] }}
-                        transition={{ duration: 2, repeat: Infinity }}
+                        animate={{ opacity: [0.6, 1, 0.6] }}
+                        transition={{ duration: 2.5, repeat: Infinity }}
                         className="flex items-center gap-1 px-2 py-0.5 rounded-full"
-                        style={{ background: "rgba(74,222,128,0.12)", border: "1px solid rgba(74,222,128,0.3)", fontSize: "10px", color: "#4ade80", fontFamily: FONT, fontWeight: 600 }}
+                        style={{
+                          background: "rgba(255,255,255,0.06)",
+                          border: "1px solid rgba(255,255,255,0.12)",
+                          fontSize: "10px",
+                          color: "rgba(255,255,255,0.5)",
+                          fontFamily: FONT,
+                          fontWeight: 600,
+                        }}
                       >
                         <Sparkles className="w-2.5 h-2.5" />
-                        Freshly Abandoned
+                        New
                       </motion.span>
                     )}
-
-                    {/* Admin flagged indicator */}
                     {(() => {
                       const flagged = (JSON.parse(localStorage.getItem("gm-flagged") ?? "[]") as string[]).includes(locId);
                       return flagged ? (
-                        <span className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.3)", fontSize: "10px", color: "#f59e0b", fontFamily: FONT }}>
+                        <span
+                          className="flex items-center gap-1 px-2 py-0.5 rounded-full"
+                          style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)", fontSize: "10px", color: "#f59e0b", fontFamily: FONT }}
+                        >
                           <Flag className="w-2.5 h-2.5" /> Flagged
                         </span>
                       ) : null;
                     })()}
                   </motion.div>
 
-                  {/* Title */}
+                  {/* Title — big */}
                   <motion.h2
                     variants={itemVariants}
-                    className="font-sans font-bold text-white leading-tight mb-5 pr-12"
-                    style={{ fontSize: "clamp(1.15rem, 4vw, 1.45rem)", letterSpacing: "-0.02em", fontFamily: DISPLAY_FONT }}
+                    className="font-sans font-bold text-white leading-tight mb-6 pr-10"
+                    style={{ fontSize: "clamp(1.3rem, 5vw, 1.65rem)", letterSpacing: "-0.03em", fontFamily: DISPLAY_FONT, lineHeight: 1.15 }}
                   >
                     {displayedLocation.name}
                   </motion.h2>
 
                   {/* Abandonment bar */}
-                  <motion.div variants={itemVariants} className="mb-5">
+                  <motion.div variants={itemVariants} className="mb-6">
                     <AbandonmentBar score={displayedLocation.abandonmentScore} />
                   </motion.div>
 
@@ -413,17 +410,22 @@ export function LocationPanel({ location, onClose, onSelectLocation, allLocation
                 </div>
 
                 {/* Divider */}
-                {!isLocked && <div className="mx-6 flex-shrink-0" style={{ height: 1, background: "rgba(255,255,255,0.06)" }} />}
+                {!isLocked && (
+                  <div className="mx-7 flex-shrink-0" style={{ height: "1px", background: "rgba(255,255,255,0.05)" }} />
+                )}
 
                 {/* Scrollable body */}
                 {!isLocked && (
                   <motion.div
                     variants={itemVariants}
-                    className="flex-1 overflow-y-auto px-6 py-5 space-y-5"
+                    className="flex-1 overflow-y-auto px-7 py-6 space-y-6"
                     style={{ scrollbarWidth: "none" }}
                   >
                     {/* Description */}
-                    <p className="font-sans leading-relaxed" style={{ fontSize: "14px", color: "rgba(255,255,255,0.52)", fontFamily: FONT, lineHeight: "1.75" }}>
+                    <p
+                      className="font-sans leading-relaxed"
+                      style={{ fontSize: "14px", color: "rgba(255,255,255,0.45)", fontFamily: FONT, lineHeight: "1.8" }}
+                    >
                       {displayedLocation.description}
                     </p>
 
@@ -439,26 +441,29 @@ export function LocationPanel({ location, onClose, onSelectLocation, allLocation
                     {/* AI Analysis */}
                     <AIAnalysisPanel analysis={analysis} loading={aiLoading} error={aiError} />
 
-                    {/* Nearby panel */}
+                    {/* Nearby */}
                     <NearbyPanel nearby={nearby} onSelect={(loc) => { onSelectLocation?.(loc); }} />
                   </motion.div>
                 )}
 
                 {/* Footer */}
                 {!isLocked && (
-                  <div className="px-6 py-5 flex-shrink-0 space-y-4" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                  <div
+                    className="px-7 py-5 flex-shrink-0 space-y-4"
+                    style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
+                  >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Calendar className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "rgba(255,255,255,0.22)" }} />
-                        <span className="font-sans" style={{ fontSize: "13px", color: "rgba(255,255,255,0.38)", fontFamily: FONT }}>
-                          Last scouted{" "}
-                          <strong className="font-semibold" style={{ color: "rgba(255,255,255,0.7)" }}>
+                        <Calendar className="w-3 h-3 flex-shrink-0" style={{ color: "rgba(255,255,255,0.18)" }} />
+                        <span className="font-sans" style={{ fontSize: "12.5px", color: "rgba(255,255,255,0.3)", fontFamily: FONT }}>
+                          Scouted{" "}
+                          <strong className="font-semibold" style={{ color: "rgba(255,255,255,0.6)" }}>
                             {displayedLocation.lastVisited}
                           </strong>
                         </span>
                       </div>
                       {displayedLocation.createdAt && (
-                        <span className="font-sans" style={{ fontSize: "10px", color: "rgba(255,255,255,0.2)", fontFamily: FONT }}>
+                        <span className="font-sans" style={{ fontSize: "10px", color: "rgba(255,255,255,0.18)", fontFamily: FONT }}>
                           Added {new Date(displayedLocation.createdAt).toLocaleDateString("en", { month: "short", day: "numeric" })}
                         </span>
                       )}
@@ -469,18 +474,22 @@ export function LocationPanel({ location, onClose, onSelectLocation, allLocation
                       whileTap={{ scale: 0.99 }}
                       transition={{ duration: 0.12 }}
                       onClick={handleNavigate}
-                      className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl"
+                      className="w-full flex items-center justify-center gap-2.5 py-3.5 px-4 rounded-xl"
                       style={{
-                        fontSize: "14px", fontWeight: 600, fontFamily: FONT, letterSpacing: "-0.01em",
-                        background: isExtreme ? "rgba(244,63,94,0.1)" : "rgba(168,85,247,0.14)",
-                        border: isExtreme ? "1px solid rgba(244,63,94,0.25)" : "1px solid rgba(168,85,247,0.28)",
-                        color: isExtreme ? "#f43f5e" : "#A855F7", cursor: "pointer",
+                        fontSize: "14px",
+                        fontWeight: 600,
+                        fontFamily: FONT,
+                        letterSpacing: "-0.01em",
+                        background: isExtreme ? "rgba(244,63,94,0.08)" : "rgba(250,72,23,0.1)",
+                        border: isExtreme ? "1px solid rgba(244,63,94,0.2)" : "1px solid rgba(250,72,23,0.22)",
+                        color: isExtreme ? "#f43f5e" : "#FA4817",
+                        cursor: "pointer",
                       }}
                       data-testid="navigate-button"
                     >
                       <Navigation className="w-4 h-4" />
                       Navigate
-                      <ExternalLink className="w-3 h-3 opacity-40" />
+                      <ExternalLink className="w-3 h-3 opacity-35" />
                     </motion.button>
                   </div>
                 )}

@@ -280,16 +280,16 @@
   line-height: 36px !important;
   font-size: 18px !important;
   font-weight: 300 !important;
-  background: rgba(12,11,17,0.82) !important;
-  color: rgba(255,255,255,0.75) !important;
-  border: 1px solid rgba(255,255,255,0.1) !important;
-  backdrop-filter: blur(16px);
+  background: rgba(18,17,24,0.82) !important;
+  color: rgba(255,255,255,0.55) !important;
+  border: 1px solid rgba(255,255,255,0.07) !important;
+  backdrop-filter: blur(20px);
   transition: background 0.15s, color 0.15s !important;
 }
 .leaflet-control-zoom a:hover {
-  background: rgba(168,85,247,0.15) !important;
-  color: #A855F7 !important;
-  border-color: rgba(168,85,247,0.3) !important;
+  background: rgba(250,72,23,0.12) !important;
+  color: #FA4817 !important;
+  border-color: rgba(250,72,23,0.25) !important;
 }
 .leaflet-control-zoom-in {
   border-radius: 10px 10px 0 0 !important;

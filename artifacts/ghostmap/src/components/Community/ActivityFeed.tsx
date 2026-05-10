@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Radio, X, MapPin, Compass, TrendingUp, ChevronDown } from "lucide-react";
+import { Radio, MapPin, Compass, TrendingUp, ChevronUp } from "lucide-react";
 import type { Location } from "@/types/location";
-import { CATEGORY_META, RISK_COLORS } from "@/lib/mapUtils";
+import { CATEGORY_META } from "@/lib/mapUtils";
 
 const FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif";
 
@@ -29,9 +29,9 @@ function randomExplorer() {
 
 function timeAgoLabel(ms: number): string {
   const s = Math.floor((Date.now() - ms) / 1000);
-  if (s < 60) return `${s}s ago`;
-  if (s < 3600) return `${Math.floor(s / 60)}m ago`;
-  return `${Math.floor(s / 3600)}h ago`;
+  if (s < 60) return `${s}s`;
+  if (s < 3600) return `${Math.floor(s / 60)}m`;
+  return `${Math.floor(s / 3600)}h`;
 }
 
 function generateSeedEvents(locations: Location[]): FeedEvent[] {
@@ -52,10 +52,10 @@ function generateSeedEvents(locations: Location[]): FeedEvent[] {
   });
 }
 
-const TYPE_META: Record<FeedEventType, { icon: React.ReactNode; label: string; color: string }> = {
-  submission: { icon: <MapPin className="w-3 h-3" />, label: "submitted", color: "#A855F7" },
-  explored:   { icon: <Compass className="w-3 h-3" />,   label: "explored",  color: "#4ade80" },
-  trending:   { icon: <TrendingUp className="w-3 h-3" />, label: "trending",  color: "#f59e0b" },
+const TYPE_META: Record<FeedEventType, { icon: React.ReactNode; verb: string; color: string }> = {
+  submission: { icon: <MapPin className="w-2.5 h-2.5" />, verb: "submitted", color: "rgba(255,255,255,0.35)" },
+  explored:   { icon: <Compass className="w-2.5 h-2.5" />,   verb: "explored",  color: "rgba(255,255,255,0.35)" },
+  trending:   { icon: <TrendingUp className="w-2.5 h-2.5" />, verb: "trending",  color: "rgba(255,255,255,0.35)" },
 };
 
 interface ActivityFeedProps {
@@ -73,11 +73,10 @@ export function ActivityFeed({ locations, onSelectLocation }: ActivityFeedProps)
     if (locations.length) setEvents(generateSeedEvents(locations));
   }, [locations.length]);
 
-  // Simulate new live events every ~18-35s
   useEffect(() => {
     if (!locations.length) return;
     function scheduleNext() {
-      const delay = 18_000 + Math.random() * 17_000;
+      const delay = 20_000 + Math.random() * 15_000;
       intervalRef.current = setTimeout(() => {
         const loc = locations[Math.floor(Math.random() * locations.length)];
         const types: FeedEventType[] = ["explored", "explored", "submission", "trending"];
@@ -87,12 +86,12 @@ export function ActivityFeed({ locations, onSelectLocation }: ActivityFeedProps)
           type,
           location: loc,
           user: randomExplorer(),
-          timeAgo: "just now",
+          timeAgo: "now",
           timestamp: Date.now(),
         };
         setEvents((prev) => [newEvent, ...prev.slice(0, 14)]);
         setPulse(true);
-        setTimeout(() => setPulse(false), 1200);
+        setTimeout(() => setPulse(false), 1000);
         scheduleNext();
       }, delay);
     }
@@ -100,76 +99,81 @@ export function ActivityFeed({ locations, onSelectLocation }: ActivityFeedProps)
     return () => { if (intervalRef.current) clearTimeout(intervalRef.current); };
   }, [locations.length]);
 
-  // Update "time ago" labels every 30s
   useEffect(() => {
     const id = setInterval(() => {
-      setEvents((prev) =>
-        prev.map((e) => ({ ...e, timeAgo: timeAgoLabel(e.timestamp) }))
-      );
+      setEvents((prev) => prev.map((e) => ({ ...e, timeAgo: timeAgoLabel(e.timestamp) })));
     }, 30_000);
     return () => clearInterval(id);
   }, []);
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: -16 }}
+      initial={{ opacity: 0, x: -12 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: 1.2, duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+      transition={{ delay: 1.1, duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
       className="fixed left-5 z-[999]"
-      style={{ bottom: 88 }}
+      style={{ bottom: 84 }}
     >
       <div
         className="rounded-2xl overflow-hidden"
         style={{
-          width: 272,
-          background: "rgba(28,28,30,0.88)",
-          backdropFilter: "blur(40px) saturate(1.8)",
-          WebkitBackdropFilter: "blur(40px) saturate(1.8)",
-          border: "1px solid rgba(255,255,255,0.09)",
-          boxShadow: "0 4px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)",
+          width: 252,
+          background: "rgba(18,17,24,0.82)",
+          backdropFilter: "blur(48px) saturate(1.6)",
+          WebkitBackdropFilter: "blur(48px) saturate(1.6)",
+          border: "1px solid rgba(255,255,255,0.07)",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)",
         }}
       >
         {/* Header */}
         <div
-          className="flex items-center gap-2.5 px-4 py-3 cursor-pointer select-none"
+          className="flex items-center gap-2.5 px-3.5 py-2.5 cursor-pointer select-none"
           onClick={() => setOpen((v) => !v)}
         >
           <div className="relative flex-shrink-0">
-            <Radio className="w-3.5 h-3.5" style={{ color: "#4ade80" }} />
-            <motion.div
-              animate={{ scale: pulse ? [1, 1.8, 1] : 1, opacity: pulse ? [1, 0, 1] : 1 }}
-              transition={{ duration: 0.5 }}
+            <Radio className="w-3 h-3" style={{ color: "rgba(255,255,255,0.35)" }} />
+            {pulse && (
+              <motion.div
+                initial={{ scale: 1, opacity: 1 }}
+                animate={{ scale: 2, opacity: 0 }}
+                transition={{ duration: 0.6 }}
+                className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full"
+                style={{ background: "rgba(255,255,255,0.5)" }}
+              />
+            )}
+            {/* Static dot indicator */}
+            <div
               className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full"
               style={{ background: "#4ade80" }}
             />
           </div>
 
           <span
-            className="font-sans font-semibold flex-1"
-            style={{ fontSize: "13px", color: "rgba(255,255,255,0.75)", fontFamily: FONT, letterSpacing: "-0.01em" }}
+            className="font-sans flex-1"
+            style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", fontFamily: FONT, letterSpacing: "-0.01em" }}
           >
-            Community Feed
+            Activity
           </span>
 
           {!open && events.length > 0 && (
             <span
-              className="font-sans font-semibold rounded-full px-1.5 py-0.5"
-              style={{ fontSize: "10px", background: "rgba(74,222,128,0.15)", color: "#4ade80", fontFamily: FONT }}
+              className="font-sans rounded-full px-1.5 py-0.5"
+              style={{ fontSize: "9px", background: "rgba(74,222,128,0.1)", color: "rgba(74,222,128,0.7)", fontFamily: FONT, fontWeight: 600 }}
             >
               LIVE
             </span>
           )}
 
           <motion.div
-            animate={{ rotate: open ? 180 : 0 }}
+            animate={{ rotate: open ? 0 : 180 }}
             transition={{ duration: 0.2 }}
-            style={{ color: "rgba(255,255,255,0.22)" }}
+            style={{ color: "rgba(255,255,255,0.18)" }}
           >
-            <ChevronDown className="w-3.5 h-3.5" />
+            <ChevronUp className="w-3.5 h-3.5" />
           </motion.div>
         </div>
 
-        {/* Feed list */}
+        {/* Feed */}
         <AnimatePresence>
           {open && (
             <motion.div
@@ -181,7 +185,7 @@ export function ActivityFeed({ locations, onSelectLocation }: ActivityFeedProps)
             >
               <div
                 className="overflow-y-auto"
-                style={{ maxHeight: 320, borderTop: "1px solid rgba(255,255,255,0.06)", scrollbarWidth: "none" }}
+                style={{ maxHeight: 280, borderTop: "1px solid rgba(255,255,255,0.05)", scrollbarWidth: "none" }}
               >
                 <AnimatePresence initial={false}>
                   {events.map((event) => (
@@ -193,8 +197,11 @@ export function ActivityFeed({ locations, onSelectLocation }: ActivityFeedProps)
                   ))}
                 </AnimatePresence>
                 {events.length === 0 && (
-                  <p className="text-center py-5 font-sans" style={{ fontSize: "12px", color: "rgba(255,255,255,0.2)", fontFamily: FONT }}>
-                    Waiting for activity…
+                  <p
+                    className="text-center py-5 font-sans"
+                    style={{ fontSize: "11px", color: "rgba(255,255,255,0.18)", fontFamily: FONT }}
+                  >
+                    No activity yet
                   </p>
                 )}
               </div>
@@ -209,67 +216,49 @@ export function ActivityFeed({ locations, onSelectLocation }: ActivityFeedProps)
 function FeedRow({ event, onSelect }: { event: FeedEvent; onSelect: () => void }) {
   const meta = CATEGORY_META[event.location.category];
   const typeMeta = TYPE_META[event.type];
-  const risk = RISK_COLORS[event.location.riskLevel];
 
   return (
     <motion.button
-      initial={{ opacity: 0, y: -8 }}
+      initial={{ opacity: 0, y: -6 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.2 }}
+      transition={{ duration: 0.18 }}
       onClick={onSelect}
-      className="w-full flex items-start gap-3 px-4 py-2.5 text-left transition-colors duration-100"
+      className="w-full flex items-center gap-2.5 px-3.5 py-2 text-left"
       style={{
         background: "transparent",
         border: "none",
         borderBottom: "1px solid rgba(255,255,255,0.04)",
         cursor: "pointer",
         fontFamily: FONT,
+        transition: "background 0.1s",
       }}
-      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.03)")}
+      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.025)")}
       onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
     >
-      {/* Category dot */}
+      {/* Category color dot */}
       <div
-        className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0"
-        style={{ background: meta.color, boxShadow: `0 0 5px ${meta.glowColor}` }}
+        className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+        style={{ background: meta.color, opacity: 0.7 }}
       />
 
       <div className="flex-1 min-w-0">
-        {/* User + action */}
-        <div className="flex items-center gap-1 flex-wrap">
-          <span style={{ fontSize: "11px", fontWeight: 600, color: "rgba(255,255,255,0.75)" }}>
+        <div className="flex items-baseline gap-1">
+          <span style={{ fontSize: "11px", fontWeight: 600, color: "rgba(255,255,255,0.65)" }}>
             {event.user}
           </span>
-          <span style={{ color: typeMeta.color, fontSize: "11px" }} className="flex items-center gap-0.5">
-            {typeMeta.icon} {typeMeta.label}
+          <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.28)" }} className="flex items-center gap-0.5">
+            {typeMeta.icon} {typeMeta.verb}
           </span>
         </div>
-
-        {/* Location name */}
-        <p
-          className="truncate mt-0.5"
-          style={{ fontSize: "11px", color: "rgba(255,255,255,0.42)", letterSpacing: "-0.01em" }}
-        >
+        <p className="truncate" style={{ fontSize: "10.5px", color: "rgba(255,255,255,0.35)", marginTop: "1px", letterSpacing: "-0.01em" }}>
           {event.location.name}
         </p>
       </div>
 
-      {/* Right side */}
-      <div className="flex-shrink-0 flex flex-col items-end gap-1">
-        <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.2)" }}>{event.timeAgo}</span>
-        <span
-          className="px-1.5 py-0.5 rounded-full capitalize"
-          style={{
-            fontSize: "8.5px",
-            color: risk.color,
-            background: risk.bg,
-            border: `1px solid ${risk.border}33`,
-          }}
-        >
-          {event.location.riskLevel}
-        </span>
-      </div>
+      <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.18)", flexShrink: 0 }}>
+        {event.timeAgo}
+      </span>
     </motion.button>
   );
 }
