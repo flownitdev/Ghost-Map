@@ -1,71 +1,70 @@
-import { supabase } from "@/lib/supabaseClient";
 import type { Location, LocationCategory, RiskLevel } from "@/types/location";
 import { LOCATIONS as MOCK_LOCATIONS } from "./locations";
 
+const BASE_URL = import.meta.env.BASE_URL?.replace(/\/$/, "") ?? "";
+
 function rowToLocation(row: {
-  id: string;
+  id: number | string;
   name: string;
   category: string;
   latitude: number;
   longitude: number;
   description: string;
-  abandonment_score: number;
-  risk_level: string;
-  last_visited: string | null;
-  created_at: string;
-  submitted_by?: string | null;
+  abandonmentScore: number;
+  riskLevel: string;
+  lastVisited: string | null;
+  createdAt: string;
+  submittedBy?: string | null;
 }): Location {
   return {
-    id: row.id,
+    id: String(row.id),
     name: row.name,
     category: row.category as LocationCategory,
     latitude: row.latitude,
     longitude: row.longitude,
     description: row.description,
-    abandonmentScore: row.abandonment_score,
-    riskLevel: row.risk_level as RiskLevel,
-    lastVisited: row.last_visited ?? row.created_at.slice(0, 7),
-    createdAt: row.created_at,
-    submittedBy: row.submitted_by ?? undefined,
+    abandonmentScore: row.abandonmentScore,
+    riskLevel: row.riskLevel as RiskLevel,
+    lastVisited: row.lastVisited ?? row.createdAt.slice(0, 7),
+    createdAt: row.createdAt,
+    submittedBy: row.submittedBy ?? undefined,
   };
 }
 
 export async function fetchLocations(): Promise<Location[]> {
   try {
-    const { data, error } = await supabase
-      .from("locations")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (error) throw error;
-    if (!data || data.length === 0) {
+    const resp = await fetch(`${BASE_URL}/api/locations`);
+    if (!resp.ok) throw new Error("Failed to fetch");
+    const data = await resp.json() as unknown[];
+    if (!Array.isArray(data) || data.length === 0) {
       console.info("[GhostMap] No locations in DB — using mock data");
       return MOCK_LOCATIONS;
     }
-    return data.map(rowToLocation);
+    return data.map((row) => rowToLocation(row as Parameters<typeof rowToLocation>[0]));
   } catch (err) {
-    console.warn("[GhostMap] Supabase fetch failed — using mock data:", err);
+    console.warn("[GhostMap] API fetch failed — using mock data:", err);
     return MOCK_LOCATIONS;
   }
 }
 
 export async function addLocation(payload: Omit<Location, "id">): Promise<Location> {
-  const { data, error } = await supabase
-    .from("locations")
-    .insert({
+  const resp = await fetch(`${BASE_URL}/api/locations`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
       name: payload.name,
       category: payload.category,
       latitude: payload.latitude,
       longitude: payload.longitude,
       description: payload.description,
-      abandonment_score: payload.abandonmentScore,
-      risk_level: payload.riskLevel,
-      last_visited: payload.lastVisited ?? null,
-    })
-    .select()
-    .single();
-
-  if (error) throw error;
+      abandonmentScore: payload.abandonmentScore,
+      riskLevel: payload.riskLevel,
+      lastVisited: payload.lastVisited ?? null,
+      submittedBy: payload.submittedBy ?? null,
+    }),
+  });
+  if (!resp.ok) throw new Error("Failed to add location");
+  const data = await resp.json() as Parameters<typeof rowToLocation>[0];
   return rowToLocation(data);
 }
 
@@ -74,38 +73,14 @@ export async function fetchUserLocations(userId: string): Promise<{
   explored: Location[];
   submitted: Location[];
 }> {
-  const [savedRes, exploredRes, submittedRes] = await Promise.all([
-    supabase
-      .from("saved_locations")
-      .select("location_id, locations(*)")
-      .eq("user_id", userId),
-    supabase
-      .from("explored_locations")
-      .select("location_id, locations(*)")
-      .eq("user_id", userId),
-    supabase
-      .from("locations")
-      .select("*")
-      .eq("submitted_by", userId)
-      .order("created_at", { ascending: false }),
-  ]);
-
-  const toLoc = (row: Record<string, unknown>) =>
-    rowToLocation(row as Parameters<typeof rowToLocation>[0]);
-
-  const saved = (savedRes.data ?? [])
-    .map((r) => r.locations)
-    .filter(Boolean)
-    .map(toLoc);
-
-  const explored = (exploredRes.data ?? [])
-    .map((r) => r.locations)
-    .filter(Boolean)
-    .map(toLoc);
-
-  const submitted = (submittedRes.data ?? []).map(toLoc);
-
-  return { saved, explored, submitted };
+  const resp = await fetch(`${BASE_URL}/api/users/${userId}/locations`);
+  if (!resp.ok) throw new Error("Failed to fetch user locations");
+  const data = await resp.json() as { saved: unknown[]; explored: unknown[]; submitted: unknown[] };
+  return {
+    saved: data.saved.map((r) => rowToLocation(r as Parameters<typeof rowToLocation>[0])),
+    explored: data.explored.map((r) => rowToLocation(r as Parameters<typeof rowToLocation>[0])),
+    submitted: data.submitted.map((r) => rowToLocation(r as Parameters<typeof rowToLocation>[0])),
+  };
 }
 
 export function getLocations(): Location[] {

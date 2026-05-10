@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Bookmark, Compass, MapPin, Loader2, Zap, TrendingUp, Shield, Lock, ChevronRight } from "lucide-react";
+import { ArrowLeft, Bookmark, Compass, MapPin, Loader2, Zap, TrendingUp, Lock, ChevronRight } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { fetchUserLocations } from "@/data/locationService";
 import { CATEGORY_META, RISK_COLORS } from "@/lib/mapUtils";
-import { RANKS, ADMIN_EMAILS, calcDangerScore, calcPoints, getRankForPoints } from "@/types/rank";
+import { RANKS, calcDangerScore, calcPoints, getRankForPoints } from "@/types/rank";
 import { RankBadge, RankProgressBar } from "@/components/Rank/RankBadge";
 import type { Location } from "@/types/location";
 
@@ -22,7 +22,6 @@ export default function ProfilePage() {
   const [explored, setExplored] = useState<Location[]>([]);
   const [submitted, setSubmitted] = useState<Location[]>([]);
   const [fetching, setFetching] = useState(false);
-  const [adminMode, setAdminMode] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/login");
@@ -48,10 +47,9 @@ export default function ProfilePage() {
     );
   }
 
-  const isAdmin = ADMIN_EMAILS.includes(user.email ?? "");
   const dangerScore = calcDangerScore(explored);
   const totalPoints = calcPoints({ exploredCount: explored.length, savedCount: saved.length, submittedCount: submitted.length, dangerScore });
-  const rank = isAdmin ? RANKS[RANKS.length - 1] : getRankForPoints(totalPoints);
+  const rank = getRankForPoints(totalPoints);
   const rankIndex = RANKS.findIndex((r) => r.tier === rank.tier);
   const nextRank = rankIndex < RANKS.length - 1 ? RANKS[rankIndex + 1] : null;
 
@@ -90,22 +88,15 @@ export default function ProfilePage() {
               className="w-14 h-14 rounded-2xl flex items-center justify-center font-sans font-bold flex-shrink-0"
               style={{ background: `${rank.color}18`, border: `1px solid ${rank.color}30`, color: rank.color, fontSize: "22px", fontFamily: DISPLAY_FONT }}
             >
-              {user.email?.[0]?.toUpperCase()}
+              {(user.name ?? user.id)[0]?.toUpperCase()}
             </motion.div>
 
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1 flex-wrap">
-                <h1 className="font-sans font-bold text-white" style={{ fontSize: "22px", fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em" }}>
+                  <h1 className="font-sans font-bold text-white" style={{ fontSize: "22px", fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em" }}>
                   Explorer Profile
                 </h1>
-                {isAdmin && (
-                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ fontSize: "10px", background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.3)", color: "#f59e0b", fontFamily: FONT }}>
-                    <Shield className="w-2.5 h-2.5" /> Admin
-                  </span>
-                )}
-              </div>
               <p className="font-sans truncate" style={{ fontSize: "13px", color: "rgba(255,255,255,0.35)", fontFamily: FONT }}>
-                {user.email}
+                {user.name ?? user.id}
               </p>
             </div>
           </div>
@@ -217,55 +208,6 @@ export default function ProfilePage() {
           </p>
         </motion.div>
 
-        {/* Admin panel */}
-        {isAdmin && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.2 }}
-            className="rounded-2xl p-4 mb-6"
-            style={{ background: "rgba(245,158,11,0.04)", border: "1px solid rgba(245,158,11,0.18)" }}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Shield className="w-4 h-4" style={{ color: "#f59e0b" }} />
-                <span className="font-sans font-semibold" style={{ fontSize: "13px", color: "#f59e0b", fontFamily: FONT }}>Admin Mode</span>
-              </div>
-              {/* iOS-style toggle */}
-              <button
-                onClick={() => setAdminMode((v) => !v)}
-                className="relative rounded-full transition-all duration-250"
-                style={{
-                  width: 42, height: 26, flexShrink: 0, cursor: "pointer",
-                  background: adminMode ? "#f59e0b" : "rgba(255,255,255,0.12)",
-                  border: "none", padding: 3,
-                }}
-              >
-                <motion.div
-                  animate={{ x: adminMode ? 16 : 0 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                  className="w-5 h-5 rounded-full"
-                  style={{ background: "white" }}
-                />
-              </button>
-            </div>
-            {adminMode && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-3 pt-3" style={{ borderTop: "1px solid rgba(245,158,11,0.15)" }}>
-                <p className="font-sans" style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", fontFamily: FONT }}>
-                  Admin mode enabled. Flagged & removal controls are now visible on location panels.
-                </p>
-                <div className="flex items-center gap-4 mt-2">
-                  <span className="font-sans" style={{ fontSize: "11px", color: "rgba(255,255,255,0.25)", fontFamily: FONT }}>
-                    Flagged: {(JSON.parse(localStorage.getItem("gm-flagged") ?? "[]") as string[]).length}
-                  </span>
-                  <span className="font-sans" style={{ fontSize: "11px", color: "rgba(255,255,255,0.25)", fontFamily: FONT }}>
-                    Removed: {(JSON.parse(localStorage.getItem("gm-removed") ?? "[]") as string[]).length}
-                  </span>
-                </div>
-              </motion.div>
-            )}
-          </motion.div>
-        )}
 
         {/* Tab bar */}
         <motion.div
