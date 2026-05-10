@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS submissions (
   reviewed_by        text,
   reviewed_at        timestamptz,
   review_note        text,
-  duplicate_of       integer     REFERENCES locations(id)
+  duplicate_of       uuid        REFERENCES locations(id)
 );
 
 -- ─── Indexes ─────────────────────────────────────────────────────────────────
