@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { api } from "@/lib/apiClient";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface UseUserLocationsResult {
@@ -24,40 +24,30 @@ export function useUserLocations(): UseUserLocationsResult {
     }
 
     setLoading(true);
-    Promise.all([
-      supabase
-        .from("saved_locations")
-        .select("location_id")
-        .eq("user_id", user.id),
-      supabase
-        .from("explored_locations")
-        .select("location_id")
-        .eq("user_id", user.id),
-    ]).then(([saved, explored]) => {
-      setSavedIds(new Set((saved.data ?? []).map((r) => r.location_id)));
-      setExploredIds(new Set((explored.data ?? []).map((r) => r.location_id)));
-      setLoading(false);
-    });
+    api.getUserLocationIds(user.id)
+      .then(({ savedIds, exploredIds }) => {
+        setSavedIds(new Set(savedIds.map(String)));
+        setExploredIds(new Set(exploredIds.map(String)));
+      })
+      .catch(() => {
+        setSavedIds(new Set());
+        setExploredIds(new Set());
+      })
+      .finally(() => setLoading(false));
   }, [user]);
 
   const toggleSave = useCallback(
     async (locationId: string) => {
       if (!user) return;
       if (savedIds.has(locationId)) {
-        await supabase
-          .from("saved_locations")
-          .delete()
-          .eq("user_id", user.id)
-          .eq("location_id", locationId);
+        await api.unsaveLocation(user.id, Number(locationId));
         setSavedIds((prev) => {
           const next = new Set(prev);
           next.delete(locationId);
           return next;
         });
       } else {
-        await supabase
-          .from("saved_locations")
-          .insert({ user_id: user.id, location_id: locationId });
+        await api.saveLocation(user.id, Number(locationId));
         setSavedIds((prev) => new Set([...prev, locationId]));
       }
     },
@@ -68,20 +58,14 @@ export function useUserLocations(): UseUserLocationsResult {
     async (locationId: string) => {
       if (!user) return;
       if (exploredIds.has(locationId)) {
-        await supabase
-          .from("explored_locations")
-          .delete()
-          .eq("user_id", user.id)
-          .eq("location_id", locationId);
+        await api.unmarkExplored(user.id, Number(locationId));
         setExploredIds((prev) => {
           const next = new Set(prev);
           next.delete(locationId);
           return next;
         });
       } else {
-        await supabase
-          .from("explored_locations")
-          .insert({ user_id: user.id, location_id: locationId });
+        await api.markExplored(user.id, Number(locationId));
         setExploredIds((prev) => new Set([...prev, locationId]));
       }
     },
