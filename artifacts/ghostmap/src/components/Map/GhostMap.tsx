@@ -3,17 +3,28 @@ import { MapContainer, TileLayer, ZoomControl } from "react-leaflet";
 import { motion } from "framer-motion";
 import { TILE_LAYERS, MAP_CENTER, MAP_DEFAULT_ZOOM, fixLeafletIcons } from "@/lib/mapUtils";
 import { MapMarker } from "./MapMarker";
+import { HeatmapLayer } from "./HeatmapLayer";
+import { DecayZones } from "./DecayZones";
 import type { Location } from "@/types/location";
+import type { HeatmapSettings } from "@/hooks/useHeatmap";
 
 fixLeafletIcons();
 
 interface GhostMapProps {
   locations: Location[];
+  allLocations: Location[];
   selectedLocation: Location | null;
   onSelectLocation: (location: Location) => void;
+  heatmapSettings: HeatmapSettings;
 }
 
-export function GhostMap({ locations, selectedLocation, onSelectLocation }: GhostMapProps) {
+export function GhostMap({
+  locations,
+  allLocations,
+  selectedLocation,
+  onSelectLocation,
+  heatmapSettings,
+}: GhostMapProps) {
   const tile = TILE_LAYERS.satellite;
 
   return (
@@ -32,6 +43,18 @@ export function GhostMap({ locations, selectedLocation, onSelectLocation }: Ghos
       >
         <TileLayer url={tile.url} attribution={tile.attribution} />
         <ZoomControl position="bottomleft" />
+
+        <HeatmapLayer
+          locations={allLocations}
+          intensity={heatmapSettings.intensity}
+          radius={heatmapSettings.radius}
+          visible={heatmapSettings.visible}
+        />
+
+        <DecayZones
+          locations={allLocations}
+          visible={heatmapSettings.visible}
+        />
 
         {locations.map((location) => (
           <MapMarker

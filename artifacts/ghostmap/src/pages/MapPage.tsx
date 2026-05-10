@@ -2,11 +2,13 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus } from "lucide-react";
 import { GhostMap, FilterBar } from "@/components/Map";
+import { HeatmapControls } from "@/components/Map/HeatmapControls";
 import { AddLocationModal } from "@/components/Map/AddLocationModal";
-import { LocationPanel } from "@/components/Sidebar";
+import { LocationPanel, TrendingPanel } from "@/components/Sidebar";
 import { UserMenu } from "@/components/Auth/UserMenu";
 import { useLocations } from "@/hooks/useLocations";
 import { useMapLocations } from "@/hooks/useMapLocations";
+import { useHeatmap } from "@/hooks/useHeatmap";
 
 export function MapPage() {
   const { locations, loadingState, addLocation } = useLocations();
@@ -24,6 +26,8 @@ export function MapPage() {
     selectLocation,
     clearSelection,
   } = useMapLocations(locations);
+
+  const { settings: heatmapSettings, toggle, setIntensity, setRadius } = useHeatmap();
 
   return (
     <motion.div
@@ -43,14 +47,23 @@ export function MapPage() {
 
       <UserMenu />
 
+      <HeatmapControls
+        settings={heatmapSettings}
+        onToggle={toggle}
+        onIntensityChange={setIntensity}
+        onRadiusChange={setRadius}
+      />
+
       <div
         className="w-full h-full transition-opacity duration-500"
         style={{ opacity: loadingState === "loading" ? 0.7 : 1 }}
       >
         <GhostMap
           locations={filteredLocations}
+          allLocations={locations}
           selectedLocation={selectedLocation}
           onSelectLocation={selectLocation}
+          heatmapSettings={heatmapSettings}
         />
       </div>
 
@@ -104,6 +117,11 @@ export function MapPage() {
           Add Site
         </span>
       </motion.button>
+
+      <TrendingPanel
+        locations={locations}
+        onSelectLocation={selectLocation}
+      />
 
       <LocationPanel location={selectedLocation} onClose={clearSelection} />
 
