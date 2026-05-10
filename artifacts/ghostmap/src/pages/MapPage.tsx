@@ -18,7 +18,7 @@ import { useAuth } from "@/contexts/AuthContext";
 const FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif";
 
 export function MapPage() {
-  const { locations, loadingState, addLocation } = useLocations();
+  const { locations, loadingState } = useLocations();
   const [modalOpen, setModalOpen] = useState(false);
 
   const {
@@ -171,7 +171,6 @@ export function MapPage() {
       <AddLocationModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        onSubmit={async (payload) => { await addLocation(payload); }}
       />
     </motion.div>
   );

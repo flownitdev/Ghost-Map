@@ -8,6 +8,11 @@ export type LocationCategory =
   | "tunnel"
   | "industrial";
 
+export type VerificationState = "unverified" | "community_verified" | "demolished" | "active_again";
+export type BuildingStatus = "standing" | "partial" | "demolished" | "unknown";
+export type DemolitionStatus = "none" | "scheduled" | "in_progress" | "demolished";
+export type SourceType = "user_submission" | "public_dataset" | "business_closure" | "osm";
+
 export interface Location {
   id: string | number;
   name: string;
@@ -18,6 +23,36 @@ export interface Location {
   riskLevel: RiskLevel;
   abandonmentScore: number;
   lastVisited: string;
-  createdAt?: string;      // ISO string — used for "Freshly Abandoned" badge
-  submittedBy?: string;    // user id of submitter
+  createdAt?: string;
+  submittedBy?: string;
+  closureDate?: string;
+  buildingStatus?: BuildingStatus;
+  demolitionStatus?: DemolitionStatus;
+  verificationState?: VerificationState;
+  sourceType?: SourceType;
+  sourceAttribution?: string;
+}
+
+export interface Submission {
+  id: string;
+  name: string;
+  category: LocationCategory;
+  latitude: number;
+  longitude: number;
+  description: string;
+  riskLevel: RiskLevel;
+  abandonmentScore: number;
+  closureDate?: string;
+  buildingStatus?: BuildingStatus;
+  demolitionStatus?: DemolitionStatus;
+  sourceType?: SourceType;
+  sourceAttribution?: string;
+  notes?: string;
+  submittedBy?: string;
+  submittedAt: string;
+  status: "pending" | "approved" | "rejected";
+  reviewedBy?: string;
+  reviewedAt?: string;
+  reviewNote?: string;
+  duplicateOf?: number;
 }

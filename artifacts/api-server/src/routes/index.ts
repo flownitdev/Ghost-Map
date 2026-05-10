@@ -4,6 +4,7 @@ import aiRouter from "./ai";
 import locationsRouter from "./locations";
 import analysisRouter from "./analysis";
 import authRouter from "./auth";
+import osmRouter from "./osm";
 
 const router: IRouter = Router();
 
@@ -12,5 +13,6 @@ router.use(healthRouter);
 router.use(aiRouter);
 router.use(locationsRouter);
 router.use(analysisRouter);
+router.use(osmRouter);
 
 export default router;

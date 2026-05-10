@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { X, Calendar, Navigation, ExternalLink, Gauge, Bookmark, Compass, Sparkles, Lock, Flag, Trash2, AlertOctagon, Shield } from "lucide-react";
+import { X, Calendar, Navigation, ExternalLink, Gauge, Bookmark, Compass, Sparkles, Lock, AlertOctagon, ShieldCheck, HelpCircle, Building2, RefreshCcw, Trash2, Link2 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Location } from "@/types/location";
 import { RISK_COLORS, CATEGORY_META, isFreshLocation } from "@/lib/mapUtils";
@@ -11,6 +11,9 @@ import { useLocationAnalysis } from "@/hooks/useLocationAnalysis";
 import { AIAnalysisPanel } from "./AIAnalysisPanel";
 import { useNearby } from "@/hooks/useNearby";
 import { NearbyPanel } from "@/components/Discovery/NearbyPanel";
+import { VerificationBadge } from "@/components/Location/VerificationBadge";
+import { updateVerificationState, deleteLocation } from "@/data/locationService";
+import type { VerificationState } from "@/types/location";
 
 const FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif";
 const DISPLAY_FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif";
@@ -147,66 +150,95 @@ function RankLockOverlay({ tier }: { tier: string }) {
   );
 }
 
-function AdminControls({ locationId, onFlagged, onRemoved }: { locationId: string; onFlagged: () => void; onRemoved: () => void }) {
-  const [flagged, setFlagged] = useState(() => {
-    const f = localStorage.getItem("gm-flagged") ?? "[]";
-    return (JSON.parse(f) as string[]).includes(locationId);
-  });
-  const [removed, setRemoved] = useState(false);
+function AdminControls({
+  locationId,
+  currentVerification,
+  onRemoved,
+  onVerificationChanged,
+}: {
+  locationId: string;
+  currentVerification: VerificationState;
+  onRemoved: () => void;
+  onVerificationChanged: (state: VerificationState) => void;
+}) {
+  const [busy, setBusy] = useState(false);
 
-  function handleFlag() {
-    const key = "gm-flagged";
-    const current: string[] = JSON.parse(localStorage.getItem(key) ?? "[]");
-    if (!current.includes(locationId)) localStorage.setItem(key, JSON.stringify([...current, locationId]));
-    setFlagged(true);
-    onFlagged();
+  async function handleVerify(state: VerificationState) {
+    setBusy(true);
+    try {
+      await updateVerificationState(locationId, state);
+      onVerificationChanged(state);
+    } finally {
+      setBusy(false);
+    }
   }
 
-  function handleRemove() {
-    const key = "gm-removed";
-    const current: string[] = JSON.parse(localStorage.getItem(key) ?? "[]");
-    if (!current.includes(locationId)) localStorage.setItem(key, JSON.stringify([...current, locationId]));
-    setRemoved(true);
-    onRemoved();
+  async function handleDelete() {
+    if (!confirm("Permanently delete this location?")) return;
+    setBusy(true);
+    try {
+      await deleteLocation(locationId);
+      onRemoved();
+    } finally {
+      setBusy(false);
+    }
   }
 
-  if (removed) return null;
+  const STATES: { state: VerificationState; label: string; icon: React.ReactNode; color: string }[] = [
+    { state: "unverified", label: "Unverified", icon: <HelpCircle className="w-3 h-3" />, color: "#f59e0b" },
+    { state: "community_verified", label: "Verified", icon: <ShieldCheck className="w-3 h-3" />, color: "#4ade80" },
+    { state: "demolished", label: "Demolished", icon: <Building2 className="w-3 h-3" />, color: "#6b7280" },
+    { state: "active_again", label: "Active", icon: <RefreshCcw className="w-3 h-3" />, color: "#60a5fa" },
+  ];
 
   return (
     <div
       className="rounded-xl overflow-hidden"
       style={{ background: "rgba(245,158,11,0.04)", border: "1px solid rgba(245,158,11,0.12)" }}
     >
-      <div className="flex items-center gap-2 px-3.5 py-2.5" style={{ borderBottom: "1px solid rgba(245,158,11,0.08)" }}>
-        <Shield className="w-3 h-3" style={{ color: "rgba(245,158,11,0.6)" }} />
-        <span className="font-sans" style={{ fontSize: "10px", color: "rgba(245,158,11,0.6)", fontFamily: FONT, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase" }}>
-          Admin
-        </span>
+      <div className="flex items-center justify-between px-3.5 py-2.5" style={{ borderBottom: "1px solid rgba(245,158,11,0.08)" }}>
+        <div className="flex items-center gap-2">
+          <ShieldCheck className="w-3 h-3" style={{ color: "rgba(245,158,11,0.6)" }} />
+          <span className="font-sans" style={{ fontSize: "10px", color: "rgba(245,158,11,0.6)", fontFamily: FONT, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+            Admin Controls
+          </span>
+        </div>
       </div>
-      <div className="flex gap-2 p-2.5">
+      <div className="p-2.5 space-y-2">
+        <p className="font-sans px-1" style={{ fontSize: "10px", color: "rgba(255,255,255,0.25)", fontFamily: FONT }}>Set verification state</p>
+        <div className="grid grid-cols-2 gap-1.5">
+          {STATES.map(({ state, label, icon, color }) => {
+            const isActive = currentVerification === state;
+            return (
+              <button
+                key={state}
+                onClick={() => !isActive && !busy && handleVerify(state)}
+                disabled={busy}
+                className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg"
+                style={{
+                  fontSize: "11px", fontFamily: FONT, fontWeight: isActive ? 600 : 400, cursor: isActive || busy ? "default" : "pointer",
+                  background: isActive ? `${color}14` : "rgba(255,255,255,0.03)",
+                  border: isActive ? `1px solid ${color}30` : "1px solid rgba(255,255,255,0.06)",
+                  color: isActive ? color : "rgba(255,255,255,0.4)",
+                  opacity: busy ? 0.5 : 1,
+                }}
+              >
+                {icon} {label}
+              </button>
+            );
+          })}
+        </div>
         <button
-          onClick={handleFlag}
-          disabled={flagged}
-          className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg"
+          onClick={handleDelete}
+          disabled={busy}
+          className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg"
           style={{
-            fontSize: "11.5px", fontFamily: FONT, fontWeight: 500, cursor: flagged ? "default" : "pointer",
-            background: flagged ? "rgba(245,158,11,0.1)" : "rgba(255,255,255,0.03)",
-            border: flagged ? "1px solid rgba(245,158,11,0.22)" : "1px solid rgba(255,255,255,0.06)",
-            color: flagged ? "#f59e0b" : "rgba(255,255,255,0.4)",
-          }}
-        >
-          <Flag className="w-3 h-3" />
-          {flagged ? "Flagged" : "Flag"}
-        </button>
-        <button
-          onClick={handleRemove}
-          className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg"
-          style={{
-            fontSize: "11.5px", fontFamily: FONT, fontWeight: 500, cursor: "pointer",
+            fontSize: "11.5px", fontFamily: FONT, fontWeight: 500, cursor: busy ? "not-allowed" : "pointer",
             background: "rgba(244,63,94,0.05)", border: "1px solid rgba(244,63,94,0.15)", color: "#f43f5e",
+            opacity: busy ? 0.4 : 1,
           }}
         >
-          <Trash2 className="w-3 h-3" /> Remove
+          <Trash2 className="w-3 h-3" /> Delete Location
         </button>
       </div>
     </div>
@@ -217,6 +249,7 @@ export function LocationPanel({ location, onClose, onSelectLocation, allLocation
   const [isLoading, setIsLoading] = useState(false);
   const [displayedLocation, setDisplayedLocation] = useState<Location | null>(null);
   const [adminRemoved, setAdminRemoved] = useState(false);
+  const [localVerification, setLocalVerification] = useState<VerificationState>("unverified");
   const { user } = useAuth();
   const { savedIds, exploredIds, toggleSave, toggleExplore } = useUserLocations();
   const [, navigate] = useLocation();
@@ -230,6 +263,7 @@ export function LocationPanel({ location, onClose, onSelectLocation, allLocation
     setAdminRemoved(false);
     const timer = setTimeout(() => {
       setDisplayedLocation(location);
+      setLocalVerification(location.verificationState ?? "unverified");
       setIsLoading(false);
     }, 280);
     return () => clearTimeout(timer);
@@ -361,17 +395,7 @@ export function LocationPanel({ location, onClose, onSelectLocation, allLocation
                         New
                       </motion.span>
                     )}
-                    {(() => {
-                      const flagged = (JSON.parse(localStorage.getItem("gm-flagged") ?? "[]") as string[]).includes(locId);
-                      return flagged ? (
-                        <span
-                          className="flex items-center gap-1 px-2 py-0.5 rounded-full"
-                          style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)", fontSize: "10px", color: "#f59e0b", fontFamily: FONT }}
-                        >
-                          <Flag className="w-2.5 h-2.5" /> Flagged
-                        </span>
-                      ) : null;
-                    })()}
+                    <VerificationBadge state={localVerification} size="sm" />
                   </motion.div>
 
                   {/* Title — big */}
@@ -429,11 +453,39 @@ export function LocationPanel({ location, onClose, onSelectLocation, allLocation
                       {displayedLocation.description}
                     </p>
 
+                    {/* Location metadata */}
+                    {(displayedLocation.closureDate || displayedLocation.buildingStatus || displayedLocation.sourceAttribution) && (
+                      <div className="space-y-2.5 rounded-xl p-3.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                        {displayedLocation.closureDate && (
+                          <div>
+                            <p className="font-sans" style={{ fontSize: "10px", color: "rgba(255,255,255,0.2)", fontFamily: FONT, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "2px" }}>Closed</p>
+                            <p className="font-sans" style={{ fontSize: "13px", color: "rgba(255,255,255,0.5)", fontFamily: FONT }}>{displayedLocation.closureDate}</p>
+                          </div>
+                        )}
+                        {displayedLocation.buildingStatus && displayedLocation.buildingStatus !== "unknown" && (
+                          <div>
+                            <p className="font-sans" style={{ fontSize: "10px", color: "rgba(255,255,255,0.2)", fontFamily: FONT, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "2px" }}>Building</p>
+                            <p className="font-sans capitalize" style={{ fontSize: "13px", color: "rgba(255,255,255,0.5)", fontFamily: FONT }}>{displayedLocation.buildingStatus}</p>
+                          </div>
+                        )}
+                        {displayedLocation.sourceAttribution && (
+                          <div>
+                            <p className="font-sans" style={{ fontSize: "10px", color: "rgba(255,255,255,0.2)", fontFamily: FONT, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "2px" }}>Source</p>
+                            <p className="font-sans flex items-center gap-1" style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", fontFamily: FONT }}>
+                              <Link2 className="w-2.5 h-2.5 flex-shrink-0" />
+                              {displayedLocation.sourceAttribution}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     {/* Admin Controls */}
                     {isAdmin && (
                       <AdminControls
                         locationId={locId}
-                        onFlagged={() => {}}
+                        currentVerification={localVerification}
+                        onVerificationChanged={setLocalVerification}
                         onRemoved={() => setAdminRemoved(true)}
                       />
                     )}

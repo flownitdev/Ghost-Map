@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, LogOut, Compass, LogIn, UserPlus, ChevronDown, Shield } from "lucide-react";
+import { User, LogOut, Compass, LogIn, UserPlus, ChevronDown, Shield, Settings } from "lucide-react";
+import { ADMIN_EMAILS } from "@/types/rank";
 import { useAuth } from "@/contexts/AuthContext";
 import { RankBadge } from "@/components/Rank/RankBadge";
 import type { UserStats } from "@/types/rank";
@@ -172,6 +173,13 @@ export function UserMenu({ stats }: UserMenuProps) {
                     label="My Profile"
                     onClick={() => { navigate("/profile"); setOpen(false); }}
                   />
+                  {user?.email && ADMIN_EMAILS.includes(user.email) && (
+                    <MenuItem
+                      icon={<Settings className="w-3.5 h-3.5" />}
+                      label="Ghost Control"
+                      onClick={() => { navigate("/admin"); setOpen(false); }}
+                    />
+                  )}
                 </div>
 
                 <div className="p-1.5" style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
