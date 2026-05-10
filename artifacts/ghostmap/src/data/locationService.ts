@@ -13,6 +13,7 @@ function rowToLocation(row: {
   risk_level: string;
   last_visited: string | null;
   created_at: string;
+  submitted_by?: string | null;
 }): Location {
   return {
     id: row.id,
@@ -24,6 +25,8 @@ function rowToLocation(row: {
     abandonmentScore: row.abandonment_score,
     riskLevel: row.risk_level as RiskLevel,
     lastVisited: row.last_visited ?? row.created_at.slice(0, 7),
+    createdAt: row.created_at,
+    submittedBy: row.submitted_by ?? undefined,
   };
 }
 

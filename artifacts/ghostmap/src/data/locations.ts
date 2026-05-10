@@ -1,5 +1,12 @@
 import type { Location } from "@/types/location";
 
+// Helper: date N days ago as ISO string
+function daysAgo(n: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return d.toISOString();
+}
+
 export const LOCATIONS: Location[] = [
   {
     id: 1,
@@ -9,9 +16,10 @@ export const LOCATIONS: Location[] = [
     longitude: 2.3200,
     description:
       "A decommissioned military hospital frozen in 1987. Peeling paint, scattered medical files, and rows of empty iron beds still perfectly arranged.",
-    riskLevel: "high",
+    riskLevel: "extreme",
     abandonmentScore: 91,
     lastVisited: "2024-11",
+    createdAt: daysAgo(4),
   },
   {
     id: 2,
@@ -21,9 +29,10 @@ export const LOCATIONS: Location[] = [
     longitude: 2.2770,
     description:
       "A vast automobile factory silenced in the '90s. Rust-eaten assembly lines and ghost cars still mid-production on conveyor belts.",
-    riskLevel: "medium",
+    riskLevel: "high",
     abandonmentScore: 78,
     lastVisited: "2024-09",
+    createdAt: daysAgo(60),
   },
   {
     id: 3,
@@ -36,6 +45,7 @@ export const LOCATIONS: Location[] = [
     riskLevel: "low",
     abandonmentScore: 62,
     lastVisited: "2025-01",
+    createdAt: daysAgo(90),
   },
   {
     id: 4,
@@ -45,9 +55,10 @@ export const LOCATIONS: Location[] = [
     longitude: 2.4020,
     description:
       "A massive coal power station with turbines the size of houses. The control room looks like a retro-futurist film set.",
-    riskLevel: "high",
-    abandonmentScore: 88,
+    riskLevel: "extreme",
+    abandonmentScore: 95,
     lastVisited: "2024-07",
+    createdAt: daysAgo(12),
   },
   {
     id: 5,
@@ -60,6 +71,7 @@ export const LOCATIONS: Location[] = [
     riskLevel: "low",
     abandonmentScore: 54,
     lastVisited: "2025-02",
+    createdAt: daysAgo(120),
   },
   {
     id: 6,
@@ -72,6 +84,7 @@ export const LOCATIONS: Location[] = [
     riskLevel: "medium",
     abandonmentScore: 83,
     lastVisited: "2024-12",
+    createdAt: daysAgo(8),
   },
   {
     id: 7,
@@ -82,8 +95,9 @@ export const LOCATIONS: Location[] = [
     description:
       "A sprawling garrison abandoned after the Cold War. Empty barracks, a rusted armory, and a parade ground slowly being consumed by weeds.",
     riskLevel: "high",
-    abandonmentScore: 94,
+    abandonmentScore: 88,
     lastVisited: "2024-06",
+    createdAt: daysAgo(200),
   },
   {
     id: 8,
@@ -96,6 +110,7 @@ export const LOCATIONS: Location[] = [
     riskLevel: "low",
     abandonmentScore: 58,
     lastVisited: "2025-03",
+    createdAt: daysAgo(180),
   },
   {
     id: 9,
@@ -108,6 +123,7 @@ export const LOCATIONS: Location[] = [
     riskLevel: "medium",
     abandonmentScore: 75,
     lastVisited: "2024-10",
+    createdAt: daysAgo(150),
   },
   {
     id: 10,
@@ -120,5 +136,32 @@ export const LOCATIONS: Location[] = [
     riskLevel: "low",
     abandonmentScore: 49,
     lastVisited: "2025-01",
+    createdAt: daysAgo(300),
+  },
+  {
+    id: 11,
+    name: "Souterrain des Catacombes Oubliées",
+    category: "tunnel",
+    latitude: 48.8430,
+    longitude: 2.3310,
+    description:
+      "An unmapped section of the Paris underground. Bones stacked centuries ago, crude torch marks on the walls, and an eerie silence broken only by dripping water.",
+    riskLevel: "extreme",
+    abandonmentScore: 97,
+    lastVisited: "2024-05",
+    createdAt: daysAgo(2),
+  },
+  {
+    id: 12,
+    name: "Centre Commercial Perdu",
+    category: "mall",
+    latitude: 48.8900,
+    longitude: 2.2900,
+    description:
+      "A 1980s shopping mall that never opened. Storefront signs still intact, escalators frozen mid-ride, and a food court frozen in advertising from 40 years ago.",
+    riskLevel: "medium",
+    abandonmentScore: 71,
+    lastVisited: "2025-01",
+    createdAt: daysAgo(18),
   },
 ];

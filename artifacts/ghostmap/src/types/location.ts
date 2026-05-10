@@ -1,4 +1,4 @@
-export type RiskLevel = "low" | "medium" | "high";
+export type RiskLevel = "low" | "medium" | "high" | "extreme";
 
 export type LocationCategory =
   | "factory"
@@ -18,4 +18,6 @@ export interface Location {
   riskLevel: RiskLevel;
   abandonmentScore: number;
   lastVisited: string;
+  createdAt?: string;      // ISO string — used for "Freshly Abandoned" badge
+  submittedBy?: string;    // user id of submitter
 }
