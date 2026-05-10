@@ -7,7 +7,8 @@ import { CATEGORY_META } from "@/lib/mapUtils";
 type MarkerState = "resting" | "hovered" | "selected";
 
 function createMarkerIcon(location: Location, state: MarkerState): L.DivIcon {
-  const { color, glowColor } = CATEGORY_META[location.category];
+  const { glowColor } = CATEGORY_META[location.category];
+  const color = "#A855F7";
   const isSelected = state === "selected";
   const isHovered = state === "hovered";
 
