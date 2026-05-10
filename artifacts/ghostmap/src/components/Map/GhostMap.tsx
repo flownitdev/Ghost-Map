@@ -5,17 +5,23 @@ import { TILE_LAYERS, MAP_CENTER, MAP_DEFAULT_ZOOM, fixLeafletIcons } from "@/li
 import { MapMarker } from "./MapMarker";
 import { HeatmapLayer } from "./HeatmapLayer";
 import { DecayZones } from "./DecayZones";
+import { UserLocationMarker } from "@/components/GPS/UserLocationMarker";
+import { HeatTrailLayer } from "@/components/GPS/HeatTrailLayer";
 import type { Location } from "@/types/location";
 import type { HeatmapSettings } from "@/hooks/useHeatmap";
+import type { GeoPosition } from "@/hooks/useGeolocation";
 
 fixLeafletIcons();
 
 interface GhostMapProps {
-  locations: Location[];
-  allLocations: Location[];
-  selectedLocation: Location | null;
-  onSelectLocation: (location: Location) => void;
-  heatmapSettings: HeatmapSettings;
+  locations:          Location[];
+  allLocations:       Location[];
+  selectedLocation:   Location | null;
+  onSelectLocation:   (location: Location) => void;
+  heatmapSettings:    HeatmapSettings;
+  gpsTracking?:       boolean;
+  gpsPosition?:       GeoPosition | null;
+  trailPoints?:       [number, number][];
 }
 
 export function GhostMap({
@@ -24,6 +30,9 @@ export function GhostMap({
   selectedLocation,
   onSelectLocation,
   heatmapSettings,
+  gpsTracking  = false,
+  gpsPosition  = null,
+  trailPoints  = [],
 }: GhostMapProps) {
   const tile = TILE_LAYERS.satellite;
 
@@ -51,10 +60,11 @@ export function GhostMap({
           visible={heatmapSettings.visible}
         />
 
-        <DecayZones
-          locations={allLocations}
-          visible={heatmapSettings.visible}
-        />
+        <DecayZones locations={allLocations} visible={heatmapSettings.visible} />
+
+        <HeatTrailLayer trailPoints={trailPoints} visible={gpsTracking && trailPoints.length >= 2} />
+
+        <UserLocationMarker position={gpsPosition} visible={gpsTracking} />
 
         {locations.map((location) => (
           <MapMarker

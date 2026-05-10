@@ -1,6 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus } from "lucide-react";
+import { Plus, MapPin } from "lucide-react";
 import { GhostMap, FilterBar } from "@/components/Map";
 import { HeatmapControls } from "@/components/Map/HeatmapControls";
 import { AddLocationModal } from "@/components/Map/AddLocationModal";
@@ -8,14 +8,88 @@ import { CinematicOverlay } from "@/components/Map/CinematicOverlay";
 import { LocationPanel, TrendingPanel } from "@/components/Sidebar";
 import { UserMenu } from "@/components/Auth/UserMenu";
 import { ActivityFeed } from "@/components/Community/ActivityFeed";
+import { GPSModeButton } from "@/components/GPS/GPSModeButton";
+import { GPSNearbyPanel } from "@/components/GPS/GPSNearbyPanel";
+import { AchievementToast } from "@/components/Achievements/AchievementToast";
 import { useLocations } from "@/hooks/useLocations";
 import { useMapLocations } from "@/hooks/useMapLocations";
 import { useHeatmap } from "@/hooks/useHeatmap";
 import { useUserLocations } from "@/hooks/useUserLocations";
 import { useRank } from "@/hooks/useRank";
+import { useGeolocation } from "@/hooks/useGeolocation";
+import { useAchievements } from "@/hooks/useAchievements";
 import { useAuth } from "@/contexts/AuthContext";
+import type { Location } from "@/types/location";
+import type { Achievement } from "@/types/exploration";
 
 const FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif";
+
+function ProximityAlert({
+  nearbyLocation, exploredIds, onView,
+}: {
+  nearbyLocation: Location | null;
+  exploredIds:    Set<string>;
+  onView:         (l: Location) => void;
+}) {
+  const explored = nearbyLocation ? exploredIds.has(String(nearbyLocation.id)) : false;
+  return (
+    <AnimatePresence>
+      {nearbyLocation && (
+        <motion.div
+          key={String(nearbyLocation.id)}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          transition={{ type: "spring", damping: 28, stiffness: 300 }}
+          className="fixed z-[950] flex items-center gap-3 px-4 py-3 rounded-2xl"
+          style={{
+            bottom:         "88px",
+            left:           "50%",
+            transform:      "translateX(-50%)",
+            background:     "rgba(14,13,20,0.92)",
+            border:         "1px solid rgba(74,222,128,0.3)",
+            backdropFilter: "blur(40px)",
+            boxShadow:      "0 4px 24px rgba(0,0,0,0.5), 0 0 20px rgba(74,222,128,0.1)",
+            maxWidth:       "360px",
+            width:          "calc(100vw - 32px)",
+          }}
+        >
+          <motion.div
+            animate={{ scale: [1, 1.2, 1] }}
+            transition={{ duration: 1.6, repeat: Infinity }}
+            className="w-2 h-2 rounded-full flex-shrink-0"
+            style={{ background: "#4ade80", boxShadow: "0 0 6px #4ade80" }}
+          />
+          <div className="flex-1 min-w-0">
+            <p className="font-sans" style={{ fontSize: "10px", color: "rgba(74,222,128,0.8)", fontFamily: FONT, fontWeight: 600, letterSpacing: "0.05em" }}>
+              YOU'RE NEAR {explored ? "· ALREADY EXPLORED" : "· UNDISCOVERED"}
+            </p>
+            <p className="font-sans font-semibold text-white truncate" style={{ fontSize: "13px", fontFamily: FONT, letterSpacing: "-0.01em" }}>
+              {nearbyLocation.name}
+            </p>
+          </div>
+          <motion.button
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => onView(nearbyLocation)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl flex-shrink-0"
+            style={{
+              background: "rgba(74,222,128,0.12)",
+              border:     "1px solid rgba(74,222,128,0.3)",
+              color:      "#4ade80",
+              fontSize:   "11px",
+              fontFamily: FONT,
+              fontWeight: 600,
+              cursor:     "pointer",
+            }}
+          >
+            <MapPin className="w-3 h-3" /> View
+          </motion.button>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
 
 export function MapPage() {
   const { locations, loadingState } = useLocations();
@@ -46,12 +120,61 @@ export function MapPage() {
     [locations, exploredIds]
   );
 
-  const stats = useRank({
-    user,
+  const stats = useRank({ user, exploredLocations, savedIds, submittedLocations: [] });
+
+  const geo = useGeolocation(locations);
+
+  const [hasGPSVisit, setHasGPSVisit] = useState(() => localStorage.getItem("gm-gps-visit") === "true");
+  const [hasTrail,    setHasTrail]    = useState(() => localStorage.getItem("gm-has-trail") === "true");
+  const [hasLog,      setHasLog]      = useState(() => localStorage.getItem("gm-has-log")   === "true");
+
+  useEffect(() => {
+    if (geo.nearbyLocation && !hasGPSVisit) {
+      setHasGPSVisit(true);
+      localStorage.setItem("gm-gps-visit", "true");
+    }
+  }, [geo.nearbyLocation, hasGPSVisit]);
+
+  useEffect(() => {
+    if (!geo.isTracking && geo.trailPoints.length >= 3 && !hasTrail) {
+      setHasTrail(true);
+      localStorage.setItem("gm-has-trail", "true");
+    }
+  }, [geo.isTracking, geo.trailPoints.length, hasTrail]);
+
+  const handleLogAdded = () => {
+    if (!hasLog) {
+      setHasLog(true);
+      localStorage.setItem("gm-has-log", "true");
+    }
+  };
+
+  const { newlyUnlocked, dismissNew } = useAchievements({
     exploredLocations,
-    savedIds,
-    submittedLocations: [],
+    hasLog,
+    hasGPSVisit,
+    hasTrail,
+    rankTier: stats.rank.tier,
   });
+
+  const [currentToast, setCurrentToast] = useState<Achievement | null>(null);
+  const [toastQueue,   setToastQueue]   = useState<Achievement[]>([]);
+
+  useEffect(() => {
+    if (newlyUnlocked.length > 0) {
+      setToastQueue((q) => [...q, ...newlyUnlocked]);
+      dismissNew();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newlyUnlocked.length]);
+
+  useEffect(() => {
+    if (!currentToast && toastQueue.length > 0) {
+      const [next, ...rest] = toastQueue;
+      setCurrentToast(next);
+      setToastQueue(rest);
+    }
+  }, [currentToast, toastQueue]);
 
   const adminRemovedIds = useMemo<Set<string>>(() => {
     try {
@@ -105,10 +228,40 @@ export function MapPage() {
           selectedLocation={selectedLocation}
           onSelectLocation={selectLocation}
           heatmapSettings={heatmapSettings}
+          gpsTracking={geo.isTracking}
+          gpsPosition={geo.position}
+          trailPoints={geo.trailPoints}
         />
       </div>
 
-      {/* Loading indicator */}
+      <GPSModeButton
+        isTracking={geo.isTracking}
+        isSupported={geo.isSupported}
+        position={geo.position}
+        error={geo.error}
+        onStart={geo.startTracking}
+        onStop={geo.stopTracking}
+      />
+
+      <GPSNearbyPanel
+        position={geo.position}
+        isTracking={geo.isTracking}
+        allLocations={locations}
+        exploredIds={exploredIds}
+        onSelectLocation={selectLocation}
+      />
+
+      <ProximityAlert
+        nearbyLocation={geo.nearbyLocation}
+        exploredIds={exploredIds}
+        onView={selectLocation}
+      />
+
+      <AchievementToast
+        achievement={currentToast}
+        onDismiss={() => setCurrentToast(null)}
+      />
+
       <AnimatePresence>
         {loadingState === "loading" && (
           <motion.div
@@ -117,13 +270,13 @@ export function MapPage() {
             exit={{ opacity: 0, y: 6 }}
             className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[1000] px-4 py-2 rounded-full font-sans"
             style={{
-              fontSize: "12px",
-              color: "rgba(255,255,255,0.35)",
-              background: "rgba(18,17,24,0.82)",
-              border: "1px solid rgba(255,255,255,0.07)",
+              fontSize:       "12px",
+              color:          "rgba(255,255,255,0.35)",
+              background:     "rgba(18,17,24,0.82)",
+              border:         "1px solid rgba(255,255,255,0.07)",
               backdropFilter: "blur(40px)",
-              fontFamily: FONT,
-              letterSpacing: "-0.01em",
+              fontFamily:     FONT,
+              letterSpacing:  "-0.01em",
             }}
           >
             Loading locations…
@@ -131,10 +284,8 @@ export function MapPage() {
         )}
       </AnimatePresence>
 
-      {/* Community Activity Feed */}
       <ActivityFeed locations={locations} onSelectLocation={selectLocation} />
 
-      {/* Add Site FAB */}
       <motion.button
         initial={{ opacity: 0, scale: 0.85 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -144,14 +295,14 @@ export function MapPage() {
         onClick={() => setModalOpen(true)}
         className="fixed bottom-8 right-7 z-[1000] flex items-center gap-2 px-4 py-2.5 rounded-xl"
         style={{
-          background: "rgba(250,72,23,0.1)",
-          border: "1px solid rgba(250,72,23,0.22)",
-          color: "#FA4817",
-          backdropFilter: "blur(40px)",
+          background:          "rgba(250,72,23,0.1)",
+          border:              "1px solid rgba(250,72,23,0.22)",
+          color:               "#FA4817",
+          backdropFilter:      "blur(40px)",
           WebkitBackdropFilter: "blur(40px)",
-          boxShadow: "0 4px 24px rgba(0,0,0,0.4)",
-          cursor: "pointer",
-          fontFamily: FONT,
+          boxShadow:           "0 4px 24px rgba(0,0,0,0.4)",
+          cursor:              "pointer",
+          fontFamily:          FONT,
         }}
         data-testid="add-location-fab"
       >
@@ -170,12 +321,10 @@ export function MapPage() {
         allLocations={locations}
         userRankTier={stats.rank.tier}
         isAdmin={stats.isAdmin}
+        onLogAdded={handleLogAdded}
       />
 
-      <AddLocationModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-      />
+      <AddLocationModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
     </motion.div>
   );
 }

@@ -61,44 +61,20 @@ export interface Database {
           demolition_status?: string | null;
           created_at?: string;
         };
-        Relationships: [];
       };
+
       saved_locations: {
-        Row: {
-          user_id: string;
-          location_id: number;
-          created_at: string;
-        };
-        Insert: {
-          user_id: string;
-          location_id: number | string;
-          created_at?: string;
-        };
-        Update: {
-          user_id?: string;
-          location_id?: number | string;
-          created_at?: string;
-        };
-        Relationships: [];
+        Row:    { user_id: string; location_id: number; created_at: string };
+        Insert: { user_id: string; location_id: number; created_at?: string };
+        Update: { user_id?: string; location_id?: number; created_at?: string };
       };
+
       explored_locations: {
-        Row: {
-          user_id: string;
-          location_id: number;
-          created_at: string;
-        };
-        Insert: {
-          user_id: string;
-          location_id: number | string;
-          created_at?: string;
-        };
-        Update: {
-          user_id?: string;
-          location_id?: number | string;
-          created_at?: string;
-        };
-        Relationships: [];
+        Row:    { user_id: string; location_id: number; created_at: string };
+        Insert: { user_id: string; location_id: number; created_at?: string };
+        Update: { user_id?: string; location_id?: number; created_at?: string };
       };
+
       location_analysis: {
         Row: {
           location_id: string;
@@ -131,7 +107,6 @@ export interface Database {
           created_at?: string;
         };
         Update: {
-          location_id?: string;
           summary?: string | null;
           abandonment_score?: number | null;
           decay_level?: number | null;
@@ -143,14 +118,72 @@ export interface Database {
           vegetation_overgrowth?: number | null;
           parking_decay?: number | null;
           risk_estimate?: string | null;
+        };
+      };
+
+      exploration_logs: {
+        Row: {
+          id: string;
+          user_id: string;
+          location_id: string;
+          notes: string;
+          visited_at: string;
+          photo_url: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          location_id: string;
+          notes: string;
+          visited_at: string;
+          photo_url?: string | null;
           created_at?: string;
         };
-        Relationships: [];
+        Update: {
+          notes?: string;
+          visited_at?: string;
+          photo_url?: string | null;
+        };
+      };
+
+      gps_trails: {
+        Row: {
+          id: string;
+          user_id: string;
+          points: Json;
+          recorded_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          points: Json;
+          recorded_at?: string;
+        };
+        Update: {
+          points?: Json;
+        };
+      };
+
+      user_achievements: {
+        Row: {
+          user_id: string;
+          achievement_id: string;
+          unlocked_at: string;
+        };
+        Insert: {
+          user_id: string;
+          achievement_id: string;
+          unlocked_at?: string;
+        };
+        Update: {
+          unlocked_at?: string;
+        };
       };
     };
-    Views: Record<string, never>;
+
+    Views:     Record<string, never>;
     Functions: Record<string, never>;
-    Enums: Record<string, never>;
-    CompositeTypes: Record<string, never>;
+    Enums:     Record<string, never>;
   };
 }
