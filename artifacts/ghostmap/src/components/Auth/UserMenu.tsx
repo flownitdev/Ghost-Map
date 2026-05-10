@@ -21,7 +21,7 @@ export function UserMenu() {
   const initial = user?.email?.[0]?.toUpperCase() ?? "?";
 
   return (
-    <div ref={ref} className="fixed top-5 right-5 z-[1001]">
+    <div ref={ref} className="fixed top-5 left-5 z-[1001]">
       {/* Avatar / trigger */}
       <motion.button
         whileHover={{ scale: 1.05 }}
