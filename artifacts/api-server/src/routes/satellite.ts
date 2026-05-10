@@ -148,21 +148,20 @@ Scan carefully for:
 
 CRITICAL RULES:
 1. SPECULATE. Surface suspicious patterns — always err toward flagging, not clearing
-2. Even WEAK signals deserve a score of 25-40. Don't discard them
-3. Industrial zones, warehouses, large rooftops, and empty lots = score 40-60 by default
+2. Even WEAK signals deserve a score of 25-40. Do not discard them
+3. Industrial zones, warehouses, large rooftops, and empty lots should score 40-60 by default
 4. Residential areas can still have neglected individual structures
-5. If you see ANY of: empty lot, warehouse, industrial facility, isolated building, sparse traffic → score it 30+
+5. If you see any of: empty lot, warehouse, industrial facility, isolated building, sparse traffic — score it 30 or higher
 6. A "boring" tile is still useful — describe what makes it appear active OR what edge-case signals exist
-7. Do NOT use language like "area looks active and well-maintained" without also noting any possible weak signals
 
-Return ONLY valid JSON, no markdown, no extra text:
-{
-  "confidenceScore": <integer 0-100: likelihood this contains neglected/abandoned structures. Give 25+ for any industrial, isolated, or potentially-vacant area. Give 50+ for clear decay signals. Give 75+ for obvious dereliction>,
-  "decayLevel": <integer 0-100: severity of decay signals observed. Give at least 20 for industrial/empty areas>,
-  "indicators": [<3-6 specific observed signals. Use phrases like: "vacant warehouse roof", "empty lot, no vehicles", "overgrown perimeter", "industrial facility low activity", "possible brownfield", "isolated structure", "faded parking markings", "low pedestrian density">],
-  "reasoning": "<2 punchy sentences: what specific patterns make this suspicious OR what you would tell an urban explorer to investigate>",
-  "suspicionTier": <exactly one of: "high_decay" | "suspicious" | "potentially_neglected" | "requires_verification" | "appears_active">
-}`;
+Respond with a JSON object containing exactly these fields:
+- confidenceScore: a number from 0 to 100 (integer). Use 25 or higher for any industrial, isolated, or potentially-vacant area. Use 50 or higher for clear decay signals. Use 75 or higher for obvious dereliction.
+- decayLevel: a number from 0 to 100 (integer). Use at least 20 for industrial or empty areas.
+- indicators: an array of 3 to 6 short strings describing specific observed signals, for example "vacant warehouse roof" or "empty lot no vehicles" or "overgrown perimeter" or "industrial facility low activity" or "isolated structure" or "low pedestrian density"
+- reasoning: a string of 1 to 2 sentences describing what patterns make this area suspicious or worth investigating
+- suspicionTier: one of the following exact strings: "high_decay" or "suspicious" or "potentially_neglected" or "requires_verification" or "appears_active"
+
+Return ONLY the JSON object. No markdown fences, no explanation, no extra text.`;
 
   try {
     const response = await ai.models.generateContent({
@@ -179,18 +178,54 @@ Return ONLY valid JSON, no markdown, no extra text:
       config: { maxOutputTokens: 600, responseMimeType: "application/json" },
     });
 
-    const raw = (response.text ?? "{}").replace(/```json\n?|\n?```/g, "").trim();
+    const rawText = (response.text ?? "{}").replace(/```json\n?|\n?```/g, "").trim();
 
     // Debug log: always log raw Gemini output
-    logger.debug({ tx, ty, zoom, rawGemini: raw }, "[SatScanner] Raw Gemini response");
+    logger.debug({ tx, ty, zoom, rawGemini: rawText }, "[SatScanner] Raw Gemini response");
 
-    const parsed = JSON.parse(raw) as {
+    // Robust JSON extraction: try standard parse, then extract first {...} block
+    let raw = rawText;
+    let parsed: {
       confidenceScore?: number;
       decayLevel?: number;
       indicators?: string[];
       reasoning?: string;
       suspicionTier?: string;
     };
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      // Try to extract the first {...} block from the response
+      const match = rawText.match(/\{[\s\S]*\}/);
+      if (match) {
+        try {
+          parsed = JSON.parse(match[0]);
+        } catch {
+          // Last resort: use heuristic fallback
+          logger.warn({ tx, ty, rawSnippet: rawText.slice(0, 120) }, "[SatScanner] JSON extract failed after retry — heuristic");
+          const fb = heuristicFallback(tx, ty, zoom, centerLat, centerLng);
+          return {
+            tileX: tx, tileY: ty, zoom,
+            lat: nw.lat, lng: nw.lng,
+            latSE: se.lat, lngSE: se.lng,
+            centerLat, centerLng,
+            ...fb,
+            source: "heuristic",
+          };
+        }
+      } else {
+        logger.warn({ tx, ty, rawSnippet: rawText.slice(0, 120) }, "[SatScanner] No JSON object found in response — heuristic");
+        const fb = heuristicFallback(tx, ty, zoom, centerLat, centerLng);
+        return {
+          tileX: tx, tileY: ty, zoom,
+          lat: nw.lat, lng: nw.lng,
+          latSE: se.lat, lngSE: se.lng,
+          centerLat, centerLng,
+          ...fb,
+          source: "heuristic",
+        };
+      }
+    }
 
     const tier = typeof parsed.suspicionTier === "string" ? parsed.suspicionTier : "requires_verification";
     const tierFloor = TIER_FLOOR[tier] ?? 20;

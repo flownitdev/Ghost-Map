@@ -246,7 +246,7 @@ export function MapPage() {
           gpsPosition={geo.position}
           trailPoints={geo.trailPoints}
           onMapStateChange={updateMapView}
-          scanResults={scanResponse?.results ?? []}
+          scanResults={scanResponse?.flagged ?? []}
         />
       </div>
 
