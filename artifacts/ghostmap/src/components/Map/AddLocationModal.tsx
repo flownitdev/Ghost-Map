@@ -49,7 +49,7 @@ const inputStyle: React.CSSProperties = {
   outline: "none",
   fontFamily: "inherit",
   width: "100%",
-  caretColor: "#FA4817",
+  caretColor: "#A855F7",
 };
 
 export function AddLocationModal({ isOpen, onClose, onSubmit }: AddLocationModalProps) {
@@ -136,18 +136,18 @@ export function AddLocationModal({ isOpen, onClose, onSubmit }: AddLocationModal
             <div
               className="w-full rounded-2xl overflow-hidden"
               style={{
-                background: "linear-gradient(160deg, rgba(22,21,25,0.97) 0%, rgba(16,15,18,0.97) 100%)",
+                background: "linear-gradient(160deg, rgba(16,15,22,0.97) 0%, rgba(12,11,17,0.97) 100%)",
                 backdropFilter: "blur(32px)",
                 border: "1px solid rgba(255,255,255,0.08)",
-                boxShadow: "0 32px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(250,72,23,0.08)",
+                boxShadow: "0 32px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(168,85,247,0.08)",
               }}
             >
               {/* Header strip */}
               <div
                 className="h-[2px] w-full"
                 style={{
-                  background: "linear-gradient(90deg, #FA4817 0%, #FA481755 60%, transparent 100%)",
-                  boxShadow: "0 0 10px #FA481780",
+                  background: "linear-gradient(90deg, #A855F7 0%, #A855F755 60%, transparent 100%)",
+                  boxShadow: "0 0 10px #A855F780",
                 }}
               />
 
@@ -157,9 +157,9 @@ export function AddLocationModal({ isOpen, onClose, onSubmit }: AddLocationModal
                   <div className="flex items-center gap-3">
                     <div
                       className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                      style={{ background: "rgba(250,72,23,0.12)", border: "1px solid rgba(250,72,23,0.25)" }}
+                      style={{ background: "rgba(168,85,247,0.12)", border: "1px solid rgba(168,85,247,0.25)" }}
                     >
-                      <MapPin className="w-3.5 h-3.5" style={{ color: "#FA4817" }} />
+                      <MapPin className="w-3.5 h-3.5" style={{ color: "#A855F7" }} />
                     </div>
                     <div>
                       <h2
@@ -298,8 +298,8 @@ export function AddLocationModal({ isOpen, onClose, onSubmit }: AddLocationModal
                         max={100}
                         value={abandonmentScore}
                         onChange={(e) => setAbandonmentScore(e.target.value)}
-                        className="flex-1 accent-[#FA4817]"
-                        style={{ accentColor: "#FA4817" }}
+                        className="flex-1 accent-[#A855F7]"
+                        style={{ accentColor: "#A855F7" }}
                       />
                       <span
                         className="font-title font-bold tabular-nums w-8 text-right"
@@ -307,9 +307,9 @@ export function AddLocationModal({ isOpen, onClose, onSubmit }: AddLocationModal
                           fontSize: "13px",
                           color:
                             parseInt(abandonmentScore) >= 80
-                              ? "#FA4817"
+                              ? "#A855F7"
                               : parseInt(abandonmentScore) >= 55
-                              ? "#92a5d1"
+                              ? "#c084fc"
                               : "#4ade80",
                         }}
                       >
@@ -326,7 +326,7 @@ export function AddLocationModal({ isOpen, onClose, onSubmit }: AddLocationModal
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
                         className="font-sans text-xs"
-                        style={{ color: "#FA4817" }}
+                        style={{ color: "#A855F7" }}
                       >
                         {error}
                       </motion.p>
@@ -337,7 +337,7 @@ export function AddLocationModal({ isOpen, onClose, onSubmit }: AddLocationModal
                   <motion.button
                     type="submit"
                     disabled={submitting}
-                    whileHover={!submitting ? { scale: 1.015, boxShadow: "0 0 24px rgba(250,72,23,0.28)" } : {}}
+                    whileHover={!submitting ? { scale: 1.015, boxShadow: "0 0 24px rgba(168,85,247,0.28)" } : {}}
                     whileTap={!submitting ? { scale: 0.985 } : {}}
                     transition={{ duration: 0.15 }}
                     className="w-full flex items-center justify-center gap-2 py-3 rounded-xl mt-1"
@@ -346,9 +346,9 @@ export function AddLocationModal({ isOpen, onClose, onSubmit }: AddLocationModal
                       letterSpacing: "0.14em",
                       fontWeight: 700,
                       textTransform: "uppercase",
-                      background: submitting ? "rgba(250,72,23,0.08)" : "rgba(250,72,23,0.14)",
-                      border: "1px solid rgba(250,72,23,0.32)",
-                      color: "#FA4817",
+                      background: submitting ? "rgba(168,85,247,0.08)" : "rgba(168,85,247,0.14)",
+                      border: "1px solid rgba(168,85,247,0.32)",
+                      color: "#A855F7",
                       opacity: submitting ? 0.6 : 1,
                       cursor: submitting ? "not-allowed" : "pointer",
                     }}

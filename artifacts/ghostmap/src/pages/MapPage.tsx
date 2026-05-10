@@ -30,7 +30,7 @@ export function MapPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6 }}
-      className="w-full h-[100dvh] overflow-hidden bg-[#111012] relative"
+      className="w-full h-[100dvh] overflow-hidden bg-[#0c0b11] relative"
     >
       <FilterBar
         activeCategory={activeCategory}
@@ -65,7 +65,7 @@ export function MapPage() {
               fontSize: "11px",
               letterSpacing: "0.12em",
               color: "rgba(255,255,255,0.5)",
-              background: "rgba(17,16,18,0.88)",
+              background: "rgba(12,11,17,0.88)",
               border: "1px solid rgba(255,255,255,0.07)",
               backdropFilter: "blur(20px)",
             }}
@@ -80,17 +80,17 @@ export function MapPage() {
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.6, duration: 0.35, type: "spring", stiffness: 260, damping: 20 }}
-        whileHover={{ scale: 1.08, boxShadow: "0 0 28px rgba(250,72,23,0.4)" }}
+        whileHover={{ scale: 1.08, boxShadow: "0 0 28px rgba(168,85,247,0.4)" }}
         whileTap={{ scale: 0.93 }}
         onClick={() => setModalOpen(true)}
         className="fixed bottom-8 right-7 z-[1000] flex items-center gap-2 px-4 py-3 rounded-2xl"
         style={{
-          background: "linear-gradient(135deg, rgba(250,72,23,0.18) 0%, rgba(250,72,23,0.10) 100%)",
-          border: "1px solid rgba(250,72,23,0.35)",
-          color: "#FA4817",
+          background: "linear-gradient(135deg, rgba(168,85,247,0.18) 0%, rgba(168,85,247,0.10) 100%)",
+          border: "1px solid rgba(168,85,247,0.35)",
+          color: "#A855F7",
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.5), 0 0 14px rgba(250,72,23,0.15)",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.5), 0 0 14px rgba(168,85,247,0.15)",
           cursor: "pointer",
           fontFamily: "inherit",
         }}

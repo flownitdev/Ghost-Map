@@ -17,7 +17,7 @@ export function HudOverlay() {
       <div
         className="flex items-center gap-4 pl-3.5 pr-5 py-3 rounded-2xl"
         style={{
-          background: "linear-gradient(135deg, rgba(20,19,22,0.88) 0%, rgba(15,14,17,0.82) 100%)",
+          background: "linear-gradient(135deg, rgba(14,13,20,0.88) 0%, rgba(11,10,16,0.82) 100%)",
           backdropFilter: "blur(28px) saturate(1.6)",
           WebkitBackdropFilter: "blur(28px) saturate(1.6)",
           border: "1px solid rgba(255,255,255,0.07)",
@@ -32,7 +32,7 @@ export function HudOverlay() {
               className="absolute rounded-full"
               style={{
                 inset: `-${i * 3}px`,
-                border: "1px solid rgba(250,72,23,0.3)",
+                border: "1px solid rgba(168,85,247,0.3)",
                 animation: `ghost-ripple 2.4s ease-out ${i * 0.7}s infinite`,
               }}
             />
@@ -40,14 +40,14 @@ export function HudOverlay() {
           <div
             className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full flex-shrink-0"
             style={{
-              background: "rgba(250,72,23,0.14)",
-              border: "1px solid rgba(250,72,23,0.28)",
-              boxShadow: "0 0 12px rgba(250,72,23,0.2)",
+              background: "rgba(168,85,247,0.14)",
+              border: "1px solid rgba(168,85,247,0.28)",
+              boxShadow: "0 0 12px rgba(168,85,247,0.2)",
             }}
           >
             <Radar
               className="w-4 h-4"
-              style={{ color: "#FA4817", animation: "spin 6s linear infinite" }}
+              style={{ color: "#A855F7", animation: "spin 6s linear infinite" }}
             />
           </div>
         </div>
@@ -79,7 +79,7 @@ export function HudOverlay() {
           <div className="text-center">
             <p
               className="font-title font-bold leading-none"
-              style={{ fontSize: "1rem", color: "#FA4817" }}
+              style={{ fontSize: "1rem", color: "#A855F7" }}
             >
               {locations.length}
             </p>
@@ -94,7 +94,7 @@ export function HudOverlay() {
           <div className="text-center">
             <p
               className="font-title font-bold leading-none"
-              style={{ fontSize: "1rem", color: "#FA4817" }}
+              style={{ fontSize: "1rem", color: "#A855F7" }}
             >
               {highRisk}
             </p>

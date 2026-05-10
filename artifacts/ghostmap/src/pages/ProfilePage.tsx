@@ -38,9 +38,9 @@ export default function ProfilePage() {
     return (
       <div
         className="min-h-screen flex items-center justify-center"
-        style={{ background: "#111012" }}
+        style={{ background: "#0c0b11" }}
       >
-        <Loader2 className="w-6 h-6 animate-spin" style={{ color: "#FA4817" }} />
+        <Loader2 className="w-6 h-6 animate-spin" style={{ color: "#A855F7" }} />
       </div>
     );
   }
@@ -56,14 +56,14 @@ export default function ProfilePage() {
   return (
     <div
       className="min-h-screen"
-      style={{ background: "#111012" }}
+      style={{ background: "#0c0b11" }}
     >
       {/* Radial glow */}
       <div
         className="pointer-events-none fixed inset-0"
         style={{
           background:
-            "radial-gradient(ellipse 80% 40% at 50% 0%, rgba(250,72,23,0.06) 0%, transparent 60%)",
+            "radial-gradient(ellipse 80% 40% at 50% 0%, rgba(168,85,247,0.06) 0%, transparent 60%)",
         }}
       />
 
@@ -92,9 +92,9 @@ export default function ProfilePage() {
             <div
               className="w-12 h-12 rounded-xl flex items-center justify-center font-title font-bold text-xl"
               style={{
-                background: "rgba(250,72,23,0.14)",
-                border: "1px solid rgba(250,72,23,0.25)",
-                color: "#FA4817",
+                background: "rgba(168,85,247,0.14)",
+                border: "1px solid rgba(168,85,247,0.25)",
+                color: "#A855F7",
               }}
             >
               {user.email?.[0]?.toUpperCase()}
@@ -162,9 +162,9 @@ export default function ProfilePage() {
                 fontWeight: 500,
                 letterSpacing: "0.06em",
                 fontFamily: "inherit",
-                background: tab === t.id ? "rgba(250,72,23,0.12)" : "rgba(255,255,255,0.03)",
-                border: tab === t.id ? "1px solid rgba(250,72,23,0.3)" : "1px solid rgba(255,255,255,0.06)",
-                color: tab === t.id ? "#FA4817" : "rgba(255,255,255,0.4)",
+                background: tab === t.id ? "rgba(168,85,247,0.12)" : "rgba(255,255,255,0.03)",
+                border: tab === t.id ? "1px solid rgba(168,85,247,0.3)" : "1px solid rgba(255,255,255,0.06)",
+                color: tab === t.id ? "#A855F7" : "rgba(255,255,255,0.4)",
                 cursor: "pointer",
               }}
             >
@@ -258,7 +258,7 @@ function ProfileLocationCard({ location, index }: { location: Location; index: n
           className="font-title font-bold tabular-nums"
           style={{
             fontSize: "16px",
-            color: location.abandonmentScore >= 80 ? "#FA4817" : location.abandonmentScore >= 55 ? "#92a5d1" : "#4ade80",
+            color: location.abandonmentScore >= 80 ? "#A855F7" : location.abandonmentScore >= 55 ? "#c084fc" : "#4ade80",
           }}
         >
           {location.abandonmentScore}

@@ -21,13 +21,13 @@ export function GhostMap({ locations, selectedLocation, onSelectLocation }: Ghos
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
-      className="w-full h-full bg-[#111012]"
+      className="w-full h-full bg-[#0c0b11]"
       data-testid="map-container"
     >
       <MapContainer
         center={MAP_CENTER}
         zoom={MAP_DEFAULT_ZOOM}
-        className="w-full h-full bg-[#111012]"
+        className="w-full h-full bg-[#0c0b11]"
         zoomControl={false}
       >
         <TileLayer url={tile.url} attribution={tile.attribution} />

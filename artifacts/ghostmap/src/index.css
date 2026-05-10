@@ -77,37 +77,37 @@
   --elevate-1: rgba(0,0,0, .03);
   --elevate-2: rgba(0,0,0, .08);
 
-  --background: 270 5.6% 6.9%; /* #111012 */
+  --background: 267 20% 5.5%; /* #0c0b11 ✓ */
   --foreground: 0 0% 98%; 
   --border: 0 0% 20%; 
-  --card: 270 5.6% 6.9%; 
+  --card: 267 20% 5.5%; 
   --card-foreground: 0 0% 98%; 
   --card-border: 0 0% 20%; 
-  --sidebar: 270 5.6% 6.9%; 
+  --sidebar: 267 20% 5.5%; 
   --sidebar-foreground: 0 0% 98%; 
   --sidebar-border: 0 0% 20%; 
-  --sidebar-primary: 221 29.7% 29.6%; 
+  --sidebar-primary: 256 55% 24%; 
   --sidebar-primary-foreground: 0 0% 98%; 
-  --sidebar-accent: 13 95.9% 53.5%; 
+  --sidebar-accent: 271 91% 65%; 
   --sidebar-accent-foreground: 0 0% 98%; 
-  --sidebar-ring: 13 95.9% 53.5%; 
-  --popover: 270 5.6% 6.9%; 
+  --sidebar-ring: 271 91% 65%; 
+  --popover: 267 20% 5.5%; 
   --popover-foreground: 0 0% 98%; 
   --popover-border: 0 0% 20%; 
-  --primary: 221 29.7% 29.6%; /* #354362 */
+  --primary: 256 55% 24%; /* #2d1b5e ✓ */
   --primary-foreground: 0 0% 98%; 
   --secondary: 0 0% 15%; 
   --secondary-foreground: 0 0% 98%; 
   --muted: 0 0% 15%; 
   --muted-foreground: 0 0% 65%; 
-  --accent: 13 95.9% 53.5%; /* #FA4817 */
+  --accent: 271 91% 65%; /* #A855F7 ✓ */
   --accent-foreground: 0 0% 98%; 
   --destructive: 0 84.2% 60.2%; 
   --destructive-foreground: 0 0% 98%; 
   --input: 0 0% 20%; 
-  --ring: 13 95.9% 53.5%; 
-  --chart-1: 13 95.9% 53.5%; 
-  --chart-2: 221 29.7% 29.6%; 
+  --ring: 271 91% 65%; 
+  --chart-1: 271 91% 65%; 
+  --chart-2: 256 55% 24%; 
   --chart-3: 152 44.7% 29.8%; 
   --chart-4: 43 74% 66%; 
   --chart-5: 27 87% 67%;
@@ -169,37 +169,37 @@
   --elevate-1: rgba(255,255,255, .04);
   --elevate-2: rgba(255,255,255, .09);
 
-  --background: 270 5.6% 6.9%; /* #111012 */
+  --background: 267 20% 5.5%; /* #0c0b11 ✓ */
   --foreground: 0 0% 98%; 
   --border: 0 0% 20%; 
-  --card: 270 5.6% 6.9%; 
+  --card: 267 20% 5.5%; 
   --card-foreground: 0 0% 98%; 
   --card-border: 0 0% 20%; 
-  --sidebar: 270 5.6% 6.9%; 
+  --sidebar: 267 20% 5.5%; 
   --sidebar-foreground: 0 0% 98%; 
   --sidebar-border: 0 0% 20%; 
-  --sidebar-primary: 221 29.7% 29.6%; 
+  --sidebar-primary: 256 55% 24%; 
   --sidebar-primary-foreground: 0 0% 98%; 
-  --sidebar-accent: 13 95.9% 53.5%; 
+  --sidebar-accent: 271 91% 65%; 
   --sidebar-accent-foreground: 0 0% 98%; 
-  --sidebar-ring: 13 95.9% 53.5%; 
-  --popover: 270 5.6% 6.9%; 
+  --sidebar-ring: 271 91% 65%; 
+  --popover: 267 20% 5.5%; 
   --popover-foreground: 0 0% 98%; 
   --popover-border: 0 0% 20%; 
-  --primary: 221 29.7% 29.6%; /* #354362 */
+  --primary: 256 55% 24%; /* #2d1b5e ✓ */
   --primary-foreground: 0 0% 98%; 
   --secondary: 0 0% 15%; 
   --secondary-foreground: 0 0% 98%; 
   --muted: 0 0% 15%; 
   --muted-foreground: 0 0% 65%; 
-  --accent: 13 95.9% 53.5%; /* #FA4817 */
+  --accent: 271 91% 65%; /* #A855F7 ✓ */
   --accent-foreground: 0 0% 98%; 
   --destructive: 0 84.2% 60.2%; 
   --destructive-foreground: 0 0% 98%; 
   --input: 0 0% 20%; 
-  --ring: 13 95.9% 53.5%; 
-  --chart-1: 13 95.9% 53.5%; 
-  --chart-2: 221 29.7% 29.6%; 
+  --ring: 271 91% 65%; 
+  --chart-1: 271 91% 65%; 
+  --chart-2: 256 55% 24%; 
   --chart-3: 152 44.7% 29.8%; 
   --chart-4: 43 74% 66%; 
   --chart-5: 27 87% 67%;
@@ -275,16 +275,16 @@
   line-height: 36px !important;
   font-size: 18px !important;
   font-weight: 300 !important;
-  background: rgba(17,16,18,0.82) !important;
+  background: rgba(12,11,17,0.82) !important;
   color: rgba(255,255,255,0.75) !important;
   border: 1px solid rgba(255,255,255,0.1) !important;
   backdrop-filter: blur(16px);
   transition: background 0.15s, color 0.15s !important;
 }
 .leaflet-control-zoom a:hover {
-  background: rgba(250,72,23,0.15) !important;
-  color: #FA4817 !important;
-  border-color: rgba(250,72,23,0.3) !important;
+  background: rgba(168,85,247,0.15) !important;
+  color: #A855F7 !important;
+  border-color: rgba(168,85,247,0.3) !important;
 }
 .leaflet-control-zoom-in {
   border-radius: 10px 10px 0 0 !important;
@@ -295,7 +295,7 @@
 
 /* Leaflet attribution */
 .leaflet-control-attribution {
-  background: rgba(17,16,18,0.7) !important;
+  background: rgba(12,11,17,0.7) !important;
   color: rgba(255,255,255,0.3) !important;
   font-size: 9px !important;
   padding: 3px 8px !important;
@@ -306,7 +306,7 @@
   color: rgba(255,255,255,0.4) !important;
 }
 .leaflet-container {
-  background: #111012 !important;
+  background: #0c0b11 !important;
 }
 
 /**

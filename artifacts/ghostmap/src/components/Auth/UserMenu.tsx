@@ -29,11 +29,11 @@ export function UserMenu() {
         onClick={() => setOpen((v) => !v)}
         className="flex items-center gap-2 px-3 py-2 rounded-xl"
         style={{
-          background: "linear-gradient(135deg, rgba(20,19,22,0.90) 0%, rgba(15,14,17,0.85) 100%)",
+          background: "linear-gradient(135deg, rgba(14,13,20,0.90) 0%, rgba(11,10,16,0.85) 100%)",
           backdropFilter: "blur(28px)",
           WebkitBackdropFilter: "blur(28px)",
           border: open
-            ? "1px solid rgba(250,72,23,0.3)"
+            ? "1px solid rgba(168,85,247,0.3)"
             : "1px solid rgba(255,255,255,0.07)",
           boxShadow: "0 8px 32px rgba(0,0,0,0.45)",
           transition: "border-color 0.15s",
@@ -45,9 +45,9 @@ export function UserMenu() {
             <div
               className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 font-title font-bold"
               style={{
-                background: "rgba(250,72,23,0.18)",
-                border: "1px solid rgba(250,72,23,0.3)",
-                color: "#FA4817",
+                background: "rgba(168,85,247,0.18)",
+                border: "1px solid rgba(168,85,247,0.3)",
+                color: "#A855F7",
                 fontSize: "11px",
               }}
             >
@@ -84,7 +84,7 @@ export function UserMenu() {
             className="absolute right-0 mt-2 rounded-xl overflow-hidden"
             style={{
               minWidth: 200,
-              background: "linear-gradient(160deg, rgba(22,21,25,0.97) 0%, rgba(16,15,18,0.97) 100%)",
+              background: "linear-gradient(160deg, rgba(16,15,22,0.97) 0%, rgba(12,11,17,0.97) 100%)",
               border: "1px solid rgba(255,255,255,0.08)",
               boxShadow: "0 16px 48px rgba(0,0,0,0.7)",
               backdropFilter: "blur(28px)",
@@ -166,11 +166,11 @@ function MenuItem({
 }) {
   return (
     <motion.button
-      whileHover={{ backgroundColor: danger ? "rgba(250,72,23,0.08)" : "rgba(255,255,255,0.04)" }}
+      whileHover={{ backgroundColor: danger ? "rgba(168,85,247,0.08)" : "rgba(255,255,255,0.04)" }}
       onClick={onClick}
       className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left"
       style={{
-        color: danger ? "#FA4817" : "rgba(255,255,255,0.55)",
+        color: danger ? "#A855F7" : "rgba(255,255,255,0.55)",
         fontSize: "12px",
         fontFamily: "inherit",
         background: "transparent",

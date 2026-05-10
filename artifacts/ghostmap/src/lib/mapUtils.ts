@@ -24,14 +24,14 @@ export type TileLayerKey = keyof typeof TILE_LAYERS;
 
 export const RISK_COLORS: Record<RiskLevel, { border: string; color: string; bg: string }> = {
   high: {
-    border: "#FA4817",
-    color: "#FA4817",
-    bg: "rgba(250,72,23,0.1)",
+    border: "#A855F7",
+    color: "#A855F7",
+    bg: "rgba(168,85,247,0.1)",
   },
   medium: {
-    border: "#354362",
-    color: "#92a5d1",
-    bg: "rgba(53,67,98,0.3)",
+    border: "#2d1b5e",
+    color: "#c084fc",
+    bg: "rgba(45,27,94,0.3)",
   },
   low: {
     border: "#2a6e4f",

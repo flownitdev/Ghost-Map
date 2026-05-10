@@ -48,7 +48,7 @@ const itemVariants = {
 };
 
 function AbandonmentBar({ score }: { score: number }) {
-  const color = score >= 80 ? "#FA4817" : score >= 55 ? "#92a5d1" : "#4ade80";
+  const color = score >= 80 ? "#A855F7" : score >= 55 ? "#c084fc" : "#4ade80";
   return (
     <div className="w-full">
       <div className="flex items-center justify-between mb-1.5">
@@ -159,7 +159,7 @@ export function LocationPanel({ location, onClose }: LocationPanelProps) {
           exit="exit"
           className="fixed right-0 top-0 h-[100dvh] w-full md:w-[400px] z-[1000] flex flex-col"
           style={{
-            background: "linear-gradient(160deg, rgba(20,19,22,0.93) 0%, rgba(15,14,17,0.89) 100%)",
+            background: "linear-gradient(160deg, rgba(14,13,20,0.93) 0%, rgba(11,10,16,0.89) 100%)",
             backdropFilter: "blur(28px) saturate(1.6) brightness(0.95)",
             WebkitBackdropFilter: "blur(28px) saturate(1.6) brightness(0.95)",
             borderLeft: "1px solid rgba(255,255,255,0.07)",
@@ -307,7 +307,7 @@ export function LocationPanel({ location, onClose }: LocationPanelProps) {
                   </div>
 
                   <motion.button
-                    whileHover={{ scale: 1.015, boxShadow: "0 0 20px rgba(250,72,23,0.25)", backgroundColor: "rgba(250,72,23,0.18)" }}
+                    whileHover={{ scale: 1.015, boxShadow: "0 0 20px rgba(168,85,247,0.25)", backgroundColor: "rgba(168,85,247,0.18)" }}
                     whileTap={{ scale: 0.985 }}
                     transition={{ duration: 0.15 }}
                     className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl"
@@ -317,9 +317,9 @@ export function LocationPanel({ location, onClose }: LocationPanelProps) {
                       fontWeight: 600,
                       textTransform: "uppercase",
                       fontFamily: "inherit",
-                      background: "rgba(250,72,23,0.1)",
-                      border: "1px solid rgba(250,72,23,0.28)",
-                      color: "#FA4817",
+                      background: "rgba(168,85,247,0.1)",
+                      border: "1px solid rgba(168,85,247,0.28)",
+                      color: "#A855F7",
                       cursor: "pointer",
                     }}
                     data-testid="navigate-button"

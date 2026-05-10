@@ -36,7 +36,7 @@ export function FilterBar({
       <div
         className="w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl"
         style={{
-          background: "linear-gradient(135deg, rgba(20,19,22,0.90) 0%, rgba(15,14,17,0.85) 100%)",
+          background: "linear-gradient(135deg, rgba(14,13,20,0.90) 0%, rgba(11,10,16,0.85) 100%)",
           backdropFilter: "blur(28px) saturate(1.6)",
           WebkitBackdropFilter: "blur(28px) saturate(1.6)",
           border: "1px solid rgba(255,255,255,0.07)",
@@ -53,7 +53,7 @@ export function FilterBar({
           className="flex-1 bg-transparent border-none outline-none text-sm font-sans placeholder:text-xs"
           style={{
             color: "rgba(255,255,255,0.85)",
-            caretColor: "#FA4817",
+            caretColor: "#A855F7",
           }}
           data-testid="search-input"
         />
@@ -86,7 +86,7 @@ export function FilterBar({
             className="font-sans tabular-nums"
             style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)" }}
           >
-            <span style={{ color: visibleCount === totalCount ? "rgba(255,255,255,0.55)" : "#FA4817" }}>
+            <span style={{ color: visibleCount === totalCount ? "rgba(255,255,255,0.55)" : "#A855F7" }}>
               {visibleCount}
             </span>
             <span style={{ color: "rgba(255,255,255,0.2)" }}>/{totalCount}</span>
@@ -99,7 +99,7 @@ export function FilterBar({
         {/* All pill */}
         <CategoryPill
           label="All"
-          color="#FA4817"
+          color="#A855F7"
           isActive={activeCategory === "all"}
           onClick={() => onCategoryChange("all")}
           testId="filter-all"
@@ -143,7 +143,7 @@ function CategoryPill({ label, color, isActive, onClick, testId }: CategoryPillP
         letterSpacing: "0.05em",
         background: isActive
           ? `${color}22`
-          : "rgba(17,16,18,0.82)",
+          : "rgba(12,11,17,0.82)",
         border: isActive
           ? `1px solid ${color}66`
           : "1px solid rgba(255,255,255,0.07)",

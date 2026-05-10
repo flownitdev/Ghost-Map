@@ -35,13 +35,13 @@ export default function SignupPage() {
   return (
     <div
       className="min-h-screen w-full flex items-center justify-center"
-      style={{ background: "#111012" }}
+      style={{ background: "#0c0b11" }}
     >
       <div
         className="pointer-events-none fixed inset-0"
         style={{
           background:
-            "radial-gradient(ellipse 60% 50% at 50% 40%, rgba(250,72,23,0.07) 0%, transparent 70%)",
+            "radial-gradient(ellipse 60% 50% at 50% 40%, rgba(168,85,247,0.07) 0%, transparent 70%)",
         }}
       />
 
@@ -55,7 +55,7 @@ export default function SignupPage() {
         <div
           className="rounded-2xl overflow-hidden"
           style={{
-            background: "linear-gradient(160deg, rgba(22,21,25,0.97) 0%, rgba(16,15,18,0.97) 100%)",
+            background: "linear-gradient(160deg, rgba(16,15,22,0.97) 0%, rgba(12,11,17,0.97) 100%)",
             border: "1px solid rgba(255,255,255,0.07)",
             boxShadow: "0 32px 80px rgba(0,0,0,0.7)",
           }}
@@ -63,8 +63,8 @@ export default function SignupPage() {
           <div
             className="h-[2px] w-full"
             style={{
-              background: "linear-gradient(90deg, #FA4817 0%, #FA481755 60%, transparent 100%)",
-              boxShadow: "0 0 10px #FA481780",
+              background: "linear-gradient(90deg, #A855F7 0%, #A855F755 60%, transparent 100%)",
+              boxShadow: "0 0 10px #A855F780",
             }}
           />
 
@@ -90,7 +90,7 @@ export default function SignupPage() {
                   <button
                     onClick={() => navigate("/login")}
                     className="font-sans font-semibold text-sm"
-                    style={{ color: "#FA4817" }}
+                    style={{ color: "#A855F7" }}
                   >
                     Go to Sign In →
                   </button>
@@ -126,9 +126,9 @@ export default function SignupPage() {
                           background: "rgba(255,255,255,0.04)",
                           border: "1px solid rgba(255,255,255,0.08)",
                           color: "rgba(255,255,255,0.85)",
-                          caretColor: "#FA4817",
+                          caretColor: "#A855F7",
                         }}
-                        onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(250,72,23,0.35)")}
+                        onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(168,85,247,0.35)")}
                         onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)")}
                       />
                     </div>
@@ -149,9 +149,9 @@ export default function SignupPage() {
                           background: "rgba(255,255,255,0.04)",
                           border: "1px solid rgba(255,255,255,0.08)",
                           color: "rgba(255,255,255,0.85)",
-                          caretColor: "#FA4817",
+                          caretColor: "#A855F7",
                         }}
-                        onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(250,72,23,0.35)")}
+                        onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(168,85,247,0.35)")}
                         onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)")}
                       />
                       <button
@@ -169,7 +169,7 @@ export default function SignupPage() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         className="text-xs font-sans"
-                        style={{ color: "#FA4817" }}
+                        style={{ color: "#A855F7" }}
                       >
                         {error}
                       </motion.p>
@@ -178,7 +178,7 @@ export default function SignupPage() {
                     <motion.button
                       type="submit"
                       disabled={loading}
-                      whileHover={!loading ? { scale: 1.015, boxShadow: "0 0 24px rgba(250,72,23,0.28)" } : {}}
+                      whileHover={!loading ? { scale: 1.015, boxShadow: "0 0 24px rgba(168,85,247,0.28)" } : {}}
                       whileTap={!loading ? { scale: 0.985 } : {}}
                       className="w-full flex items-center justify-center gap-2 py-3 rounded-xl mt-1"
                       style={{
@@ -187,9 +187,9 @@ export default function SignupPage() {
                         fontWeight: 700,
                         textTransform: "uppercase",
                         fontFamily: "inherit",
-                        background: loading ? "rgba(250,72,23,0.08)" : "rgba(250,72,23,0.14)",
-                        border: "1px solid rgba(250,72,23,0.32)",
-                        color: "#FA4817",
+                        background: loading ? "rgba(168,85,247,0.08)" : "rgba(168,85,247,0.14)",
+                        border: "1px solid rgba(168,85,247,0.32)",
+                        color: "#A855F7",
                         opacity: loading ? 0.6 : 1,
                         cursor: loading ? "not-allowed" : "pointer",
                       }}
@@ -204,7 +204,7 @@ export default function SignupPage() {
                     <button
                       onClick={() => navigate("/login")}
                       className="font-medium"
-                      style={{ color: "#FA4817" }}
+                      style={{ color: "#A855F7" }}
                     >
                       Sign in
                     </button>

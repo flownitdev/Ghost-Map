@@ -24,7 +24,7 @@ function MetricBar({
   inverse?: boolean;
 }) {
   const displayColor = inverse
-    ? value < 40 ? "#4ade80" : value < 70 ? "#f59e0b" : "#FA4817"
+    ? value < 40 ? "#4ade80" : value < 70 ? "#f59e0b" : "#A855F7"
     : value > 60 ? color : value > 30 ? "#f59e0b" : "#4ade80";
 
   const finalColor = color !== "auto" ? color : displayColor;
@@ -96,14 +96,14 @@ function AISkeletonLoader() {
           animate={{ opacity: [0.4, 1, 0.4] }}
           transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
           className="w-3.5 h-3.5 rounded-full"
-          style={{ background: "#354362" }}
+          style={{ background: "#2d1b5e" }}
         />
         <div className="h-2.5 w-32 rounded" style={{ background: "rgba(255,255,255,0.07)" }} />
         <motion.div
           animate={{ opacity: [0.3, 0.7, 0.3] }}
           transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut", delay: 0.3 }}
           className="ml-auto h-2 w-16 rounded"
-          style={{ background: "rgba(53,67,98,0.4)" }}
+          style={{ background: "rgba(45,27,94,0.4)" }}
         />
       </div>
 
@@ -146,8 +146,8 @@ export function AIAnalysisPanel({ analysis, loading, error }: AIAnalysisPanelPro
           transition={{ duration: 0.2 }}
           className="rounded-2xl p-4"
           style={{
-            background: "rgba(53,67,98,0.06)",
-            border: "1px solid rgba(53,67,98,0.2)",
+            background: "rgba(45,27,94,0.06)",
+            border: "1px solid rgba(45,27,94,0.2)",
             backdropFilter: "blur(12px)",
           }}
         >
@@ -180,25 +180,25 @@ export function AIAnalysisPanel({ analysis, loading, error }: AIAnalysisPanelPro
           transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
           className="rounded-2xl overflow-hidden"
           style={{
-            background: "linear-gradient(135deg, rgba(53,67,98,0.12) 0%, rgba(20,19,22,0.4) 100%)",
-            border: "1px solid rgba(53,67,98,0.25)",
+            background: "linear-gradient(135deg, rgba(45,27,94,0.12) 0%, rgba(14,13,20,0.4) 100%)",
+            border: "1px solid rgba(45,27,94,0.25)",
             backdropFilter: "blur(16px)",
-            boxShadow: "0 0 30px rgba(53,67,98,0.08), inset 0 1px 0 rgba(255,255,255,0.04)",
+            boxShadow: "0 0 30px rgba(45,27,94,0.08), inset 0 1px 0 rgba(255,255,255,0.04)",
           }}
         >
           {/* Header */}
           <div
             className="flex items-center justify-between px-4 py-3"
-            style={{ borderBottom: "1px solid rgba(53,67,98,0.2)" }}
+            style={{ borderBottom: "1px solid rgba(45,27,94,0.2)" }}
           >
             <div className="flex items-center gap-2">
               <motion.div
                 animate={{
-                  boxShadow: ["0 0 4px #354362aa", "0 0 10px #354362dd", "0 0 4px #354362aa"],
+                  boxShadow: ["0 0 4px #2d1b5eaa", "0 0 10px #2d1b5edd", "0 0 4px #2d1b5eaa"],
                 }}
                 transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
                 className="w-2 h-2 rounded-full flex-shrink-0"
-                style={{ background: "#354362" }}
+                style={{ background: "#2d1b5e" }}
               />
               <span
                 style={{
@@ -213,8 +213,8 @@ export function AIAnalysisPanel({ analysis, loading, error }: AIAnalysisPanelPro
               </span>
             </div>
             <div className="flex items-center gap-1.5">
-              <Zap className="w-2.5 h-2.5" style={{ color: "#354362" }} />
-              <span style={{ fontSize: "9px", color: "rgba(53,67,98,0.9)", letterSpacing: "0.08em" }}>
+              <Zap className="w-2.5 h-2.5" style={{ color: "#2d1b5e" }} />
+              <span style={{ fontSize: "9px", color: "rgba(45,27,94,0.9)", letterSpacing: "0.08em" }}>
                 {analysis.aiConfidence}% confidence
               </span>
             </div>
@@ -234,12 +234,12 @@ export function AIAnalysisPanel({ analysis, loading, error }: AIAnalysisPanelPro
           <div className="px-4 pb-4 space-y-2.5">
             <div
               className="h-px w-full mb-3"
-              style={{ background: "rgba(53,67,98,0.2)" }}
+              style={{ background: "rgba(45,27,94,0.2)" }}
             />
             <MetricBar
               label="Decay Level"
               value={analysis.decayLevel}
-              color="#FA4817"
+              color="#A855F7"
               icon={<Mountain className="w-3 h-3" />}
               delay={0.05}
             />
@@ -282,7 +282,7 @@ export function AIAnalysisPanel({ analysis, loading, error }: AIAnalysisPanelPro
             <MetricBar
               label="Exploration Difficulty"
               value={analysis.explorationDifficulty}
-              color="#92a5d1"
+              color="#c084fc"
               icon={<Zap className="w-3 h-3" />}
               delay={0.42}
             />
