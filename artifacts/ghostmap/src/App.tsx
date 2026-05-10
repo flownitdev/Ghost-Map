@@ -9,6 +9,7 @@ import LoginPage from "@/pages/LoginPage";
 import SignupPage from "@/pages/SignupPage";
 import ProfilePage from "@/pages/ProfilePage";
 import AdminPage from "@/pages/AdminPage";
+import IntelligencePage from "@/pages/IntelligencePage";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +21,7 @@ function Router() {
       <Route path="/signup" component={SignupPage} />
       <Route path="/profile" component={ProfilePage} />
       <Route path="/admin" component={AdminPage} />
+      <Route path="/intelligence" component={IntelligencePage} />
       <Route component={NotFound} />
     </Switch>
   );

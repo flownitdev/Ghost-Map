@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ShieldCheck, HelpCircle, Building2, RefreshCcw } from "lucide-react";
+import { ShieldCheck, HelpCircle, Building2, RefreshCcw, Brain } from "lucide-react";
 import type { VerificationState } from "@/types/location";
 
 const FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif";
@@ -32,6 +32,13 @@ const CONFIG: Record<VerificationState, { label: string; color: string; bg: stri
     bg: "rgba(96,165,250,0.08)",
     border: "rgba(96,165,250,0.22)",
     icon: <RefreshCcw className="w-2.5 h-2.5" />,
+  },
+  potentially_abandoned: {
+    label: "Potentially Abandoned",
+    color: "#A855F7",
+    bg: "rgba(168,85,247,0.08)",
+    border: "rgba(168,85,247,0.22)",
+    icon: <Brain className="w-2.5 h-2.5" />,
   },
 };
 

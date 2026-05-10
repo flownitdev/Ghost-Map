@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, Shield, Clock, CheckCircle2, XCircle, MapPin, Globe,
   Search, AlertTriangle, Loader2, RefreshCcw, Building2, ChevronDown,
-  ChevronUp, Database, ShieldCheck, HelpCircle, Filter,
+  ChevronUp, Database, ShieldCheck, HelpCircle, Filter, Brain,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { ADMIN_EMAILS } from "@/types/rank";
@@ -687,16 +687,28 @@ export default function AdminPage() {
             </div>
           </div>
 
-          <motion.button
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.96 }}
-            onClick={loadData}
-            disabled={loading}
-            className="ml-auto w-8 h-8 flex items-center justify-center rounded-xl"
-            style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.3)", cursor: "pointer" }}
-          >
-            <RefreshCcw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
-          </motion.button>
+          <div className="ml-auto flex items-center gap-2">
+            <motion.button
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+              onClick={() => navigate("/intelligence")}
+              title="AI Intelligence"
+              className="w-8 h-8 flex items-center justify-center rounded-xl"
+              style={{ background: "rgba(168,85,247,0.1)", border: "1px solid rgba(168,85,247,0.25)", color: "#A855F7", cursor: "pointer" }}
+            >
+              <Brain className="w-3.5 h-3.5" />
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+              onClick={loadData}
+              disabled={loading}
+              className="w-8 h-8 flex items-center justify-center rounded-xl"
+              style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.3)", cursor: "pointer" }}
+            >
+              <RefreshCcw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
+            </motion.button>
+          </div>
         </div>
 
         {/* Tabs */}

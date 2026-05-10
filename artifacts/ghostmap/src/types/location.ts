@@ -8,7 +8,7 @@ export type LocationCategory =
   | "tunnel"
   | "industrial";
 
-export type VerificationState = "unverified" | "community_verified" | "demolished" | "active_again";
+export type VerificationState = "unverified" | "community_verified" | "demolished" | "active_again" | "potentially_abandoned";
 export type BuildingStatus = "standing" | "partial" | "demolished" | "unknown";
 export type DemolitionStatus = "none" | "scheduled" | "in_progress" | "demolished";
 export type SourceType = "user_submission" | "public_dataset" | "business_closure" | "osm";
