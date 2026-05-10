@@ -26,8 +26,7 @@ export function UserMenu({ stats }: UserMenuProps) {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  const displayName = user?.name ?? user?.email ?? "User";
-  const initial = displayName[0]?.toUpperCase() ?? "?";
+  const initial = user?.email?.[0]?.toUpperCase() ?? "?";
 
   return (
     <div ref={ref} className="fixed top-5 left-5 z-[1001]">
@@ -64,7 +63,7 @@ export function UserMenu({ stats }: UserMenuProps) {
                 className="max-w-[110px] truncate font-sans"
                 style={{ fontSize: "12px", color: "rgba(255,255,255,0.6)", fontFamily: FONT, letterSpacing: "-0.01em", lineHeight: 1.2 }}
               >
-                {displayName}
+                {user.email}
               </span>
               {stats && (
                 <span style={{ fontSize: "10px", color: stats.rank.color, fontFamily: FONT, lineHeight: 1.2 }}>
@@ -112,7 +111,7 @@ export function UserMenu({ stats }: UserMenuProps) {
                 <div className="px-4 py-3.5" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
                   <div className="flex items-center justify-between mb-1">
                     <p className="font-sans font-semibold text-white truncate" style={{ fontSize: "13px", fontFamily: FONT, letterSpacing: "-0.01em" }}>
-                      {displayName}
+                      {user.email}
                     </p>
                     {stats?.isAdmin && (
                       <span className="flex items-center gap-1" style={{ fontSize: "10px", color: "#f59e0b" }}>
