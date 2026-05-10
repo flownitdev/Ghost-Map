@@ -1,11 +1,16 @@
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
-import type { User, Session } from "@supabase/supabase-js";
-import { supabase } from "@/lib/supabaseClient";
-import { signIn, signUp, signOut } from "@/lib/auth";
+import { createContext, useContext, useEffect, useState } from "react";
+
+const BASE_URL = import.meta.env.BASE_URL?.replace(/\/$/, "") ?? "";
+
+interface AuthUser {
+  id: string;
+  name: string | null;
+  email: string | null;
+}
 
 interface AuthContextValue {
-  user: User | null;
-  session: Session | null;
+  user: AuthUser | null;
+  session: null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
@@ -15,48 +20,36 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setUser(data.session?.user ?? null);
-      setLoading(false);
-    });
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-    });
-
-    return () => listener.subscription.unsubscribe();
+    fetch(`${BASE_URL}/api/auth/user`)
+      .then((r) => r.ok ? r.json() : { user: null })
+      .then((data: { user: AuthUser | null }) => {
+        setUser(data.user);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
   }, []);
 
-  const handleSignIn = useCallback(async (email: string, password: string) => {
-    const data = await signIn(email, password);
-    setUser(data.user);
-    setSession(data.session);
-  }, []);
+  const handleSignIn = async (_email: string, _password: string) => {
+    window.location.href = "/__replauth";
+  };
 
-  const handleSignUp = useCallback(async (email: string, password: string) => {
-    const data = await signUp(email, password);
-    setUser(data.user);
-    setSession(data.session);
-  }, []);
+  const handleSignUp = async (_email: string, _password: string) => {
+    window.location.href = "/__replauth";
+  };
 
-  const handleSignOut = useCallback(async () => {
-    await signOut();
-    setUser(null);
-    setSession(null);
-  }, []);
+  const handleSignOut = async () => {
+    window.location.href = "/__replauthlogout";
+  };
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        session,
+        session: null,
         loading,
         signIn: handleSignIn,
         signUp: handleSignUp,

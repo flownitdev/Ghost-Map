@@ -10,7 +10,7 @@ import {
 import type { Location } from "@/types/location";
 
 interface UseRankInput {
-  user: { email?: string | null } | null;
+  user: { id?: string; name?: string | null; email?: string | null } | null;
   exploredLocations: Location[];
   savedIds: Set<string>;
   submittedLocations: Location[];
@@ -23,7 +23,14 @@ export function useRank({
   submittedLocations,
 }: UseRankInput): UserStats {
   return useMemo(() => {
-    const isAdmin = !!(user?.email && ADMIN_EMAILS.includes(user.email));
+    const isAdmin = !!(
+      user &&
+      (
+        ADMIN_EMAILS.includes(user.id ?? "") ||
+        ADMIN_EMAILS.includes(user.name ?? "") ||
+        ADMIN_EMAILS.includes(user.email ?? "")
+      )
+    );
 
     const exploredCount = exploredLocations.length;
     const savedCount = savedIds.size;

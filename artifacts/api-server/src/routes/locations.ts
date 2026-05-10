@@ -143,6 +143,28 @@ router.delete("/users/:userId/explored/:locationId", async (req, res) => {
   }
 });
 
+router.delete("/locations/:locationId", async (req, res) => {
+  try {
+    const { locationId } = req.params;
+    await db.delete(locations).where(eq(locations.id, Number(locationId)));
+    res.status(204).send();
+  } catch (err) {
+    logger.error({ err }, "Failed to delete location");
+    res.status(500).json({ error: "Failed to delete location" });
+  }
+});
+
+router.patch("/locations/:locationId/verification", async (req, res) => {
+  try {
+    const { locationId } = req.params;
+    logger.info({ locationId }, "Verification state update not supported in current schema — ignoring");
+    res.status(204).send();
+  } catch (err) {
+    logger.error({ err }, "Failed to update verification state");
+    res.status(500).json({ error: "Failed to update verification state" });
+  }
+});
+
 router.post("/users/upsert", async (req, res) => {
   try {
     const { id, email, name } = req.body as { id: string; email?: string; name?: string };

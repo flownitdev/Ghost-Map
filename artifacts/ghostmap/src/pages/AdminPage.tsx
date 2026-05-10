@@ -597,11 +597,11 @@ export default function AdminPage() {
   const [subFilter, setSubFilter] = useState<"pending" | "approved" | "rejected">("pending");
   const [loading, setLoading] = useState(true);
 
-  const isAdmin = user?.email && ADMIN_EMAILS.includes(user.email);
+  const isAdmin = user?.id && (ADMIN_EMAILS.includes(user.id) || ADMIN_EMAILS.includes(user.name ?? "") || ADMIN_EMAILS.includes(user.email ?? ""));
 
   useEffect(() => {
-    if (!isAdmin) navigate("/");
-  }, [isAdmin, navigate]);
+    if (user !== undefined && !isAdmin) navigate("/");
+  }, [isAdmin, navigate, user]);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -625,14 +625,14 @@ export default function AdminPage() {
   );
 
   async function handleApprove(sub: Submission) {
-    if (!user?.email) return;
-    await approveSubmission(sub.id, user.email);
+    if (!user?.id) return;
+    await approveSubmission(sub.id, user.id);
     await loadData();
   }
 
   async function handleReject(sub: Submission, note: string) {
-    if (!user?.email) return;
-    await rejectSubmission(sub.id, user.email, note);
+    if (!user?.id) return;
+    await rejectSubmission(sub.id, user.id, note);
     await loadData();
   }
 
