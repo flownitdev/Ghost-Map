@@ -7,6 +7,8 @@ import { PanelSkeleton } from "./PanelSkeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserLocations } from "@/hooks/useUserLocations";
 import { useLocation } from "wouter";
+import { useLocationAnalysis } from "@/hooks/useLocationAnalysis";
+import { AIAnalysisPanel } from "./AIAnalysisPanel";
 
 interface LocationPanelProps {
   location: Location | null;
@@ -117,6 +119,7 @@ export function LocationPanel({ location, onClose }: LocationPanelProps) {
   const { user } = useAuth();
   const { savedIds, exploredIds, toggleSave, toggleExplore } = useUserLocations();
   const [, navigate] = useLocation();
+  const { analysis, loading: aiLoading, error: aiError } = useLocationAnalysis(displayedLocation);
 
   useEffect(() => {
     if (!location) { setDisplayedLocation(null); return; }
@@ -274,10 +277,17 @@ export function LocationPanel({ location, onClose }: LocationPanelProps) {
                 <motion.div variants={itemVariants} className="h-px mb-5 flex-shrink-0" style={{ background: "rgba(255,255,255,0.05)" }} />
 
                 {/* Description */}
-                <motion.div variants={itemVariants} className="flex-1 overflow-y-auto scrollbar-thin -mr-1 pr-1">
+                <motion.div variants={itemVariants} className="flex-1 overflow-y-auto scrollbar-thin -mr-1 pr-1 space-y-5">
                   <p className="text-sm font-sans leading-[1.85]" style={{ color: "rgba(255,255,255,0.5)" }}>
                     {displayedLocation.description}
                   </p>
+
+                  {/* AI Analysis */}
+                  <AIAnalysisPanel
+                    analysis={analysis}
+                    loading={aiLoading}
+                    error={aiError}
+                  />
                 </motion.div>
 
                 {/* Footer */}
