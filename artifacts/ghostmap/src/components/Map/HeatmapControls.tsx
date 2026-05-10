@@ -24,7 +24,7 @@ export function HeatmapControls({
       initial={{ opacity: 0, x: 12 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.8, duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className="fixed top-5 right-5 z-[1000]"
+      className="fixed top-5 right-5 z-[1000] mt-[92px]"
     >
       <div
         className="rounded-2xl overflow-hidden"
