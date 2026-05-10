@@ -183,7 +183,7 @@ export function LocationPanel({ location, onClose }: LocationPanelProps) {
           </AnimatePresence>
 
           {/* Close button */}
-          <div className="absolute top-6 right-6 z-10">
+          <div className="absolute top-6 left-5 z-10">
             <motion.button
               whileHover={{ scale: 1.08, backgroundColor: "rgba(255,255,255,0.08)" }}
               whileTap={{ scale: 0.92 }}
