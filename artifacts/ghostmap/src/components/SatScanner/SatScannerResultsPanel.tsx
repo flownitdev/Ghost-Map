@@ -6,22 +6,23 @@ import { haversineKm } from "@/lib/mapUtils";
 const FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif";
 const DISPLAY_FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif";
 
-function confidenceColor(score: number) {
-  if (score >= 75) return "#f43f5e";
-  if (score >= 55) return "#f59e0b";
-  if (score >= 35) return "#A855F7";
+function confidenceColor(score: number, tier?: string) {
+  if (tier === "high_decay" || score >= 70) return "#f43f5e";
+  if (tier === "suspicious" || score >= 50) return "#f59e0b";
+  if (tier === "potentially_neglected" || score >= 32) return "#A855F7";
   return "#4ade80";
 }
 
-function confidenceLabel(score: number) {
-  if (score >= 75) return "HIGH";
-  if (score >= 55) return "MED";
-  if (score >= 35) return "LOW";
+function confidenceLabel(score: number, tier?: string) {
+  if (tier === "high_decay" || score >= 70) return "HIGH DECAY";
+  if (tier === "suspicious" || score >= 50) return "SUSPICIOUS";
+  if (tier === "potentially_neglected" || score >= 32) return "POTENTIALLY ABANDONED";
+  if (tier === "requires_verification") return "VERIFY";
   return "TRACE";
 }
 
-function ConfidenceBar({ score }: { score: number }) {
-  const color = confidenceColor(score);
+function ConfidenceBar({ score, tier }: { score: number; tier?: string }) {
+  const color = confidenceColor(score, tier);
   return (
     <div className="flex items-center gap-2">
       <div className="flex-1 h-0.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.07)" }}>
@@ -50,8 +51,8 @@ function TileCard({
   userLng: number;
 }) {
   const dist = haversineKm(userLat, userLng, result.centerLat, result.centerLng);
-  const color = confidenceColor(result.confidenceScore);
-  const label = confidenceLabel(result.confidenceScore);
+  const color = confidenceColor(result.confidenceScore, result.suspicionTier);
+  const label = confidenceLabel(result.confidenceScore, result.suspicionTier);
 
   return (
     <motion.div
@@ -78,7 +79,7 @@ function TileCard({
           </span>
         </div>
 
-        <ConfidenceBar score={result.confidenceScore} />
+        <ConfidenceBar score={result.confidenceScore} tier={result.suspicionTier} />
 
         <p
           className="font-sans mt-2 mb-2 line-clamp-2"
@@ -101,10 +102,15 @@ function TileCard({
           </div>
         )}
 
-        <div className="mt-2 pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+        <div className="mt-2 pt-2 flex items-center justify-between" style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
           <p style={{ fontSize: "9px", color: "rgba(255,255,255,0.18)", fontFamily: FONT }}>
             Decay {result.decayLevel}% · {result.centerLat.toFixed(4)}, {result.centerLng.toFixed(4)}
           </p>
+          {result.source === "heuristic" && (
+            <span style={{ fontSize: "8px", color: "rgba(255,255,255,0.2)", fontFamily: FONT, letterSpacing: "0.05em" }}>
+              HEURISTIC
+            </span>
+          )}
         </div>
       </div>
     </motion.div>
@@ -196,10 +202,10 @@ export function SatScannerResultsPanel({
               {scanState === "results" && flagged.length === 0 && (
                 <div className="text-center py-3">
                   <p className="font-sans" style={{ fontSize: "12px", color: "rgba(255,255,255,0.25)", fontFamily: FONT }}>
-                    No significant abandonment signals detected in this area.
+                    This area appears densely active. Try a different zone.
                   </p>
                   <p className="font-sans mt-1" style={{ fontSize: "11px", color: "rgba(255,255,255,0.15)", fontFamily: FONT }}>
-                    Try scanning a different area or zoom in further.
+                    Scan industrial outskirts, suburban edges, or rural zones for better results.
                   </p>
                 </div>
               )}

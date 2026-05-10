@@ -14,6 +14,8 @@ export interface ScanTileResult {
   decayLevel: number;
   indicators: string[];
   reasoning: string;
+  suspicionTier?: string;
+  source?: "gemini" | "heuristic";
 }
 
 export interface ScanResponse {
