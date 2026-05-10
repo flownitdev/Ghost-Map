@@ -33,9 +33,10 @@ GhostMap is an interactive map app for urban explorers to discover, share, and t
 
 ## Architecture decisions
 
-- Auth is handled by Replit Auth — no custom login forms; users click "Log in" and go through `/__replauth`. User identity comes from `x-replit-user-id` / `x-replit-user-name` headers on the backend.
-- Frontend never talks to the DB directly — all data goes through `/api/*` routes on the Express server.
-- AI analysis is cached in `location_analysis` table to avoid redundant Gemini calls.
+- Auth is handled by Supabase (email/password). Secrets: `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. DO NOT replace with Replit Auth.
+- Frontend talks directly to Supabase for locations, saved/explored, exploration_logs, and location_analysis cache.
+- The Express API server handles AI analysis (`/api/ai/analyze`), OSM import (`/api/admin/osm`), and intelligence scan (`/api/intelligence/*`).
+- AI analysis is cached in Supabase `location_analysis` table to avoid redundant Gemini calls.
 
 ## User preferences
 

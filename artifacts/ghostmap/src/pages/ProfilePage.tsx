@@ -22,7 +22,7 @@ function loadAchievements(): Record<string, string> {
 }
 
 export default function ProfilePage() {
-  const { user, loading: authLoading, signIn } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [, navigate] = useLocation();
   const [tab,       setTab]       = useState<Tab>("explored");
   const [saved,     setSaved]     = useState<Location[]>([]);
@@ -32,10 +32,8 @@ export default function ProfilePage() {
   const [achStored, setAchStored] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      signIn();
-    }
-  }, [user, authLoading, signIn]);
+    if (!authLoading && !user) navigate("/login");
+  }, [user, authLoading, navigate]);
 
   useEffect(() => {
     if (!user) return;
@@ -60,8 +58,6 @@ export default function ProfilePage() {
       </div>
     );
   }
-
-  const displayName = user.name ?? user.id;
 
   const dangerScore  = calcDangerScore(explored);
   const totalPoints  = calcPoints({ exploredCount: explored.length, savedCount: saved.length, submittedCount: submitted.length, dangerScore });
@@ -106,14 +102,14 @@ export default function ProfilePage() {
               className="w-14 h-14 rounded-2xl flex items-center justify-center font-sans font-bold flex-shrink-0"
               style={{ background: `${rank.color}18`, border: `1px solid ${rank.color}30`, color: rank.color, fontSize: "22px", fontFamily: DISPLAY_FONT }}
             >
-              {displayName[0]?.toUpperCase() ?? "?"}
+              {user.email?.[0]?.toUpperCase() ?? "?"}
             </motion.div>
             <div className="flex-1 min-w-0">
               <h1 className="font-sans font-bold text-white" style={{ fontSize: "22px", fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em" }}>
                 Explorer Profile
               </h1>
               <p className="font-sans truncate" style={{ fontSize: "13px", color: "rgba(255,255,255,0.35)", fontFamily: FONT }}>
-                {displayName}
+                {user.email}
               </p>
             </div>
           </div>
@@ -345,7 +341,6 @@ function AchievementsGrid({ stored }: { stored: Record<string, string> }) {
                   style={{ background: `radial-gradient(ellipse 60% 40% at 50% 0%, ${meta.color}10 0%, transparent 70%)` }}
                 />
               )}
-
               <div className="flex items-start gap-3">
                 <div
                   className="w-9 h-9 flex items-center justify-center rounded-xl flex-shrink-0"
@@ -405,7 +400,6 @@ function ProfileCard({ location, index }: { location: Location; index: number })
       }}
     >
       <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: riskStyle.color, boxShadow: `0 0 8px ${riskStyle.color}66` }} />
-
       <div className="flex-1 min-w-0">
         <p className="font-sans font-semibold text-white truncate" style={{ fontSize: "14px", fontFamily: FONT, letterSpacing: "-0.01em" }}>
           {location.name}
@@ -416,7 +410,6 @@ function ProfileCard({ location, index }: { location: Location; index: number })
           <span className="font-sans capitalize" style={{ fontSize: "12px", color: riskStyle.color, fontFamily: FONT }}>{riskStyle.label} risk</span>
         </div>
       </div>
-
       <div className="text-right flex-shrink-0">
         <p className="font-sans font-bold tabular-nums" style={{ fontSize: "18px", fontFamily: DISPLAY_FONT, letterSpacing: "-0.02em", color: riskStyle.color }}>
           {location.abandonmentScore}

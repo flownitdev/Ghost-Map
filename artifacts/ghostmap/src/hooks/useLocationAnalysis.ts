@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { api } from "@/lib/apiClient";
+import { supabase } from "@/lib/supabaseClient";
 import type { Location } from "@/types/location";
 
 export interface LocationAnalysis {
@@ -18,26 +18,67 @@ export interface LocationAnalysis {
 }
 
 async function fetchFromCache(locationId: string): Promise<LocationAnalysis | null> {
-  return api.getAnalysis(locationId);
+  const { data, error } = await supabase
+    .from("location_analysis")
+    .select("*")
+    .eq("location_id", locationId)
+    .single();
+
+  if (error || !data) return null;
+
+  const row = data as Record<string, unknown>;
+  return {
+    locationId: row.location_id as string,
+    summary: row.summary as string,
+    abandonmentScore: row.abandonment_score as number,
+    decayLevel: row.decay_level as number,
+    structuralIntegrity: row.structural_integrity as number,
+    activityLevel: row.activity_level as number,
+    explorationDifficulty: row.exploration_difficulty as number,
+    aiConfidence: row.ai_confidence as number,
+    roofDeterioration: row.roof_deterioration as number,
+    vegetationOvergrowth: row.vegetation_overgrowth as number,
+    parkingDecay: row.parking_decay as number,
+    riskEstimate: row.risk_estimate as string,
+  };
 }
 
 async function saveToCache(analysis: LocationAnalysis): Promise<void> {
-  await api.saveAnalysis(analysis);
+  await supabase.from("location_analysis").upsert({
+    location_id: analysis.locationId,
+    summary: analysis.summary,
+    abandonment_score: analysis.abandonmentScore,
+    decay_level: analysis.decayLevel,
+    structural_integrity: analysis.structuralIntegrity,
+    activity_level: analysis.activityLevel,
+    exploration_difficulty: analysis.explorationDifficulty,
+    ai_confidence: analysis.aiConfidence,
+    roof_deterioration: analysis.roofDeterioration,
+    vegetation_overgrowth: analysis.vegetationOvergrowth,
+    parking_decay: analysis.parkingDecay,
+    risk_estimate: analysis.riskEstimate,
+  });
 }
 
 async function generateAnalysis(location: Location): Promise<LocationAnalysis | null> {
   try {
-    return await api.analyzeLocation({
-      locationId: String(location.id),
-      name: location.name,
-      category: location.category,
-      description: location.description,
-      riskLevel: location.riskLevel,
-      abandonmentScore: location.abandonmentScore,
-      lastVisited: location.lastVisited,
-      latitude: location.latitude,
-      longitude: location.longitude,
+    const resp = await fetch("/api/ai/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        locationId: String(location.id),
+        name: location.name,
+        category: location.category,
+        description: location.description,
+        riskLevel: location.riskLevel,
+        abandonmentScore: location.abandonmentScore,
+        lastVisited: location.lastVisited,
+        latitude: location.latitude,
+        longitude: location.longitude,
+      }),
     });
+    if (!resp.ok) return null;
+    return (await resp.json()) as LocationAnalysis;
   } catch {
     return null;
   }
