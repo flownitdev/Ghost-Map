@@ -12,6 +12,7 @@ import { AIAnalysisPanel } from "./AIAnalysisPanel";
 import { useNearby } from "@/hooks/useNearby";
 import { NearbyPanel } from "@/components/Discovery/NearbyPanel";
 import { VerificationBadge } from "@/components/Location/VerificationBadge";
+import { FreshnessBadge } from "@/components/Location/FreshnessBadge";
 import { updateVerificationState, deleteLocation } from "@/data/locationService";
 import type { VerificationState } from "@/types/location";
 
@@ -396,6 +397,7 @@ export function LocationPanel({ location, onClose, onSelectLocation, allLocation
                       </motion.span>
                     )}
                     <VerificationBadge state={localVerification} size="sm" />
+                    <FreshnessBadge location={displayedLocation} size="sm" />
                   </motion.div>
 
                   {/* Title — big */}

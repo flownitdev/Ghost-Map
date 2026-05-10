@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Radio, MapPin, Compass, TrendingUp, ChevronUp } from "lucide-react";
+import { Radio, MapPin, Compass, TrendingUp, ChevronUp, Zap, Flame } from "lucide-react";
 import type { Location } from "@/types/location";
 import { CATEGORY_META } from "@/lib/mapUtils";
+import { isDecayAlert, freshnessScore, freshnessTier, FRESHNESS_META } from "@/lib/freshness";
 
 const FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif";
 
-type FeedEventType = "submission" | "explored" | "trending";
+type FeedEventType = "submission" | "explored" | "trending" | "decay_alert" | "freshly_abandoned";
 
 interface FeedEvent {
   id: string;
@@ -37,10 +38,28 @@ function timeAgoLabel(ms: number): string {
 function generateSeedEvents(locations: Location[]): FeedEvent[] {
   if (!locations.length) return [];
   const now = Date.now();
-  const types: FeedEventType[] = ["submission", "explored", "trending", "explored", "explored", "submission"];
+
+  const decayLocs = locations.filter(isDecayAlert);
+  const freshLocs = locations.filter((l) => {
+    const t = freshnessTier(freshnessScore(l));
+    return t === "just_dropped" || t === "fresh";
+  });
+
+  const types: FeedEventType[] = [
+    "submission", "explored", "trending", "explored",
+    "freshly_abandoned", "decay_alert", "explored", "submission",
+  ];
+
   return Array.from({ length: 8 }, (_, i) => {
-    const loc = locations[i % locations.length];
     const type = types[i % types.length];
+    let loc: Location;
+    if (type === "decay_alert" && decayLocs.length > 0) {
+      loc = decayLocs[i % decayLocs.length];
+    } else if (type === "freshly_abandoned" && freshLocs.length > 0) {
+      loc = freshLocs[i % freshLocs.length];
+    } else {
+      loc = locations[i % locations.length];
+    }
     return {
       id: `seed-${i}`,
       type,
@@ -53,9 +72,11 @@ function generateSeedEvents(locations: Location[]): FeedEvent[] {
 }
 
 const TYPE_META: Record<FeedEventType, { icon: React.ReactNode; verb: string; color: string }> = {
-  submission: { icon: <MapPin className="w-2.5 h-2.5" />, verb: "submitted", color: "rgba(255,255,255,0.35)" },
-  explored:   { icon: <Compass className="w-2.5 h-2.5" />,   verb: "explored",  color: "rgba(255,255,255,0.35)" },
-  trending:   { icon: <TrendingUp className="w-2.5 h-2.5" />, verb: "trending",  color: "rgba(255,255,255,0.35)" },
+  submission:        { icon: <MapPin className="w-2.5 h-2.5" />,    verb: "submitted",         color: "rgba(255,255,255,0.35)" },
+  explored:          { icon: <Compass className="w-2.5 h-2.5" />,   verb: "explored",          color: "rgba(255,255,255,0.35)" },
+  trending:          { icon: <TrendingUp className="w-2.5 h-2.5" />, verb: "trending",         color: "rgba(168,85,247,0.7)"  },
+  decay_alert:       { icon: <Zap className="w-2.5 h-2.5" />,       verb: "decay alert",       color: "rgba(244,63,94,0.8)"  },
+  freshly_abandoned: { icon: <Flame className="w-2.5 h-2.5" />,     verb: "freshly abandoned", color: "rgba(250,72,23,0.8)"  },
 };
 
 interface ActivityFeedProps {
@@ -75,12 +96,30 @@ export function ActivityFeed({ locations, onSelectLocation }: ActivityFeedProps)
 
   useEffect(() => {
     if (!locations.length) return;
+
+    const decayLocs = locations.filter(isDecayAlert);
+    const freshLocs = locations.filter((l) => {
+      const t = freshnessTier(freshnessScore(l));
+      return t === "just_dropped" || t === "fresh";
+    });
+
     function scheduleNext() {
-      const delay = 20_000 + Math.random() * 15_000;
+      const delay = 18_000 + Math.random() * 14_000;
       intervalRef.current = setTimeout(() => {
-        const loc = locations[Math.floor(Math.random() * locations.length)];
-        const types: FeedEventType[] = ["explored", "explored", "submission", "trending"];
-        const type = types[Math.floor(Math.random() * types.length)];
+        const allTypes: FeedEventType[] = [
+          "explored", "explored", "submission", "trending",
+          ...(decayLocs.length > 0 ? ["decay_alert" as const] : []),
+          ...(freshLocs.length > 0 ? ["freshly_abandoned" as const] : []),
+        ];
+        const type = allTypes[Math.floor(Math.random() * allTypes.length)];
+        let loc: Location;
+        if (type === "decay_alert" && decayLocs.length > 0) {
+          loc = decayLocs[Math.floor(Math.random() * decayLocs.length)];
+        } else if (type === "freshly_abandoned" && freshLocs.length > 0) {
+          loc = freshLocs[Math.floor(Math.random() * freshLocs.length)];
+        } else {
+          loc = locations[Math.floor(Math.random() * locations.length)];
+        }
         const newEvent: FeedEvent = {
           id: `live-${Date.now()}`,
           type,
@@ -105,6 +144,8 @@ export function ActivityFeed({ locations, onSelectLocation }: ActivityFeedProps)
     }, 30_000);
     return () => clearInterval(id);
   }, []);
+
+  const alertCount = events.filter((e) => e.type === "decay_alert" || e.type === "freshly_abandoned").length;
 
   return (
     <motion.div
@@ -141,7 +182,6 @@ export function ActivityFeed({ locations, onSelectLocation }: ActivityFeedProps)
                 style={{ background: "rgba(255,255,255,0.5)" }}
               />
             )}
-            {/* Static dot indicator */}
             <div
               className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full"
               style={{ background: "#4ade80" }}
@@ -155,7 +195,18 @@ export function ActivityFeed({ locations, onSelectLocation }: ActivityFeedProps)
             Activity
           </span>
 
-          {!open && events.length > 0 && (
+          {!open && alertCount > 0 && (
+            <motion.span
+              animate={{ opacity: [0.6, 1, 0.6] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="font-sans rounded-full px-1.5 py-0.5"
+              style={{ fontSize: "9px", background: "rgba(250,72,23,0.12)", color: "rgba(250,72,23,0.8)", fontFamily: FONT, fontWeight: 600 }}
+            >
+              {alertCount} ALERTS
+            </motion.span>
+          )}
+
+          {!open && alertCount === 0 && events.length > 0 && (
             <span
               className="font-sans rounded-full px-1.5 py-0.5"
               style={{ fontSize: "9px", background: "rgba(74,222,128,0.1)", color: "rgba(74,222,128,0.7)", fontFamily: FONT, fontWeight: 600 }}
@@ -217,6 +268,12 @@ function FeedRow({ event, onSelect }: { event: FeedEvent; onSelect: () => void }
   const meta = CATEGORY_META[event.location.category];
   const typeMeta = TYPE_META[event.type];
 
+  const fScore = freshnessScore(event.location);
+  const tier = freshnessTier(fScore);
+  const tierMeta = tier ? FRESHNESS_META[tier] : null;
+
+  const isAlert = event.type === "decay_alert" || event.type === "freshly_abandoned";
+
   return (
     <motion.button
       initial={{ opacity: 0, y: -6 }}
@@ -226,7 +283,7 @@ function FeedRow({ event, onSelect }: { event: FeedEvent; onSelect: () => void }
       onClick={onSelect}
       className="w-full flex items-center gap-2.5 px-3.5 py-2 text-left"
       style={{
-        background: "transparent",
+        background: isAlert ? "rgba(250,72,23,0.03)" : "transparent",
         border: "none",
         borderBottom: "1px solid rgba(255,255,255,0.04)",
         cursor: "pointer",
@@ -234,12 +291,15 @@ function FeedRow({ event, onSelect }: { event: FeedEvent; onSelect: () => void }
         transition: "background 0.1s",
       }}
       onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.025)")}
-      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+      onMouseLeave={(e) => (e.currentTarget.style.background = isAlert ? "rgba(250,72,23,0.03)" : "transparent")}
     >
-      {/* Category color dot */}
+      {/* Indicator dot */}
       <div
         className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-        style={{ background: meta.color, opacity: 0.7 }}
+        style={{
+          background: isAlert ? typeMeta.color : meta.color,
+          opacity: 0.7,
+        }}
       />
 
       <div className="flex-1 min-w-0">
@@ -247,13 +307,29 @@ function FeedRow({ event, onSelect }: { event: FeedEvent; onSelect: () => void }
           <span style={{ fontSize: "11px", fontWeight: 600, color: "rgba(255,255,255,0.65)" }}>
             {event.user}
           </span>
-          <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.28)" }} className="flex items-center gap-0.5">
+          <span style={{ fontSize: "10px", color: typeMeta.color }} className="flex items-center gap-0.5">
             {typeMeta.icon} {typeMeta.verb}
           </span>
         </div>
-        <p className="truncate" style={{ fontSize: "10.5px", color: "rgba(255,255,255,0.35)", marginTop: "1px", letterSpacing: "-0.01em" }}>
-          {event.location.name}
-        </p>
+        <div className="flex items-center gap-1.5 mt-0.5">
+          <p className="truncate" style={{ fontSize: "10.5px", color: "rgba(255,255,255,0.35)", letterSpacing: "-0.01em" }}>
+            {event.location.name}
+          </p>
+          {tierMeta && isAlert && (
+            <span
+              className="flex-shrink-0 px-1.5 py-0 rounded-full"
+              style={{
+                fontSize: "8.5px",
+                fontWeight: 600,
+                color: tierMeta.color,
+                background: tierMeta.bg,
+                border: `1px solid ${tierMeta.border}`,
+              }}
+            >
+              {tierMeta.shortLabel}
+            </span>
+          )}
+        </div>
       </div>
 
       <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.18)", flexShrink: 0 }}>

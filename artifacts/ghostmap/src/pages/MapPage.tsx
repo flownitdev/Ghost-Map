@@ -26,10 +26,12 @@ export function MapPage() {
     selectedLocation,
     activeCategory,
     searchQuery,
+    sortMode,
     visibleCount,
     totalCount,
     setActiveCategory,
     setSearchQuery,
+    setSortMode,
     selectLocation,
     clearSelection,
   } = useMapLocations(locations);
@@ -78,8 +80,10 @@ export function MapPage() {
         searchQuery={searchQuery}
         visibleCount={visibleCount}
         totalCount={totalCount}
+        sortMode={sortMode}
         onCategoryChange={setActiveCategory}
         onSearchChange={setSearchQuery}
+        onSortChange={setSortMode}
       />
 
       <UserMenu stats={stats} />

@@ -94,7 +94,7 @@ export const ADMIN_RANK: RankDefinition = {
 
 // Admin emails — change to real admin email(s) as needed
 export const ADMIN_EMAILS: string[] = [
-  "admin@ghostmap.app",
+  "flownityt@gmail.com",
 ];
 
 export interface UserStats {

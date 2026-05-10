@@ -1,7 +1,8 @@
-import { Search, X } from "lucide-react";
+import { Search, X, Sparkles, TrendingUp, AlertOctagon, Flame, Clock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CATEGORY_META } from "@/lib/mapUtils";
 import type { CategoryFilter } from "@/hooks/useMapLocations";
+import type { SortMode } from "@/lib/freshness";
 import type { LocationCategory } from "@/types/location";
 
 const CATEGORIES: LocationCategory[] = ["factory", "hospital", "mall", "school", "tunnel", "industrial"];
@@ -12,17 +13,29 @@ interface FilterBarProps {
   searchQuery: string;
   visibleCount: number;
   totalCount: number;
+  sortMode: SortMode;
   onCategoryChange: (category: CategoryFilter) => void;
   onSearchChange: (query: string) => void;
+  onSortChange: (mode: SortMode) => void;
 }
+
+const SORT_OPTIONS: { id: SortMode; label: string; icon: React.ReactNode }[] = [
+  { id: "freshest",        label: "Fresh",   icon: <Sparkles className="w-2.5 h-2.5" /> },
+  { id: "trending",        label: "Surge",   icon: <TrendingUp className="w-2.5 h-2.5" /> },
+  { id: "most_dangerous",  label: "Danger",  icon: <AlertOctagon className="w-2.5 h-2.5" /> },
+  { id: "highest_decay",   label: "Decay",   icon: <Flame className="w-2.5 h-2.5" /> },
+  { id: "newest_abandoned", label: "Newest", icon: <Clock className="w-2.5 h-2.5" /> },
+];
 
 export function FilterBar({
   activeCategory,
   searchQuery,
   visibleCount,
   totalCount,
+  sortMode,
   onCategoryChange,
   onSearchChange,
+  onSortChange,
 }: FilterBarProps) {
   return (
     <motion.div
@@ -94,37 +107,94 @@ export function FilterBar({
         </AnimatePresence>
       </div>
 
-      {/* Category pills */}
-      <div
-        className="flex items-center gap-0.5 p-0.5 rounded-xl"
-        style={{
-          background: "rgba(18,17,24,0.7)",
-          backdropFilter: "blur(48px)",
-          WebkitBackdropFilter: "blur(48px)",
-          border: "1px solid rgba(255,255,255,0.06)",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
-        }}
-      >
-        <SegmentPill
-          label="All"
-          color="#FA4817"
-          isActive={activeCategory === "all"}
-          onClick={() => onCategoryChange("all")}
-          testId="filter-all"
-        />
-        {CATEGORIES.map((cat) => {
-          const meta = CATEGORY_META[cat];
-          return (
-            <SegmentPill
-              key={cat}
-              label={meta.label}
-              color={meta.color}
-              isActive={activeCategory === cat}
-              onClick={() => onCategoryChange(cat)}
-              testId={`filter-${cat}`}
-            />
-          );
-        })}
+      {/* Bottom row: category pills + sort mode */}
+      <div className="w-full flex items-center gap-2">
+        {/* Category pills */}
+        <div
+          className="flex items-center gap-0.5 p-0.5 rounded-xl flex-1 overflow-x-auto"
+          style={{
+            background: "rgba(18,17,24,0.7)",
+            backdropFilter: "blur(48px)",
+            WebkitBackdropFilter: "blur(48px)",
+            border: "1px solid rgba(255,255,255,0.06)",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+            scrollbarWidth: "none",
+          }}
+        >
+          <SegmentPill
+            label="All"
+            color="#FA4817"
+            isActive={activeCategory === "all"}
+            onClick={() => onCategoryChange("all")}
+            testId="filter-all"
+          />
+          {CATEGORIES.map((cat) => {
+            const meta = CATEGORY_META[cat];
+            return (
+              <SegmentPill
+                key={cat}
+                label={meta.label}
+                color={meta.color}
+                isActive={activeCategory === cat}
+                onClick={() => onCategoryChange(cat)}
+                testId={`filter-${cat}`}
+              />
+            );
+          })}
+        </div>
+
+        {/* Sort mode picker */}
+        <div
+          className="flex items-center gap-0.5 p-0.5 rounded-xl flex-shrink-0"
+          style={{
+            background: "rgba(18,17,24,0.7)",
+            backdropFilter: "blur(48px)",
+            WebkitBackdropFilter: "blur(48px)",
+            border: "1px solid rgba(255,255,255,0.06)",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+          }}
+        >
+          {SORT_OPTIONS.map((opt) => {
+            const isActive = sortMode === opt.id;
+            return (
+              <motion.button
+                key={opt.id}
+                onClick={() => onSortChange(opt.id)}
+                whileTap={{ scale: 0.93 }}
+                transition={{ duration: 0.1 }}
+                className="relative flex items-center gap-1 px-2.5 py-1.5 rounded-lg"
+                style={{
+                  fontSize: "10.5px",
+                  fontWeight: isActive ? 600 : 400,
+                  background: "transparent",
+                  color: isActive ? "#FA4817" : "rgba(255,255,255,0.28)",
+                  cursor: "pointer",
+                  border: "none",
+                  fontFamily: FONT,
+                  letterSpacing: "-0.01em",
+                  whiteSpace: "nowrap",
+                }}
+                title={opt.label}
+              >
+                {isActive && (
+                  <motion.span
+                    layoutId="sort-active"
+                    className="absolute inset-0 rounded-lg"
+                    style={{
+                      background: "rgba(250,72,23,0.12)",
+                      border: "1px solid rgba(250,72,23,0.22)",
+                    }}
+                    transition={{ type: "spring", stiffness: 420, damping: 32 }}
+                  />
+                )}
+                <span className="relative flex items-center gap-1">
+                  {opt.icon}
+                  <span className="hidden sm:inline">{opt.label}</span>
+                </span>
+              </motion.button>
+            );
+          })}
+        </div>
       </div>
     </motion.div>
   );
@@ -156,8 +226,9 @@ function SegmentPill({
         color: isActive ? color : "rgba(255,255,255,0.32)",
         cursor: "pointer",
         border: "none",
-        fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
+        fontFamily: FONT,
         letterSpacing: "-0.01em",
+        whiteSpace: "nowrap",
       }}
       data-testid={testId}
     >
