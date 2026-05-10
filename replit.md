@@ -1,6 +1,6 @@
 # GhostMap
 
-GhostMap is an interactive map app for urban explorers to discover, share, and track abandoned locations worldwide.
+GhostMap is an interactive map app for urban explorers to discover, share, and track abandoned locations worldwide. - DO NOT REMOVE THE SUPABASE AUTH AND API (credentials provided)
 
 ## Run & Operate
 
@@ -12,14 +12,15 @@ GhostMap is an interactive map app for urban explorers to discover, share, and t
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - Required env: `DATABASE_URL` — Postgres connection string (auto-provisioned by Replit database integration)
 - Required env: `AI_INTEGRATIONS_GEMINI_BASE_URL` / `AI_INTEGRATIONS_GEMINI_API_KEY` — auto-provisioned by Replit Gemini integration
+- DO NOT REMOVE THE SUPABASE AUTH AND API (credentials provided)
 
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
 - Frontend: React 19, Vite 7, Tailwind CSS 4, Leaflet (maps), Framer Motion
 - API: Express 5 on port 8080
-- DB: PostgreSQL + Drizzle ORM
-- Auth: Replit Auth (via `/__replauth` / `x-replit-user-id` headers)
+- DB: SUPABASE
+- Auth: SUPABASE
 - AI: Google Gemini via Replit AI Integrations
 - Build: esbuild
 

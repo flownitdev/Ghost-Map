@@ -1,3 +1,4 @@
+import { supabase } from "@/lib/supabaseClient";
 import { nearbyLocations } from "@/lib/geo";
 import type {
   Location,
@@ -10,7 +11,6 @@ import type {
   SourceType,
 } from "@/types/location";
 import { LOCATIONS as MOCK_LOCATIONS } from "./locations";
-import { api } from "@/lib/apiClient";
 
 function rowToLocation(row: Record<string, unknown>): Location {
   return {
@@ -35,59 +35,75 @@ function rowToLocation(row: Record<string, unknown>): Location {
 }
 
 export async function fetchLocations(): Promise<Location[]> {
-  try {
-    const data = await api.getLocations();
-    if (!data || data.length === 0) {
-      return MOCK_LOCATIONS;
-    }
-    return data.map((row) => rowToLocation(row as unknown as Record<string, unknown>));
-  } catch {
-    console.info("[GhostMap] Could not fetch locations from API — using mock data");
+  const { data, error } = await supabase
+    .from("locations")
+    .select("*")
+    .order("created_at", { ascending: true });
+
+  if (error || !data || data.length === 0) {
+    console.info("[GhostMap] No locations in Supabase — using mock data", error?.message);
     return MOCK_LOCATIONS;
   }
+
+  return (data as Record<string, unknown>[]).map(rowToLocation);
 }
 
 export async function addLocation(payload: Omit<Location, "id">): Promise<Location> {
-  const row = await api.addLocation({
-    name: payload.name,
-    category: payload.category,
-    latitude: payload.latitude,
-    longitude: payload.longitude,
-    description: payload.description,
-    abandonmentScore: payload.abandonmentScore,
-    riskLevel: payload.riskLevel,
-    lastVisited: payload.lastVisited ?? null,
-    submittedBy: payload.submittedBy ?? null,
-  });
-  return rowToLocation(row as unknown as Record<string, unknown>);
+  const { data, error } = await supabase
+    .from("locations")
+    .insert({
+      name: payload.name,
+      category: payload.category,
+      latitude: payload.latitude,
+      longitude: payload.longitude,
+      description: payload.description,
+      abandonment_score: payload.abandonmentScore,
+      risk_level: payload.riskLevel,
+      last_visited: payload.lastVisited ?? null,
+      submitted_by: payload.submittedBy ?? null,
+    })
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  return rowToLocation(data as Record<string, unknown>);
 }
 
 export async function bulkAddLocations(payloads: Omit<Location, "id">[]): Promise<number> {
-  let count = 0;
-  for (const p of payloads) {
-    try {
-      await addLocation(p);
-      count++;
-    } catch {
-      // best-effort
-    }
-  }
-  return count;
+  const rows = payloads.map((p) => ({
+    name: p.name,
+    category: p.category,
+    latitude: p.latitude,
+    longitude: p.longitude,
+    description: p.description,
+    abandonment_score: p.abandonmentScore,
+    risk_level: p.riskLevel,
+    last_visited: p.lastVisited ?? null,
+    submitted_by: p.submittedBy ?? null,
+  }));
+
+  const { data, error } = await supabase.from("locations").insert(rows).select();
+  if (error) throw new Error(error.message);
+  return data?.length ?? 0;
 }
 
 export async function updateVerificationState(
   locationId: number | string,
-  _state: VerificationState
+  state: VerificationState
 ): Promise<void> {
-  await fetch(`/api/locations/${locationId}/verification`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ state: _state }),
-  });
+  const { error } = await supabase
+    .from("locations")
+    .update({ verification_state: state })
+    .eq("id", Number(locationId));
+  if (error) throw new Error(error.message);
 }
 
 export async function deleteLocation(locationId: number | string): Promise<void> {
-  await fetch(`/api/locations/${locationId}`, { method: "DELETE" });
+  const { error } = await supabase
+    .from("locations")
+    .delete()
+    .eq("id", Number(locationId));
+  if (error) throw new Error(error.message);
 }
 
 export async function fetchUserLocations(userId: string): Promise<{
@@ -95,12 +111,34 @@ export async function fetchUserLocations(userId: string): Promise<{
   explored: Location[];
   submitted: Location[];
 }> {
-  const data = await api.getUserLocations(userId);
-  return {
-    saved: data.saved.map((row) => rowToLocation(row as unknown as Record<string, unknown>)),
-    explored: data.explored.map((row) => rowToLocation(row as unknown as Record<string, unknown>)),
-    submitted: data.submitted.map((row) => rowToLocation(row as unknown as Record<string, unknown>)),
-  };
+  const [savedRes, exploredRes, submittedRes] = await Promise.all([
+    supabase
+      .from("saved_locations")
+      .select("locations(*)")
+      .eq("user_id", userId),
+    supabase
+      .from("explored_locations")
+      .select("locations(*)")
+      .eq("user_id", userId),
+    supabase
+      .from("locations")
+      .select("*")
+      .eq("submitted_by", userId),
+  ]);
+
+  const saved = (savedRes.data ?? [])
+    .map((r) => (r as { locations: Record<string, unknown> }).locations)
+    .filter(Boolean)
+    .map(rowToLocation);
+
+  const explored = (exploredRes.data ?? [])
+    .map((r) => (r as { locations: Record<string, unknown> }).locations)
+    .filter(Boolean)
+    .map(rowToLocation);
+
+  const submitted = ((submittedRes.data ?? []) as Record<string, unknown>[]).map(rowToLocation);
+
+  return { saved, explored, submitted };
 }
 
 export interface SubmitPayload {

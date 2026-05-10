@@ -1,30 +1,32 @@
 import { Router, type IRouter } from "express";
+import { db } from "@workspace/db";
+import { users } from "@workspace/db/schema";
 import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
 
-router.get("/auth/user", (req, res) => {
-  const user = req.user as Record<string, unknown> | undefined;
+router.get("/auth/user", async (req, res) => {
+  const userId = req.headers["x-replit-user-id"] as string | undefined;
+  const userName = req.headers["x-replit-user-name"] as string | undefined;
 
-  if (!req.isAuthenticated?.() || !user) {
+  if (!userId) {
     res.json({ user: null });
     return;
   }
 
-  const claims = user["claims"] as Record<string, unknown> | undefined;
-  if (!claims) {
-    res.json({ user: null });
-    return;
+  try {
+    await db.insert(users).values({ id: userId, name: userName ?? null, email: null })
+      .onConflictDoUpdate({ target: users.id, set: { name: userName ?? null } });
+  } catch (err) {
+    logger.warn({ err }, "Failed to upsert user on auth");
   }
-
-  const id = claims["sub"] as string;
-  const name = (claims["first_name"] as string | undefined) ?? (claims["name"] as string | undefined) ?? null;
-  const email = (claims["email"] as string | undefined) ?? null;
-
-  logger.debug({ id }, "Auth user fetched");
 
   res.json({
-    user: { id, name, email },
+    user: {
+      id: userId,
+      name: userName ?? null,
+      email: null,
+    },
   });
 });
 
