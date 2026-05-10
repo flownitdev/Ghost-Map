@@ -21,7 +21,7 @@ export function GPSModeButton({
   return (
     <div
       className="fixed z-[1000]"
-      style={{ bottom: "80px", left: "11px" }}
+      style={{ bottom: "150px", left: "11px" }}
     >
       <div className="flex flex-col items-center gap-1.5">
         <motion.button

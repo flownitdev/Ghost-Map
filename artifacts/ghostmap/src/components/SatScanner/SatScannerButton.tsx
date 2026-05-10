@@ -41,7 +41,7 @@ export function SatScannerButton({ scanState, onScan, onCancel, onReset }: SatSc
   return (
     <div
       className="fixed z-[1000]"
-      style={{ bottom: "130px", left: "11px" }}
+      style={{ bottom: "196px", left: "11px" }}
     >
       <motion.button
         whileHover={!isScanning ? { scale: 1.05 } : {}}

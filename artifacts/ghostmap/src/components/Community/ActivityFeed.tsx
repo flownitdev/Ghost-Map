@@ -153,7 +153,7 @@ export function ActivityFeed({ locations, onSelectLocation }: ActivityFeedProps)
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 1.1, duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
       className="fixed left-5 z-[999]"
-      style={{ bottom: 84 }}
+      style={{ bottom: 70 }}
     >
       <div
         className="rounded-2xl overflow-hidden"
