@@ -1,3 +1,4 @@
+import { supabase } from "@/lib/supabaseClient";
 import { nearbyLocations } from "@/lib/geo";
 import type {
   Location,
@@ -11,8 +12,6 @@ import type {
 } from "@/types/location";
 import { LOCATIONS as MOCK_LOCATIONS } from "./locations";
 
-const BASE_URL = import.meta.env.BASE_URL?.replace(/\/$/, "") ?? "";
-
 function rowToLocation(row: Record<string, unknown>): Location {
   return {
     id: row.id as string | number,
@@ -21,87 +20,90 @@ function rowToLocation(row: Record<string, unknown>): Location {
     latitude: row.latitude as number,
     longitude: row.longitude as number,
     description: row.description as string,
-    abandonmentScore: (row.abandonmentScore ?? row.abandonment_score) as number,
-    riskLevel: (row.riskLevel ?? row.risk_level) as RiskLevel,
-    lastVisited: ((row.lastVisited ?? row.last_visited) as string | null) ?? ((row.createdAt ?? row.created_at) as string)?.slice(0, 7),
-    createdAt: (row.createdAt ?? row.created_at) as string,
-    submittedBy: ((row.submittedBy ?? row.submitted_by) as string | null) ?? undefined,
-    closureDate: ((row.closureDate ?? row.closure_date) as string | null) ?? undefined,
-    buildingStatus: ((row.buildingStatus ?? row.building_status) as BuildingStatus | null) ?? undefined,
-    demolitionStatus: ((row.demolitionStatus ?? row.demolition_status) as DemolitionStatus | null) ?? undefined,
-    verificationState: ((row.verificationState ?? row.verification_state) as VerificationState | null) ?? "unverified",
-    sourceType: ((row.sourceType ?? row.source_type) as SourceType | null) ?? "user_submission",
-    sourceAttribution: ((row.sourceAttribution ?? row.source_attribution) as string | null) ?? undefined,
+    abandonmentScore: (row.abandonment_score ?? row.abandonmentScore) as number,
+    riskLevel: (row.risk_level ?? row.riskLevel) as RiskLevel,
+    lastVisited: ((row.last_visited ?? row.lastVisited) as string | null) ?? ((row.created_at ?? row.createdAt) as string)?.slice(0, 7) ?? "",
+    createdAt: (row.created_at ?? row.createdAt) as string | undefined,
+    submittedBy: (row.submitted_by ?? row.submittedBy) as string | undefined,
+    closureDate: (row.closure_date ?? row.closureDate) as string | undefined,
+    buildingStatus: (row.building_status ?? row.buildingStatus) as BuildingStatus | undefined,
+    demolitionStatus: (row.demolition_status ?? row.demolitionStatus) as DemolitionStatus | undefined,
+    verificationState: ((row.verification_state ?? row.verificationState) as VerificationState | undefined) ?? "unverified",
+    sourceType: ((row.source_type ?? row.sourceType) as SourceType | undefined) ?? "user_submission",
+    sourceAttribution: (row.source_attribution ?? row.sourceAttribution) as string | undefined,
   };
 }
 
 export async function fetchLocations(): Promise<Location[]> {
-  try {
-    const resp = await fetch(`${BASE_URL}/api/locations`);
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    const data = await resp.json() as Record<string, unknown>[];
-    if (!data || data.length === 0) {
-      console.info("[GhostMap] No locations in DB — using mock data");
-      return MOCK_LOCATIONS;
-    }
-    return data.map(rowToLocation);
-  } catch (err) {
-    console.warn("[GhostMap] API fetch failed — using mock data:", err);
+  const { data, error } = await supabase
+    .from("locations")
+    .select("*")
+    .order("created_at", { ascending: true });
+
+  if (error || !data || data.length === 0) {
+    console.info("[GhostMap] No locations in Supabase — using mock data", error?.message);
     return MOCK_LOCATIONS;
   }
+
+  return (data as Record<string, unknown>[]).map(rowToLocation);
 }
 
 export async function addLocation(payload: Omit<Location, "id">): Promise<Location> {
-  const resp = await fetch(`${BASE_URL}/api/locations`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
+  const { data, error } = await supabase
+    .from("locations")
+    .insert({
       name: payload.name,
       category: payload.category,
       latitude: payload.latitude,
       longitude: payload.longitude,
       description: payload.description,
-      abandonmentScore: payload.abandonmentScore,
-      riskLevel: payload.riskLevel,
-      lastVisited: payload.lastVisited ?? null,
-      submittedBy: payload.submittedBy ?? null,
-    }),
-  });
-  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-  const data = await resp.json() as Record<string, unknown>;
-  return rowToLocation(data);
+      abandonment_score: payload.abandonmentScore,
+      risk_level: payload.riskLevel,
+      last_visited: payload.lastVisited ?? null,
+      submitted_by: payload.submittedBy ?? null,
+    })
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  return rowToLocation(data as Record<string, unknown>);
 }
 
 export async function bulkAddLocations(payloads: Omit<Location, "id">[]): Promise<number> {
-  let count = 0;
-  for (const p of payloads) {
-    try {
-      await addLocation(p);
-      count++;
-    } catch {
-      // continue on error
-    }
-  }
-  return count;
+  const rows = payloads.map((p) => ({
+    name: p.name,
+    category: p.category,
+    latitude: p.latitude,
+    longitude: p.longitude,
+    description: p.description,
+    abandonment_score: p.abandonmentScore,
+    risk_level: p.riskLevel,
+    last_visited: p.lastVisited ?? null,
+    submitted_by: p.submittedBy ?? null,
+  }));
+
+  const { data, error } = await supabase.from("locations").insert(rows).select();
+  if (error) throw new Error(error.message);
+  return data?.length ?? 0;
 }
 
 export async function updateVerificationState(
   locationId: number | string,
   state: VerificationState
 ): Promise<void> {
-  const resp = await fetch(`${BASE_URL}/api/locations/${locationId}/verification`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ verificationState: state }),
-  });
-  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+  const { error } = await supabase
+    .from("locations")
+    .update({ verification_state: state })
+    .eq("id", Number(locationId));
+  if (error) throw new Error(error.message);
 }
 
 export async function deleteLocation(locationId: number | string): Promise<void> {
-  const resp = await fetch(`${BASE_URL}/api/locations/${locationId}`, {
-    method: "DELETE",
-  });
-  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+  const { error } = await supabase
+    .from("locations")
+    .delete()
+    .eq("id", Number(locationId));
+  if (error) throw new Error(error.message);
 }
 
 export async function fetchUserLocations(userId: string): Promise<{
@@ -109,14 +111,34 @@ export async function fetchUserLocations(userId: string): Promise<{
   explored: Location[];
   submitted: Location[];
 }> {
-  const resp = await fetch(`${BASE_URL}/api/users/${userId}/locations`);
-  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-  const data = await resp.json() as { saved: Record<string, unknown>[]; explored: Record<string, unknown>[]; submitted: Record<string, unknown>[] };
-  return {
-    saved: data.saved.map(rowToLocation),
-    explored: data.explored.map(rowToLocation),
-    submitted: data.submitted.map(rowToLocation),
-  };
+  const [savedRes, exploredRes, submittedRes] = await Promise.all([
+    supabase
+      .from("saved_locations")
+      .select("locations(*)")
+      .eq("user_id", userId),
+    supabase
+      .from("explored_locations")
+      .select("locations(*)")
+      .eq("user_id", userId),
+    supabase
+      .from("locations")
+      .select("*")
+      .eq("submitted_by", userId),
+  ]);
+
+  const saved = (savedRes.data ?? [])
+    .map((r) => (r as { locations: Record<string, unknown> }).locations)
+    .filter(Boolean)
+    .map(rowToLocation);
+
+  const explored = (exploredRes.data ?? [])
+    .map((r) => (r as { locations: Record<string, unknown> }).locations)
+    .filter(Boolean)
+    .map(rowToLocation);
+
+  const submitted = ((submittedRes.data ?? []) as Record<string, unknown>[]).map(rowToLocation);
+
+  return { saved, explored, submitted };
 }
 
 export interface SubmitPayload {
@@ -140,9 +162,7 @@ export async function submitLocation(
   payload: SubmitPayload
 ): Promise<{ submission: Submission; nearbyDuplicates: Location[] }> {
   const allLocations = await fetchLocations();
-  const nearbyDuplicates = nearbyLocations(
-    payload.latitude, payload.longitude, allLocations, 0.35
-  );
+  const nearbyDuplicates = nearbyLocations(payload.latitude, payload.longitude, allLocations, 0.35);
 
   const submission: Submission = {
     id: crypto.randomUUID(),
@@ -224,7 +244,7 @@ export async function fetchOSMCandidates(
   south: number, west: number, north: number, east: number
 ): Promise<OSMCandidate[]> {
   const resp = await fetch(
-    `${BASE_URL}/api/admin/osm?south=${south}&west=${west}&north=${north}&east=${east}`
+    `/api/admin/osm?south=${south}&west=${west}&north=${north}&east=${east}`
   );
   if (!resp.ok) throw new Error(await resp.text());
   const json = await resp.json() as { locations: OSMCandidate[] };

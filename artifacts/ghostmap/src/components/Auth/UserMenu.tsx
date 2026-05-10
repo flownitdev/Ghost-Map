@@ -14,11 +14,6 @@ interface UserMenuProps {
   stats?: UserStats;
 }
 
-function isAdminUser(user: { id: string; name: string | null; email: string | null } | null) {
-  if (!user) return false;
-  return ADMIN_EMAILS.includes(user.id) || ADMIN_EMAILS.includes(user.name ?? "") || ADMIN_EMAILS.includes(user.email ?? "");
-}
-
 export function UserMenu({ stats }: UserMenuProps) {
   const { user, signOut } = useAuth();
   const [open, setOpen] = useState(false);
@@ -33,8 +28,7 @@ export function UserMenu({ stats }: UserMenuProps) {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  const displayName = user?.name ?? user?.email ?? user?.id ?? "?";
-  const initial = displayName[0]?.toUpperCase() ?? "?";
+  const initial = user?.email?.[0]?.toUpperCase() ?? "?";
 
   return (
     <div ref={ref} className="fixed top-5 left-5 z-[1001]">
@@ -71,7 +65,7 @@ export function UserMenu({ stats }: UserMenuProps) {
                 className="max-w-[110px] truncate font-sans"
                 style={{ fontSize: "11.5px", color: "rgba(255,255,255,0.55)", fontFamily: FONT, letterSpacing: "-0.01em", lineHeight: 1.2 }}
               >
-                {displayName}
+                {user.email}
               </span>
               {stats && (
                 <span style={{ fontSize: "9.5px", color: stats.rank.color, fontFamily: FONT, lineHeight: 1.3 }}>
@@ -119,13 +113,14 @@ export function UserMenu({ stats }: UserMenuProps) {
           >
             {user ? (
               <>
+                {/* User info */}
                 <div className="px-4 py-3.5" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
                   <div className="flex items-center justify-between mb-1.5">
                     <p
                       className="font-sans font-semibold text-white truncate"
                       style={{ fontSize: "12.5px", fontFamily: FONT, letterSpacing: "-0.01em" }}
                     >
-                      {displayName}
+                      {user.email}
                     </p>
                     {stats?.isAdmin && (
                       <span className="flex items-center gap-1" style={{ fontSize: "9.5px", color: "#f59e0b" }}>
@@ -143,6 +138,7 @@ export function UserMenu({ stats }: UserMenuProps) {
                   )}
                 </div>
 
+                {/* Stats mini row */}
                 {stats && (
                   <div
                     className="grid grid-cols-3 px-4 py-3"
@@ -177,7 +173,7 @@ export function UserMenu({ stats }: UserMenuProps) {
                     label="My Profile"
                     onClick={() => { navigate("/profile"); setOpen(false); }}
                   />
-                  {isAdminUser(user) && (
+                  {user?.email && ADMIN_EMAILS.includes(user.email) && (
                     <MenuItem
                       icon={<Settings className="w-3.5 h-3.5" />}
                       label="Ghost Control"

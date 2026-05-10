@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { supabase } from "@/lib/supabaseClient";
 import type { Location } from "@/types/location";
 
 export interface LocationAnalysis {
@@ -16,33 +17,52 @@ export interface LocationAnalysis {
   riskEstimate: string;
 }
 
-const BASE_URL = import.meta.env.BASE_URL?.replace(/\/$/, "") ?? "";
-
 async function fetchFromCache(locationId: string): Promise<LocationAnalysis | null> {
-  try {
-    const resp = await fetch(`${BASE_URL}/api/analysis/${locationId}`);
-    if (!resp.ok) return null;
-    return (await resp.json()) as LocationAnalysis;
-  } catch {
-    return null;
-  }
+  const { data, error } = await supabase
+    .from("location_analysis")
+    .select("*")
+    .eq("location_id", locationId)
+    .single();
+
+  if (error || !data) return null;
+
+  const row = data as Record<string, unknown>;
+  return {
+    locationId: row.location_id as string,
+    summary: row.summary as string,
+    abandonmentScore: row.abandonment_score as number,
+    decayLevel: row.decay_level as number,
+    structuralIntegrity: row.structural_integrity as number,
+    activityLevel: row.activity_level as number,
+    explorationDifficulty: row.exploration_difficulty as number,
+    aiConfidence: row.ai_confidence as number,
+    roofDeterioration: row.roof_deterioration as number,
+    vegetationOvergrowth: row.vegetation_overgrowth as number,
+    parkingDecay: row.parking_decay as number,
+    riskEstimate: row.risk_estimate as string,
+  };
 }
 
 async function saveToCache(analysis: LocationAnalysis): Promise<void> {
-  try {
-    await fetch(`${BASE_URL}/api/analysis`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(analysis),
-    });
-  } catch {
-    // silent — caching is best-effort
-  }
+  await supabase.from("location_analysis").upsert({
+    location_id: analysis.locationId,
+    summary: analysis.summary,
+    abandonment_score: analysis.abandonmentScore,
+    decay_level: analysis.decayLevel,
+    structural_integrity: analysis.structuralIntegrity,
+    activity_level: analysis.activityLevel,
+    exploration_difficulty: analysis.explorationDifficulty,
+    ai_confidence: analysis.aiConfidence,
+    roof_deterioration: analysis.roofDeterioration,
+    vegetation_overgrowth: analysis.vegetationOvergrowth,
+    parking_decay: analysis.parkingDecay,
+    risk_estimate: analysis.riskEstimate,
+  });
 }
 
 async function generateAnalysis(location: Location): Promise<LocationAnalysis | null> {
   try {
-    const resp = await fetch(`${BASE_URL}/api/ai/analyze`, {
+    const resp = await fetch("/api/ai/analyze", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -83,10 +103,8 @@ export function useLocationAnalysis(location: Location | null) {
     setError(false);
     setLoading(true);
 
-    const locationId = String(location.id);
-
     (async () => {
-      const cached = await fetchFromCache(locationId);
+      const cached = await fetchFromCache(String(location.id));
       if (abortRef.current) return;
 
       if (cached) {

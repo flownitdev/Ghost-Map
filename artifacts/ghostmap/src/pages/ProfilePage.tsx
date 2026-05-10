@@ -88,7 +88,7 @@ export default function ProfilePage() {
               className="w-14 h-14 rounded-2xl flex items-center justify-center font-sans font-bold flex-shrink-0"
               style={{ background: `${rank.color}18`, border: `1px solid ${rank.color}30`, color: rank.color, fontSize: "22px", fontFamily: DISPLAY_FONT }}
             >
-              {(user.name ?? user.email ?? user.id)[0]?.toUpperCase()}
+              {user.email?.[0]?.toUpperCase() ?? "?"}
             </motion.div>
 
             <div className="flex-1 min-w-0">
@@ -96,7 +96,7 @@ export default function ProfilePage() {
                   Explorer Profile
                 </h1>
               <p className="font-sans truncate" style={{ fontSize: "13px", color: "rgba(255,255,255,0.35)", fontFamily: FONT }}>
-                {user.name ?? user.email ?? user.id}
+                {user.email}
               </p>
             </div>
           </div>
