@@ -45,6 +45,8 @@ export default function ProfilePage() {
     );
   }
 
+  const displayName = user.name ?? user.email ?? "Explorer";
+
   const tabs: { id: Tab; label: string; icon: React.ReactNode; data: Location[] }[] = [
     { id: "saved", label: "Saved", icon: <Bookmark className="w-3.5 h-3.5" />, data: saved },
     { id: "explored", label: "Explored", icon: <Compass className="w-3.5 h-3.5" />, data: explored },
@@ -54,11 +56,7 @@ export default function ProfilePage() {
   const activeData = tabs.find((t) => t.id === tab)?.data ?? [];
 
   return (
-    <div
-      className="min-h-screen"
-      style={{ background: "#0c0b11" }}
-    >
-      {/* Radial glow */}
+    <div className="min-h-screen" style={{ background: "#0c0b11" }}>
       <div
         className="pointer-events-none fixed inset-0"
         style={{
@@ -68,7 +66,6 @@ export default function ProfilePage() {
       />
 
       <div className="relative max-w-2xl mx-auto px-4 py-10">
-        {/* Back */}
         <motion.button
           initial={{ opacity: 0, x: -12 }}
           animate={{ opacity: 1, x: 0 }}
@@ -81,7 +78,6 @@ export default function ProfilePage() {
           Back to map
         </motion.button>
 
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -97,7 +93,7 @@ export default function ProfilePage() {
                 color: "#A855F7",
               }}
             >
-              {user.email?.[0]?.toUpperCase()}
+              {displayName[0]?.toUpperCase()}
             </div>
             <div>
               <h1
@@ -107,13 +103,12 @@ export default function ProfilePage() {
                 Explorer Profile
               </h1>
               <p className="font-sans text-sm mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>
-                {user.email}
+                {displayName}
               </p>
             </div>
           </div>
         </motion.div>
 
-        {/* Stats */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -129,10 +124,7 @@ export default function ProfilePage() {
                 border: "1px solid rgba(255,255,255,0.06)",
               }}
             >
-              <p
-                className="font-title font-bold text-white"
-                style={{ fontSize: "22px" }}
-              >
+              <p className="font-title font-bold text-white" style={{ fontSize: "22px" }}>
                 {fetching ? "—" : t.data.length}
               </p>
               <p
@@ -145,7 +137,6 @@ export default function ProfilePage() {
           ))}
         </motion.div>
 
-        {/* Tabs */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -174,7 +165,6 @@ export default function ProfilePage() {
           ))}
         </motion.div>
 
-        {/* Location list */}
         <AnimatePresence mode="wait">
           <motion.div
             key={tab}
@@ -227,7 +217,6 @@ function ProfileLocationCard({ location, index }: { location: Location; index: n
         border: "1px solid rgba(255,255,255,0.06)",
       }}
     >
-      {/* Category dot */}
       <div
         className="w-2.5 h-2.5 rounded-full flex-shrink-0"
         style={{ background: meta.color, boxShadow: `0 0 8px ${meta.glowColor}` }}
@@ -236,23 +225,16 @@ function ProfileLocationCard({ location, index }: { location: Location; index: n
       <div className="flex-1 min-w-0">
         <p className="font-sans font-medium text-white text-sm truncate">{location.name}</p>
         <div className="flex items-center gap-2 mt-0.5">
-          <span
-            className="font-sans"
-            style={{ fontSize: "10px", color: meta.color, letterSpacing: "0.06em" }}
-          >
+          <span className="font-sans" style={{ fontSize: "10px", color: meta.color, letterSpacing: "0.06em" }}>
             {meta.label}
           </span>
           <span style={{ color: "rgba(255,255,255,0.15)", fontSize: "10px" }}>·</span>
-          <span
-            className="font-sans"
-            style={{ fontSize: "10px", color: riskStyle.color }}
-          >
+          <span className="font-sans" style={{ fontSize: "10px", color: riskStyle.color }}>
             {location.riskLevel} risk
           </span>
         </div>
       </div>
 
-      {/* Score */}
       <div className="text-right flex-shrink-0">
         <p
           className="font-title font-bold tabular-nums"
@@ -263,10 +245,7 @@ function ProfileLocationCard({ location, index }: { location: Location; index: n
         >
           {location.abandonmentScore}
         </p>
-        <p
-          className="font-sans"
-          style={{ fontSize: "8.5px", color: "rgba(255,255,255,0.2)", letterSpacing: "0.1em" }}
-        >
+        <p className="font-sans" style={{ fontSize: "8.5px", color: "rgba(255,255,255,0.2)", letterSpacing: "0.1em" }}>
           SCORE
         </p>
       </div>

@@ -66,6 +66,20 @@ export default defineConfig({
     fs: {
       strict: true,
     },
+    proxy: {
+      "/api": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+      },
+      "/__replauth": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+      },
+      "/__replauthlogout": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+      },
+    },
   },
   preview: {
     port,

@@ -1,20 +1,66 @@
-// Export your models here. Add one export per file
-// export * from "./posts";
-//
-// Each model/table should ideally be split into different files.
-// Each model/table should define a Drizzle table, insert schema, and types:
-//
-//   import { pgTable, text, serial } from "drizzle-orm/pg-core";
-//   import { createInsertSchema } from "drizzle-zod";
-//   import { z } from "zod/v4";
-//
-//   export const postsTable = pgTable("posts", {
-//     id: serial("id").primaryKey(),
-//     title: text("title").notNull(),
-//   });
-//
-//   export const insertPostSchema = createInsertSchema(postsTable).omit({ id: true });
-//   export type InsertPost = z.infer<typeof insertPostSchema>;
-//   export type Post = typeof postsTable.$inferSelect;
+import { pgTable, text, serial, integer, real, timestamp } from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod";
+import { sql } from "drizzle-orm";
 
-export {}
+export const users = pgTable("users", {
+  id: text("id").primaryKey(),
+  email: text("email"),
+  name: text("name"),
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
+export const locations = pgTable("locations", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  category: text("category").notNull(),
+  latitude: real("latitude").notNull(),
+  longitude: real("longitude").notNull(),
+  description: text("description").notNull(),
+  abandonmentScore: integer("abandonment_score").notNull(),
+  riskLevel: text("risk_level").notNull(),
+  lastVisited: text("last_visited"),
+  submittedBy: text("submitted_by"),
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
+export const savedLocations = pgTable("saved_locations", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  locationId: integer("location_id").notNull().references(() => locations.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
+export const exploredLocations = pgTable("explored_locations", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  locationId: integer("location_id").notNull().references(() => locations.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
+export const locationAnalysis = pgTable("location_analysis", {
+  id: serial("id").primaryKey(),
+  locationId: text("location_id").notNull().unique(),
+  summary: text("summary").notNull(),
+  abandonmentScore: integer("abandonment_score").notNull(),
+  decayLevel: integer("decay_level").notNull(),
+  structuralIntegrity: integer("structural_integrity").notNull(),
+  activityLevel: integer("activity_level").notNull(),
+  explorationDifficulty: integer("exploration_difficulty").notNull(),
+  aiConfidence: integer("ai_confidence").notNull(),
+  roofDeterioration: integer("roof_deterioration").notNull(),
+  vegetationOvergrowth: integer("vegetation_overgrowth").notNull(),
+  parkingDecay: integer("parking_decay").notNull(),
+  riskEstimate: text("risk_estimate").notNull(),
+  generatedAt: timestamp("generated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
+export const insertLocationSchema = createInsertSchema(locations).omit({ id: true, createdAt: true });
+export const insertLocationAnalysisSchema = createInsertSchema(locationAnalysis).omit({ id: true, generatedAt: true });
+
+export type User = typeof users.$inferSelect;
+export type Location = typeof locations.$inferSelect;
+export type SavedLocation = typeof savedLocations.$inferSelect;
+export type ExploredLocation = typeof exploredLocations.$inferSelect;
+export type LocationAnalysis = typeof locationAnalysis.$inferSelect;
+export type InsertLocation = z.infer<typeof insertLocationSchema>;

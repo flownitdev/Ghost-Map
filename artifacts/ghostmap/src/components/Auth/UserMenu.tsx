@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, LogOut, BookmarkCheck, Compass, LogIn, UserPlus } from "lucide-react";
+import { User, LogOut, BookmarkCheck, Compass, LogIn } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 export function UserMenu() {
@@ -18,11 +18,11 @@ export function UserMenu() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  const initial = user?.email?.[0]?.toUpperCase() ?? "?";
+  const displayName = user?.name ?? user?.email ?? "Explorer";
+  const initial = displayName[0]?.toUpperCase() ?? "?";
 
   return (
     <div ref={ref} className="fixed top-5 left-5 z-[1001]">
-      {/* Avatar / trigger */}
       <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
@@ -57,7 +57,7 @@ export function UserMenu() {
               className="font-sans hidden sm:block max-w-[120px] truncate"
               style={{ fontSize: "11px", color: "rgba(255,255,255,0.55)" }}
             >
-              {user.email}
+              {displayName}
             </span>
           </>
         ) : (
@@ -73,7 +73,6 @@ export function UserMenu() {
         )}
       </motion.button>
 
-      {/* Dropdown */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -81,7 +80,7 @@ export function UserMenu() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 4, scale: 0.97 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 mt-2 rounded-xl overflow-hidden"
+            className="absolute left-0 mt-2 rounded-xl overflow-hidden"
             style={{
               minWidth: 200,
               background: "linear-gradient(160deg, rgba(16,15,22,0.97) 0%, rgba(12,11,17,0.97) 100%)",
@@ -92,12 +91,11 @@ export function UserMenu() {
           >
             {user ? (
               <>
-                {/* User info */}
                 <div
                   className="px-4 py-3 border-b"
                   style={{ borderColor: "rgba(255,255,255,0.05)" }}
                 >
-                  <p className="font-sans text-xs font-medium text-white truncate">{user.email}</p>
+                  <p className="font-sans text-xs font-medium text-white truncate">{displayName}</p>
                   <p
                     className="font-sans mt-0.5"
                     style={{ fontSize: "10px", color: "rgba(255,255,255,0.28)" }}
@@ -106,7 +104,6 @@ export function UserMenu() {
                   </p>
                 </div>
 
-                {/* Menu items */}
                 <div className="p-1.5">
                   <MenuItem
                     icon={<Compass className="w-3.5 h-3.5" />}
@@ -136,13 +133,8 @@ export function UserMenu() {
               <div className="p-1.5">
                 <MenuItem
                   icon={<LogIn className="w-3.5 h-3.5" />}
-                  label="Sign In"
+                  label="Log In"
                   onClick={() => { navigate("/login"); setOpen(false); }}
-                />
-                <MenuItem
-                  icon={<UserPlus className="w-3.5 h-3.5" />}
-                  label="Create Account"
-                  onClick={() => { navigate("/signup"); setOpen(false); }}
                 />
               </div>
             )}
