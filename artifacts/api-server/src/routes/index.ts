@@ -6,6 +6,7 @@ import analysisRouter from "./analysis";
 import authRouter from "./auth";
 import osmRouter from "./osm";
 import intelligenceRouter from "./intelligence";
+import satelliteRouter from "./satellite";
 
 const router: IRouter = Router();
 
@@ -16,5 +17,6 @@ router.use(locationsRouter);
 router.use(analysisRouter);
 router.use(osmRouter);
 router.use(intelligenceRouter);
+router.use(satelliteRouter);
 
 export default router;

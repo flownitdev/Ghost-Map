@@ -11,6 +11,9 @@ import { ActivityFeed } from "@/components/Community/ActivityFeed";
 import { GPSModeButton } from "@/components/GPS/GPSModeButton";
 import { GPSNearbyPanel } from "@/components/GPS/GPSNearbyPanel";
 import { AchievementToast } from "@/components/Achievements/AchievementToast";
+import { SatScannerButton } from "@/components/SatScanner/SatScannerButton";
+import { SatScannerOverlay } from "@/components/SatScanner/SatScannerOverlay";
+import { SatScannerResultsPanel } from "@/components/SatScanner/SatScannerResultsPanel";
 import { useLocations } from "@/hooks/useLocations";
 import { useMapLocations } from "@/hooks/useMapLocations";
 import { useHeatmap } from "@/hooks/useHeatmap";
@@ -19,6 +22,7 @@ import { useRank } from "@/hooks/useRank";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useAchievements } from "@/hooks/useAchievements";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSatScanner } from "@/hooks/useSatScanner";
 import type { Location } from "@/types/location";
 import type { Achievement } from "@/types/exploration";
 
@@ -94,6 +98,16 @@ function ProximityAlert({
 export function MapPage() {
   const { locations, loadingState } = useLocations();
   const [modalOpen, setModalOpen] = useState(false);
+
+  const {
+    scanState,
+    scanResponse,
+    error: scanError,
+    updateMapView,
+    startScan,
+    cancelScan,
+    reset: resetScan,
+  } = useSatScanner();
 
   const {
     filteredLocations,
@@ -231,8 +245,26 @@ export function MapPage() {
           gpsTracking={geo.isTracking}
           gpsPosition={geo.position}
           trailPoints={geo.trailPoints}
+          onMapStateChange={updateMapView}
+          scanResults={scanResponse?.results ?? []}
         />
       </div>
+
+      <SatScannerOverlay scanState={scanState} />
+
+      <SatScannerButton
+        scanState={scanState}
+        onScan={startScan}
+        onCancel={cancelScan}
+        onReset={resetScan}
+      />
+
+      <SatScannerResultsPanel
+        scanState={scanState}
+        scanResponse={scanResponse}
+        error={scanError}
+        onClose={resetScan}
+      />
 
       <GPSModeButton
         isTracking={geo.isTracking}

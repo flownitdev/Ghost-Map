@@ -1,5 +1,6 @@
 import "leaflet/dist/leaflet.css";
-import { MapContainer, TileLayer, ZoomControl } from "react-leaflet";
+import { useEffect } from "react";
+import { MapContainer, TileLayer, ZoomControl, useMapEvents } from "react-leaflet";
 import { motion } from "framer-motion";
 import { TILE_LAYERS, MAP_CENTER, MAP_DEFAULT_ZOOM, fixLeafletIcons } from "@/lib/mapUtils";
 import { MapMarker } from "./MapMarker";
@@ -7,11 +8,35 @@ import { HeatmapLayer } from "./HeatmapLayer";
 import { DecayZones } from "./DecayZones";
 import { UserLocationMarker } from "@/components/GPS/UserLocationMarker";
 import { HeatTrailLayer } from "@/components/GPS/HeatTrailLayer";
+import { SatScannerResultMarkers } from "@/components/SatScanner/SatScannerResultMarkers";
 import type { Location } from "@/types/location";
 import type { HeatmapSettings } from "@/hooks/useHeatmap";
 import type { GeoPosition } from "@/hooks/useGeolocation";
+import type { ScanTileResult } from "@/hooks/useSatScanner";
 
 fixLeafletIcons();
+
+// Reports map center + zoom to parent whenever the user pans or zooms
+function MapStateCapture({ onChange }: { onChange: (lat: number, lng: number, zoom: number) => void }) {
+  const map = useMapEvents({
+    moveend: () => {
+      const c = map.getCenter();
+      onChange(c.lat, c.lng, map.getZoom());
+    },
+    zoomend: () => {
+      const c = map.getCenter();
+      onChange(c.lat, c.lng, map.getZoom());
+    },
+  });
+
+  useEffect(() => {
+    const c = map.getCenter();
+    onChange(c.lat, c.lng, map.getZoom());
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return null;
+}
 
 interface GhostMapProps {
   locations:          Location[];
@@ -22,6 +47,8 @@ interface GhostMapProps {
   gpsTracking?:       boolean;
   gpsPosition?:       GeoPosition | null;
   trailPoints?:       [number, number][];
+  onMapStateChange?:  (lat: number, lng: number, zoom: number) => void;
+  scanResults?:       ScanTileResult[];
 }
 
 export function GhostMap({
@@ -33,6 +60,8 @@ export function GhostMap({
   gpsTracking  = false,
   gpsPosition  = null,
   trailPoints  = [],
+  onMapStateChange,
+  scanResults  = [],
 }: GhostMapProps) {
   const tile = TILE_LAYERS.satellite;
 
@@ -52,6 +81,8 @@ export function GhostMap({
       >
         <TileLayer url={tile.url} attribution={tile.attribution} />
         <ZoomControl position="bottomleft" />
+
+        {onMapStateChange && <MapStateCapture onChange={onMapStateChange} />}
 
         <HeatmapLayer
           locations={allLocations}
@@ -74,6 +105,8 @@ export function GhostMap({
             onSelect={onSelectLocation}
           />
         ))}
+
+        {scanResults.length > 0 && <SatScannerResultMarkers results={scanResults} />}
       </MapContainer>
     </motion.div>
   );
