@@ -22,7 +22,7 @@ function loadAchievements(): Record<string, string> {
 }
 
 export default function ProfilePage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, signIn } = useAuth();
   const [, navigate] = useLocation();
   const [tab,       setTab]       = useState<Tab>("explored");
   const [saved,     setSaved]     = useState<Location[]>([]);
@@ -32,8 +32,10 @@ export default function ProfilePage() {
   const [achStored, setAchStored] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (!authLoading && !user) navigate("/login");
-  }, [user, authLoading, navigate]);
+    if (!authLoading && !user) {
+      signIn();
+    }
+  }, [user, authLoading, signIn]);
 
   useEffect(() => {
     if (!user) return;
@@ -58,6 +60,8 @@ export default function ProfilePage() {
       </div>
     );
   }
+
+  const displayName = user.name ?? user.id;
 
   const dangerScore  = calcDangerScore(explored);
   const totalPoints  = calcPoints({ exploredCount: explored.length, savedCount: saved.length, submittedCount: submitted.length, dangerScore });
@@ -102,20 +106,19 @@ export default function ProfilePage() {
               className="w-14 h-14 rounded-2xl flex items-center justify-center font-sans font-bold flex-shrink-0"
               style={{ background: `${rank.color}18`, border: `1px solid ${rank.color}30`, color: rank.color, fontSize: "22px", fontFamily: DISPLAY_FONT }}
             >
-              {user.email?.[0]?.toUpperCase() ?? "?"}
+              {displayName[0]?.toUpperCase() ?? "?"}
             </motion.div>
             <div className="flex-1 min-w-0">
               <h1 className="font-sans font-bold text-white" style={{ fontSize: "22px", fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em" }}>
                 Explorer Profile
               </h1>
               <p className="font-sans truncate" style={{ fontSize: "13px", color: "rgba(255,255,255,0.35)", fontFamily: FONT }}>
-                {user.email}
+                {displayName}
               </p>
             </div>
           </div>
         </motion.div>
 
-        {/* Rank card */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -145,7 +148,6 @@ export default function ProfilePage() {
           </p>
         </motion.div>
 
-        {/* Stat cards */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -170,7 +172,6 @@ export default function ProfilePage() {
           ))}
         </motion.div>
 
-        {/* Rank ladder */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -211,7 +212,6 @@ export default function ProfilePage() {
           </p>
         </motion.div>
 
-        {/* Tab bar */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -242,7 +242,6 @@ export default function ProfilePage() {
           ))}
         </motion.div>
 
-        {/* Content */}
         <AnimatePresence mode="wait">
           <motion.div
             key={tab}

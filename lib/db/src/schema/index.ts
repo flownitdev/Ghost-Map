@@ -65,6 +65,16 @@ export const locationAnalysis = pgTable("location_analysis", {
   generatedAt: timestamp("generated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
+export const explorationLogs = pgTable("exploration_logs", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  locationId: text("location_id").notNull(),
+  notes: text("notes").notNull().default(""),
+  visitedAt: text("visited_at").notNull(),
+  photoUrl: text("photo_url"),
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
 export const intelligenceCandidates = pgTable("intelligence_candidates", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   name: text("name").notNull(),
@@ -90,4 +100,5 @@ export type SavedLocation = typeof savedLocations.$inferSelect;
 export type ExploredLocation = typeof exploredLocations.$inferSelect;
 export type LocationAnalysis = typeof locationAnalysis.$inferSelect;
 export type IntelligenceCandidate = typeof intelligenceCandidates.$inferSelect;
+export type ExplorationLog = typeof explorationLogs.$inferSelect;
 export type InsertLocation = z.infer<typeof insertLocationSchema>;
